@@ -1,0 +1,4 @@
+NSCameraUsageDescription = "In order to take a profile photo, this app requires permission to access the camera";
+NSPhotoLibraryUsageDescription = "In order to take a profile photo, this app requires permission to access the camera";
+NSMicrophoneUsageDescription = "In order to record audio for video, this app requires permission to access the microphone";
+ITSAppUsesNonExemptEncryption = "No";
