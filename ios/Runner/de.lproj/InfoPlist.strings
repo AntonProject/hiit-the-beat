@@ -1,0 +1,3 @@
+NSCameraUsageDescription = "Um ein Profilfoto aufzunehmen, benötigt diese App die Berechtigung, auf die Kamera zuzugreifen";
+NSPhotoLibraryUsageDescription = "Um ein Profilfoto aufzunehmen, benötigt diese App die Berechtigung, auf die Kamera zuzugreifen";
+NSMicrophoneUsageDescription = "Um Audio für Videos aufzunehmen, benötigt diese App die Berechtigung, auf das Mikrofon zuzugreifen";

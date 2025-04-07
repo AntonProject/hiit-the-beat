@@ -1,0 +1,25 @@
+import '/components/skeleton/skeleton_season/skeleton_season_widget.dart';
+import '/flutter_flow/flutter_flow_util.dart';
+import 'skeleton_season_raw_widget.dart' show SkeletonSeasonRawWidget;
+import 'package:flutter/material.dart';
+
+class SkeletonSeasonRawModel extends FlutterFlowModel<SkeletonSeasonRawWidget> {
+  ///  State fields for stateful widgets in this component.
+
+  // Model for skeletonSeason component.
+  late SkeletonSeasonModel skeletonSeasonModel1;
+  // Model for skeletonSeason component.
+  late SkeletonSeasonModel skeletonSeasonModel2;
+
+  @override
+  void initState(BuildContext context) {
+    skeletonSeasonModel1 = createModel(context, () => SkeletonSeasonModel());
+    skeletonSeasonModel2 = createModel(context, () => SkeletonSeasonModel());
+  }
+
+  @override
+  void dispose() {
+    skeletonSeasonModel1.dispose();
+    skeletonSeasonModel2.dispose();
+  }
+}
