@@ -14,10 +14,15 @@ import 'package:flutter/material.dart';
 import 'package:facebook_app_events/facebook_app_events.dart';
 
 Future facebook() async {
-  // Add your function code here!
+  // Инициализация Facebook SDK для отслеживания установок приложения
   final facebookAppEvents = FacebookAppEvents();
 
+  // Включаем автоматическое логирование событий
   await facebookAppEvents.setAutoLogAppEventsEnabled(true);
+
+  // Включаем отслеживание для рекламы (важно для iOS 14+)
   await facebookAppEvents.setAdvertiserTracking(enabled: true);
-  await facebookAppEvents.logEvent(name: 'fb_mobile_activate_app');
+
+  // Активируем приложение (отслеживание установок)
+  await facebookAppEvents.logEvent(name: 'breakletics');
 }
