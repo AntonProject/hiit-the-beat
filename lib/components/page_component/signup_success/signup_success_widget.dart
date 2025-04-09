@@ -1,4 +1,5 @@
 import '/auth/firebase_auth/auth_util.dart';
+import '/backend/backend.dart';
 import '/components/dialogs/payment_dialog_start/payment_dialog_start_widget.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
@@ -119,8 +120,12 @@ class _SignupSuccessWidgetState extends State<SignupSuccessWidget> {
               onPressed: () async {
                 HapticFeedback.selectionClick();
 
+                await currentUserReference!.update(createUsersRecordData(
+                  language: FFLocalizations.of(context).languageCode,
+                ));
+
                 context.goNamed(
-                  StartPageWidget.routeName,
+                  HomePageWidget.routeName,
                   extra: <String, dynamic>{
                     kTransitionInfoKey: TransitionInfo(
                       hasTransition: true,

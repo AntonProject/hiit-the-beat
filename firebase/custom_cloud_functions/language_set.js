@@ -7,7 +7,7 @@ exports.languageSet = functions
     timeoutSeconds: 540,
     memory: "512MB",
   })
-  .pubsub.schedule("0 * * * *") // Run every hour (fixed cron expression)
+  .pubsub.schedule("0 0 * * *") // Run every hour (fixed cron expression)
   .onRun(async (context) => {
     // Write your code below!
 
@@ -34,7 +34,7 @@ exports.languageSet = functions
       ];
 
       console.log(
-        `Found ${uniqueUsersToUpdate.length} users without language setting`,
+        `Found ${uniqueUsersToUpdate.length} users without language setting `,
       );
 
       // If no users need updating, exit early

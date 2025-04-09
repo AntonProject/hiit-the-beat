@@ -1245,7 +1245,10 @@ class _SubscriptionPageWidgetState extends State<SubscriptionPageWidget> {
                                                     await action_blocks
                                                         .removeAllActiveCampaignSubscriptions(
                                                       context,
-                                                      id: '',
+                                                      id: valueOrDefault(
+                                                          currentUserDocument
+                                                              ?.activeCampgainContactId,
+                                                          ''),
                                                     );
 
                                                     await currentUserReference!
