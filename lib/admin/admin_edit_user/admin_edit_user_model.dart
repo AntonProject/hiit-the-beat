@@ -1,0 +1,124 @@
+import '/admin/admin_components/admin_nav_bar/admin_nav_bar_widget.dart';
+import '/flutter_flow/flutter_flow_util.dart';
+import '/index.dart';
+import 'admin_edit_user_widget.dart' show AdminEditUserWidget;
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+
+class AdminEditUserModel extends FlutterFlowModel<AdminEditUserWidget> {
+  ///  Local state fields for this page.
+
+  String? genderEn = 'Male';
+
+  String? photo;
+
+  String? genderDe = 'Männlich';
+
+  DateTime? date;
+
+  bool initialStateOfSubscription = false;
+
+  ///  State fields for stateful widgets in this page.
+
+  final formKey2 = GlobalKey<FormState>();
+  final formKey1 = GlobalKey<FormState>();
+  // Model for AdminNavBar component.
+  late AdminNavBarModel adminNavBarModel;
+  bool isDataUploading = false;
+  FFUploadedFile uploadedLocalFile =
+      FFUploadedFile(bytes: Uint8List.fromList([]));
+  String uploadedFileUrl = '';
+
+  // State field(s) for email widget.
+  FocusNode? emailFocusNode;
+  TextEditingController? emailTextController;
+  String? Function(BuildContext, String?)? emailTextControllerValidator;
+  String? _emailTextControllerValidator(BuildContext context, String? val) {
+    if (val == null || val.isEmpty) {
+      return FFLocalizations.of(context).getText(
+        'ihzrzw6u' /* Fill in the field */,
+      );
+    }
+
+    if (val.length < 2) {
+      return FFLocalizations.of(context).getText(
+        'ihrmznn5' /* Min 2 symbols */,
+      );
+    }
+    if (val.length > 50) {
+      return FFLocalizations.of(context).getText(
+        'nxgh7h6z' /* Max 50 symbols */,
+      );
+    }
+
+    return null;
+  }
+
+  // State field(s) for Switch widget.
+  bool? switchValue;
+  DateTime? datePicked1;
+  // State field(s) for Name widget.
+  FocusNode? nameFocusNode;
+  TextEditingController? nameTextController;
+  String? Function(BuildContext, String?)? nameTextControllerValidator;
+  String? _nameTextControllerValidator(BuildContext context, String? val) {
+    if (val == null || val.isEmpty) {
+      return FFLocalizations.of(context).getText(
+        '26r6h9y9' /* Fill in the field */,
+      );
+    }
+
+    if (val.length < 2) {
+      return FFLocalizations.of(context).getText(
+        '4pnvphai' /* Min 2 symbols */,
+      );
+    }
+    if (val.length > 50) {
+      return FFLocalizations.of(context).getText(
+        'mrakndqv' /* Max 50 symbols */,
+      );
+    }
+
+    return null;
+  }
+
+  // State field(s) for Surname widget.
+  FocusNode? surnameFocusNode;
+  TextEditingController? surnameTextController;
+  String? Function(BuildContext, String?)? surnameTextControllerValidator;
+  DateTime? datePicked2;
+  // State field(s) for Weightkg widget.
+  FocusNode? weightkgFocusNode;
+  TextEditingController? weightkgTextController;
+  String? Function(BuildContext, String?)? weightkgTextControllerValidator;
+  // State field(s) for Heightcm widget.
+  FocusNode? heightcmFocusNode;
+  TextEditingController? heightcmTextController;
+  String? Function(BuildContext, String?)? heightcmTextControllerValidator;
+
+  @override
+  void initState(BuildContext context) {
+    adminNavBarModel = createModel(context, () => AdminNavBarModel());
+    emailTextControllerValidator = _emailTextControllerValidator;
+    nameTextControllerValidator = _nameTextControllerValidator;
+  }
+
+  @override
+  void dispose() {
+    adminNavBarModel.dispose();
+    emailFocusNode?.dispose();
+    emailTextController?.dispose();
+
+    nameFocusNode?.dispose();
+    nameTextController?.dispose();
+
+    surnameFocusNode?.dispose();
+    surnameTextController?.dispose();
+
+    weightkgFocusNode?.dispose();
+    weightkgTextController?.dispose();
+
+    heightcmFocusNode?.dispose();
+    heightcmTextController?.dispose();
+  }
+}

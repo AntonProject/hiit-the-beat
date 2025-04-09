@@ -1,0 +1,70 @@
+{
+  "project_info": {
+    "project_number": "667560922120",
+    "project_id": "breakletics-9245d",
+    "storage_bucket": "breakletics-9245d.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:667560922120:android:f6bd16b52827b4295d95bd",
+        "android_client_info": {
+          "package_name": "com.breakleticsde.breakletics"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "667560922120-e3d1448fk9ckint1cr0hagdhk92s1qd8.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.breakleticsde.breakletics",
+            "certificate_hash": "f08511f02dcb837ecc69c999a8172cf40d95d9be"
+          }
+        },
+        {
+          "client_id": "667560922120-pljfmg9gf3gridg7lvlprcm4nde2e353.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.breakleticsde.breakletics",
+            "certificate_hash": "9bbb3186b2189ef16d8f272bdab59362c395cbb4"
+          }
+        },
+        {
+          "client_id": "667560922120-up9obm7vhtq7tku7qsmpvjgcovv428ee.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.breakleticsde.breakletics",
+            "certificate_hash": "98bd7cc37fd148347e070bfae3cbed23fc3e6acd"
+          }
+        },
+        {
+          "client_id": "667560922120-c1i9j8iqamksce3e50vqh17ld639hhtq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCLN9kyou4fk_QRF8L68gsvNwwKJMAWPOg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "667560922120-c1i9j8iqamksce3e50vqh17ld639hhtq.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "667560922120-4jde51gls7vknji6ddbku787jet1rtmn.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.breakleticsde.breakletics"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

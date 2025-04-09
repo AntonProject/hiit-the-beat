@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>667560922120-4jde51gls7vknji6ddbku787jet1rtmn.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.667560922120-4jde51gls7vknji6ddbku787jet1rtmn</string>
+	<key>ANDROID_CLIENT_ID</key>
+	<string>667560922120-6jk0rsj8mci0s49rs6d4asfeddjaa2t8.apps.googleusercontent.com</string>
+	<key>API_KEY</key>
+	<string>AIzaSyBgXPqXBhU74Aux7Sg3VAa6Q3asIwiPCUU</string>
+	<key>GCM_SENDER_ID</key>
+	<string>667560922120</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.breakleticsde.breakletics</string>
+	<key>PROJECT_ID</key>
+	<string>breakletics-9245d</string>
+	<key>STORAGE_BUCKET</key>
+	<string>breakletics-9245d.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:667560922120:ios:f6bad47021fa23745d95bd</string>
+</dict>
+</plist>
