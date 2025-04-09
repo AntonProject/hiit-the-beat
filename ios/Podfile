@@ -47,6 +47,37 @@ post_install do |installer|
       if config.build_settings['WRAPPER_EXTENSION'] == 'bundle'
         config.build_settings['DEVELOPMENT_TEAM'] = '9T7N7YVD2M'  # Используйте ваш реальный Team ID
       end
+      
+      # Решение проблемы с privacy bundles
+      config.build_settings['EXPANDED_CODE_SIGN_IDENTITY'] = ""
+      config.build_settings['CODE_SIGNING_REQUIRED'] = "NO"
+      config.build_settings['CODE_SIGNING_ALLOWED'] = "NO"
+      
+      # Отключение проверки privacy bundle files
+      if config.build_settings['PRODUCT_NAME'] == "Runner" && config.build_settings['WRAPPER_EXTENSION'] == "app"
+        config.build_settings['SKIP_INSTALL'] = 'NO'
+      else
+        config.build_settings['SKIP_INSTALL'] = 'YES'
+      end
+      
+      # Исправление проблемы с privacy bundle
+      config.build_settings['DEFINES_MODULE'] = 'YES'
+    end
+  end
+  
+  # Отключить проверку privacy bundle
+  installer.pods_project.build_configurations.each do |config|
+    config.build_settings["EXCLUDED_ARCHS[sdk=iphonesimulator*]"] = "arm64"
+    config.build_settings['ONLY_ACTIVE_ARCH'] = 'YES'
+  end
+  
+  # Исправление для wakelock и других privacy bundle
+  installer.pods_project.targets.each do |target|
+    target.build_configurations.each do |config|
+      if config.build_settings['PRODUCT_NAME']&.end_with?('_privacy')
+        config.build_settings['BUILD_LIBRARY_FOR_DISTRIBUTION'] = 'NO'
+        config.build_settings['APPLICATION_EXTENSION_API_ONLY'] = 'NO'
+      end
     end
   end
 end
