@@ -1,83 +1,46 @@
 # Uncomment this line to define a global platform for your project
 platform :ios, '14.0.0'
+
 # CocoaPods analytics sends network stats synchronously affecting flutter build latency.
 ENV['COCOAPODS_DISABLE_STATS'] = 'true'
+
 project 'Runner', {
   'Debug' => :debug,
   'Profile' => :release,
   'Release' => :release,
 }
+
 def flutter_root
   generated_xcode_build_settings_path = File.expand_path(File.join('..', 'Flutter', 'Generated.xcconfig'), __FILE__)
   unless File.exist?(generated_xcode_build_settings_path)
     raise "#{generated_xcode_build_settings_path} must exist. If you're running pod install manually, make sure flutter pub get is executed first"
   end
+
   File.foreach(generated_xcode_build_settings_path) do |line|
     matches = line.match(/FLUTTER_ROOT\=(.*)/)
     return matches[1].strip if matches
   end
   raise "FLUTTER_ROOT not found in #{generated_xcode_build_settings_path}. Try deleting Generated.xcconfig, then run flutter pub get"
 end
+
 require File.expand_path(File.join('packages', 'flutter_tools', 'bin', 'podhelper'), flutter_root)
+
 flutter_ios_podfile_setup
+
 target 'Runner' do
   use_frameworks! :linkage => :static
   use_modular_headers!
+
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
   pod 'FirebaseFirestore', :git => 'https://github.com/invertase/firestore-ios-sdk-frameworks.git', :tag => '11.4.0'
 end
+
 post_install do |installer|
   installer.pods_project.targets.each do |target|
     flutter_additional_ios_build_settings(target)
     target.build_configurations.each do |config|
       config.build_settings.delete 'IPHONEOS_DEPLOYMENT_TARGET'
       
-      # Добавление настроек для решения проблем с линковкой Swift
-      config.build_settings['BUILD_LIBRARY_FOR_DISTRIBUTION'] = 'YES'
-      config.build_settings['ENABLE_BITCODE'] = 'NO'
-      config.build_settings['SWIFT_VERSION'] = '5.0'
-      
-      # Решение проблем с линковкой Swift символов
-      config.build_settings['OTHER_LDFLAGS'] ||= ['$(inherited)']
-      config.build_settings['OTHER_LDFLAGS'] << '-ObjC'
-      config.build_settings['OTHER_LDFLAGS'] << '-lc++'
-      config.build_settings['ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES'] = 'YES'
-      
-      # Дополнительные настройки для улучшения совместимости
-      if config.build_settings['WRAPPER_EXTENSION'] == 'bundle'
-        config.build_settings['DEVELOPMENT_TEAM'] = '9T7N7YVD2M'  # Используйте ваш реальный Team ID
-      end
-      
-      # Решение проблемы с privacy bundles
-      config.build_settings['EXPANDED_CODE_SIGN_IDENTITY'] = ""
-      config.build_settings['CODE_SIGNING_REQUIRED'] = "NO"
-      config.build_settings['CODE_SIGNING_ALLOWED'] = "NO"
-      
-      # Отключение проверки privacy bundle files
-      if config.build_settings['PRODUCT_NAME'] == "Runner" && config.build_settings['WRAPPER_EXTENSION'] == "app"
-        config.build_settings['SKIP_INSTALL'] = 'NO'
-      else
-        config.build_settings['SKIP_INSTALL'] = 'YES'
-      end
-      
-      # Исправление проблемы с privacy bundle
-      config.build_settings['DEFINES_MODULE'] = 'YES'
-    end
-  end
-  
-  # Отключить проверку privacy bundle
-  installer.pods_project.build_configurations.each do |config|
-    config.build_settings["EXCLUDED_ARCHS[sdk=iphonesimulator*]"] = "arm64"
-    config.build_settings['ONLY_ACTIVE_ARCH'] = 'YES'
-  end
-  
-  # Исправление для wakelock и других privacy bundle
-  installer.pods_project.targets.each do |target|
-    target.build_configurations.each do |config|
-      if config.build_settings['PRODUCT_NAME']&.end_with?('_privacy')
-        config.build_settings['BUILD_LIBRARY_FOR_DISTRIBUTION'] = 'NO'
-        config.build_settings['APPLICATION_EXTENSION_API_ONLY'] = 'NO'
-      end
     end
   end
 end
