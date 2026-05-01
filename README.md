@@ -2,6 +2,12 @@
 
 ![HIIT the Beat logo](assets/images/Logo_white_1.png)
 
+![Flutter](https://img.shields.io/badge/Flutter-3.x-02569B?logo=flutter&logoColor=white)
+![Dart](https://img.shields.io/badge/Dart-3.x-0175C2?logo=dart&logoColor=white)
+![FlutterFlow](https://img.shields.io/badge/FlutterFlow-export-6C63FF)
+![Firebase](https://img.shields.io/badge/Firebase-used-FFCA28?logo=firebase&logoColor=black)
+![RevenueCat](https://img.shields.io/badge/RevenueCat-subscriptions-9B5DE5)
+
 ## Overview
 
 HIIT the Beat is a music-driven fitness product built around HIIT workouts, subscriptions, progress tracking, promo flows, onboarding, and admin management surfaces.
