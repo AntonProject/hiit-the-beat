@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 
 import '/backend/schema/util/firestore_util.dart';
+import '/backend/schema/util/schema_util.dart';
+import '/backend/schema/enums/enums.dart';
 
 import 'index.dart';
 import '/flutter_flow/flutter_flow_util.dart';
@@ -155,6 +157,32 @@ class UsersRecord extends FirestoreRecord {
   bool get hasPayable => _hasPayable ?? false;
   bool hasHasPayable() => _hasPayable != null;
 
+  // "goal_ja" field.
+  String? _goalJa;
+  String get goalJa => _goalJa ?? '';
+  bool hasGoalJa() => _goalJa != null;
+
+  // "gender_ja" field.
+  String? _genderJa;
+  String get genderJa => _genderJa ?? '';
+  bool hasGenderJa() => _genderJa != null;
+
+  // "currentAutomationId" field.
+  String? _currentAutomationId;
+  String get currentAutomationId => _currentAutomationId ?? '';
+  bool hasCurrentAutomationId() => _currentAutomationId != null;
+
+  // "currentAutomationType" field.
+  ActiveCampaignAutomations? _currentAutomationType;
+  ActiveCampaignAutomations? get currentAutomationType =>
+      _currentAutomationType;
+  bool hasCurrentAutomationType() => _currentAutomationType != null;
+
+  // "currentContactList" field.
+  String? _currentContactList;
+  String get currentContactList => _currentContactList ?? '';
+  bool hasCurrentContactList() => _currentContactList != null;
+
   void _initializeFields() {
     _email = snapshotData['email'] as String?;
     _displayName = snapshotData['display_name'] as String?;
@@ -185,6 +213,15 @@ class UsersRecord extends FirestoreRecord {
     _activeCampgainContactId =
         snapshotData['activeCampgainContactId'] as String?;
     _hasPayable = snapshotData['hasPayable'] as bool?;
+    _goalJa = snapshotData['goal_ja'] as String?;
+    _genderJa = snapshotData['gender_ja'] as String?;
+    _currentAutomationId = snapshotData['currentAutomationId'] as String?;
+    _currentAutomationType =
+        snapshotData['currentAutomationType'] is ActiveCampaignAutomations
+            ? snapshotData['currentAutomationType']
+            : deserializeEnum<ActiveCampaignAutomations>(
+                snapshotData['currentAutomationType']);
+    _currentContactList = snapshotData['currentContactList'] as String?;
   }
 
   static CollectionReference get collection =>
@@ -248,6 +285,11 @@ Map<String, dynamic> createUsersRecordData({
   bool? showTrialDialog,
   String? activeCampgainContactId,
   bool? hasPayable,
+  String? goalJa,
+  String? genderJa,
+  String? currentAutomationId,
+  ActiveCampaignAutomations? currentAutomationType,
+  String? currentContactList,
 }) {
   final firestoreData = mapToFirestore(
     <String, dynamic>{
@@ -278,6 +320,11 @@ Map<String, dynamic> createUsersRecordData({
       'show_trial_dialog': showTrialDialog,
       'activeCampgainContactId': activeCampgainContactId,
       'hasPayable': hasPayable,
+      'goal_ja': goalJa,
+      'gender_ja': genderJa,
+      'currentAutomationId': currentAutomationId,
+      'currentAutomationType': currentAutomationType,
+      'currentContactList': currentContactList,
     }.withoutNulls,
   );
 
@@ -317,7 +364,12 @@ class UsersRecordDocumentEquality implements Equality<UsersRecord> {
         e1?.language == e2?.language &&
         e1?.showTrialDialog == e2?.showTrialDialog &&
         e1?.activeCampgainContactId == e2?.activeCampgainContactId &&
-        e1?.hasPayable == e2?.hasPayable;
+        e1?.hasPayable == e2?.hasPayable &&
+        e1?.goalJa == e2?.goalJa &&
+        e1?.genderJa == e2?.genderJa &&
+        e1?.currentAutomationId == e2?.currentAutomationId &&
+        e1?.currentAutomationType == e2?.currentAutomationType &&
+        e1?.currentContactList == e2?.currentContactList;
   }
 
   @override
@@ -349,7 +401,12 @@ class UsersRecordDocumentEquality implements Equality<UsersRecord> {
         e?.language,
         e?.showTrialDialog,
         e?.activeCampgainContactId,
-        e?.hasPayable
+        e?.hasPayable,
+        e?.goalJa,
+        e?.genderJa,
+        e?.currentAutomationId,
+        e?.currentAutomationType,
+        e?.currentContactList
       ]);
 
   @override

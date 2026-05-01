@@ -5,13 +5,17 @@ import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
+import 'dart:math';
 import 'dart:ui';
 import '/index.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'payment_dialog_model.dart';
 export 'payment_dialog_model.dart';
 
@@ -86,12 +90,7 @@ class _PaymentDialogWidgetState extends State<PaymentDialogWidget>
               'assets/images/instant_paywall_new_user.webp',
             ).image,
           ),
-          borderRadius: BorderRadius.only(
-            bottomLeft: Radius.circular(0.0),
-            bottomRight: Radius.circular(0.0),
-            topLeft: Radius.circular(0.0),
-            topRight: Radius.circular(0.0),
-          ),
+          borderRadius: BorderRadius.only(),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -112,6 +111,8 @@ class _PaymentDialogWidgetState extends State<PaymentDialogWidget>
                     size: 24.0,
                   ),
                   onPressed: () async {
+                    logFirebaseEvent('PAYMENT_DIALOG_COMP_close24_ICN_ON_TAP');
+                    logFirebaseEvent('IconButton_bottom_sheet');
                     Navigator.pop(context);
                   },
                 ),
@@ -132,10 +133,12 @@ class _PaymentDialogWidgetState extends State<PaymentDialogWidget>
                               0.0, 24.0, 0.0, 0.0),
                           child: AutoSizeText(
                             FFLocalizations.of(context).getText(
-                              '0gprl0cm' /* BECOME A PLUSMEMBER */,
+                              '0gprl0cm' /* UNLOCK
+THE FULL HIIT THE BEAT ... */
+                              ,
                             ),
                             textAlign: TextAlign.center,
-                            maxLines: 2,
+                            maxLines: 3,
                             style: FlutterFlowTheme.of(context)
                                 .bodyMedium
                                 .override(
@@ -145,10 +148,9 @@ class _PaymentDialogWidgetState extends State<PaymentDialogWidget>
                                   letterSpacing: 0.07,
                                   fontWeight: FontWeight.w900,
                                   fontStyle: FontStyle.italic,
-                                  useGoogleFonts: GoogleFonts.asMap()
-                                      .containsKey(FlutterFlowTheme.of(context)
-                                          .bodyMediumFamily),
                                   lineHeight: 1.4,
+                                  useGoogleFonts: !FlutterFlowTheme.of(context)
+                                      .bodyMediumIsCustom,
                                 ),
                           ),
                         ),
@@ -160,7 +162,7 @@ class _PaymentDialogWidgetState extends State<PaymentDialogWidget>
                               0.0, 4.0, 0.0, 32.0),
                           child: AutoSizeText(
                             FFLocalizations.of(context).getText(
-                              'cbv411z4' /* AND START TO TRANSFORM YOUR LI... */,
+                              'cbv411z4' /* TRAIN WITH MUSIC, ENERGY & FUN... */,
                             ),
                             textAlign: TextAlign.center,
                             maxLines: 2,
@@ -175,10 +177,9 @@ class _PaymentDialogWidgetState extends State<PaymentDialogWidget>
                                   letterSpacing: 0.07,
                                   fontWeight: FontWeight.bold,
                                   fontStyle: FontStyle.italic,
-                                  useGoogleFonts: GoogleFonts.asMap()
-                                      .containsKey(FlutterFlowTheme.of(context)
-                                          .bodyMediumFamily),
                                   lineHeight: 1.4,
+                                  useGoogleFonts: !FlutterFlowTheme.of(context)
+                                      .bodyMediumIsCustom,
                                 ),
                           ),
                         ),
@@ -213,7 +214,7 @@ class _PaymentDialogWidgetState extends State<PaymentDialogWidget>
                                   Expanded(
                                     child: Text(
                                       FFLocalizations.of(context).getText(
-                                        'may7byav' /* More energy, more motivation, ... */,
+                                        'may7byav' /* Music-driven workouts — no lim... */,
                                       ),
                                       textAlign: TextAlign.start,
                                       style: FlutterFlowTheme.of(context)
@@ -227,127 +228,10 @@ class _PaymentDialogWidgetState extends State<PaymentDialogWidget>
                                             fontSize: 14.0,
                                             letterSpacing: 0.07,
                                             fontWeight: FontWeight.normal,
-                                            useGoogleFonts: GoogleFonts.asMap()
-                                                .containsKey(
-                                                    FlutterFlowTheme.of(context)
-                                                        .bodyMediumFamily),
                                             lineHeight: 1.4,
-                                          ),
-                                    ),
-                                  ),
-                                ].divide(SizedBox(width: 16.0)),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(12.0),
-                        child: BackdropFilter(
-                          filter: ImageFilter.blur(
-                            sigmaX: 24.0,
-                            sigmaY: 24.0,
-                          ),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: Color(0x12FFFFFF),
-                              borderRadius: BorderRadius.circular(12.0),
-                            ),
-                            child: Padding(
-                              padding: EdgeInsetsDirectional.fromSTEB(
-                                  16.0, 12.0, 16.0, 12.0),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.max,
-                                children: [
-                                  ClipRRect(
-                                    borderRadius: BorderRadius.circular(0.0),
-                                    child: Image.asset(
-                                      'assets/images/chart.webp',
-                                      width: 24.0,
-                                      height: 24.0,
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: Text(
-                                      FFLocalizations.of(context).getText(
-                                        '3vrpuapa' /* 100+ exercises & 80+ workouts ... */,
-                                      ),
-                                      textAlign: TextAlign.start,
-                                      style: FlutterFlowTheme.of(context)
-                                          .bodyMedium
-                                          .override(
-                                            fontFamily:
-                                                FlutterFlowTheme.of(context)
-                                                    .bodyMediumFamily,
-                                            color: FlutterFlowTheme.of(context)
-                                                .primaryText,
-                                            fontSize: 14.0,
-                                            letterSpacing: 0.07,
-                                            fontWeight: FontWeight.normal,
-                                            useGoogleFonts: GoogleFonts.asMap()
-                                                .containsKey(
-                                                    FlutterFlowTheme.of(context)
-                                                        .bodyMediumFamily),
-                                            lineHeight: 1.4,
-                                          ),
-                                    ),
-                                  ),
-                                ].divide(SizedBox(width: 16.0)),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(12.0),
-                        child: BackdropFilter(
-                          filter: ImageFilter.blur(
-                            sigmaX: 24.0,
-                            sigmaY: 24.0,
-                          ),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: Color(0x12FFFFFF),
-                              borderRadius: BorderRadius.circular(12.0),
-                            ),
-                            child: Padding(
-                              padding: EdgeInsetsDirectional.fromSTEB(
-                                  16.0, 12.0, 16.0, 12.0),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.max,
-                                children: [
-                                  ClipRRect(
-                                    borderRadius: BorderRadius.circular(0.0),
-                                    child: Image.asset(
-                                      'assets/images/stars.webp',
-                                      width: 24.0,
-                                      height: 24.0,
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: Text(
-                                      FFLocalizations.of(context).getText(
-                                        'wk6zijvt' /* New content regularly — no wor... */,
-                                      ),
-                                      textAlign: TextAlign.start,
-                                      style: FlutterFlowTheme.of(context)
-                                          .bodyMedium
-                                          .override(
-                                            fontFamily:
-                                                FlutterFlowTheme.of(context)
-                                                    .bodyMediumFamily,
-                                            color: FlutterFlowTheme.of(context)
-                                                .primaryText,
-                                            fontSize: 14.0,
-                                            letterSpacing: 0.07,
-                                            fontWeight: FontWeight.normal,
-                                            useGoogleFonts: GoogleFonts.asMap()
-                                                .containsKey(
-                                                    FlutterFlowTheme.of(context)
-                                                        .bodyMediumFamily),
-                                            lineHeight: 1.4,
+                                            useGoogleFonts:
+                                                !FlutterFlowTheme.of(context)
+                                                    .bodyMediumIsCustom,
                                           ),
                                     ),
                                   ),
@@ -387,7 +271,7 @@ class _PaymentDialogWidgetState extends State<PaymentDialogWidget>
                                   Expanded(
                                     child: Text(
                                       FFLocalizations.of(context).getText(
-                                        'ygk6ddgn' /* Live Zoom training — work out ... */,
+                                        'ygk6ddgn' /* Weekly live ZOOM workout Jams ... */,
                                       ),
                                       textAlign: TextAlign.start,
                                       style: FlutterFlowTheme.of(context)
@@ -401,11 +285,10 @@ class _PaymentDialogWidgetState extends State<PaymentDialogWidget>
                                             fontSize: 14.0,
                                             letterSpacing: 0.07,
                                             fontWeight: FontWeight.normal,
-                                            useGoogleFonts: GoogleFonts.asMap()
-                                                .containsKey(
-                                                    FlutterFlowTheme.of(context)
-                                                        .bodyMediumFamily),
                                             lineHeight: 1.4,
+                                            useGoogleFonts:
+                                                !FlutterFlowTheme.of(context)
+                                                    .bodyMediumIsCustom,
                                           ),
                                     ),
                                   ),
@@ -436,7 +319,7 @@ class _PaymentDialogWidgetState extends State<PaymentDialogWidget>
                                   ClipRRect(
                                     borderRadius: BorderRadius.circular(0.0),
                                     child: Image.asset(
-                                      'assets/images/fingers.webp',
+                                      'assets/images/stars.webp',
                                       width: 24.0,
                                       height: 24.0,
                                       fit: BoxFit.cover,
@@ -445,7 +328,7 @@ class _PaymentDialogWidgetState extends State<PaymentDialogWidget>
                                   Expanded(
                                     child: Text(
                                       FFLocalizations.of(context).getText(
-                                        'cmlkzdeu' /* Try HIIT the Beat for free for... */,
+                                        'wk6zijvt' /* For all fitness levels — Simpl... */,
                                       ),
                                       textAlign: TextAlign.start,
                                       style: FlutterFlowTheme.of(context)
@@ -459,11 +342,67 @@ class _PaymentDialogWidgetState extends State<PaymentDialogWidget>
                                             fontSize: 14.0,
                                             letterSpacing: 0.07,
                                             fontWeight: FontWeight.normal,
-                                            useGoogleFonts: GoogleFonts.asMap()
-                                                .containsKey(
-                                                    FlutterFlowTheme.of(context)
-                                                        .bodyMediumFamily),
                                             lineHeight: 1.4,
+                                            useGoogleFonts:
+                                                !FlutterFlowTheme.of(context)
+                                                    .bodyMediumIsCustom,
+                                          ),
+                                    ),
+                                  ),
+                                ].divide(SizedBox(width: 16.0)),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(12.0),
+                        child: BackdropFilter(
+                          filter: ImageFilter.blur(
+                            sigmaX: 24.0,
+                            sigmaY: 24.0,
+                          ),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Color(0x12FFFFFF),
+                              borderRadius: BorderRadius.circular(12.0),
+                            ),
+                            child: Padding(
+                              padding: EdgeInsetsDirectional.fromSTEB(
+                                  16.0, 12.0, 16.0, 12.0),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.max,
+                                children: [
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(0.0),
+                                    child: Image.asset(
+                                      'assets/images/chart.webp',
+                                      width: 24.0,
+                                      height: 24.0,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: Text(
+                                      FFLocalizations.of(context).getText(
+                                        '3vrpuapa' /* Track your progress & stay mot... */,
+                                      ),
+                                      textAlign: TextAlign.start,
+                                      style: FlutterFlowTheme.of(context)
+                                          .bodyMedium
+                                          .override(
+                                            fontFamily:
+                                                FlutterFlowTheme.of(context)
+                                                    .bodyMediumFamily,
+                                            color: FlutterFlowTheme.of(context)
+                                                .primaryText,
+                                            fontSize: 14.0,
+                                            letterSpacing: 0.07,
+                                            fontWeight: FontWeight.normal,
+                                            lineHeight: 1.4,
+                                            useGoogleFonts:
+                                                !FlutterFlowTheme.of(context)
+                                                    .bodyMediumIsCustom,
                                           ),
                                     ),
                                   ),
@@ -486,12 +425,17 @@ class _PaymentDialogWidgetState extends State<PaymentDialogWidget>
               padding: EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 0.0),
               child: FFButtonWidget(
                 onPressed: () async {
+                  logFirebaseEvent('PAYMENT_DIALOG_SELECTSUBSCRIPTION_ON_TAP');
+                  logFirebaseEvent('SELECTSUBSCRIPTION_haptic_feedback');
                   HapticFeedback.selectionClick();
-                  if (currentUserEmail != '') {
+                  if (currentUserEmail != null && currentUserEmail != '') {
+                    logFirebaseEvent('SELECTSUBSCRIPTION_bottom_sheet');
                     Navigator.pop(context);
+                    logFirebaseEvent('SELECTSUBSCRIPTION_navigate_to');
 
                     context.pushNamed(SubscriptionPageWidget.routeName);
                   } else {
+                    logFirebaseEvent('SELECTSUBSCRIPTION_bottom_sheet');
                     showModalBottomSheet(
                       isScrollControlled: true,
                       backgroundColor: Colors.transparent,
@@ -522,9 +466,9 @@ class _PaymentDialogWidgetState extends State<PaymentDialogWidget>
                         fontSize: 16.0,
                         letterSpacing: 0.07,
                         fontWeight: FontWeight.bold,
-                        useGoogleFonts: GoogleFonts.asMap().containsKey(
-                            FlutterFlowTheme.of(context).titleSmallFamily),
                         lineHeight: 1.4,
+                        useGoogleFonts:
+                            !FlutterFlowTheme.of(context).titleSmallIsCustom,
                       ),
                   elevation: 0.0,
                   borderSide: BorderSide(

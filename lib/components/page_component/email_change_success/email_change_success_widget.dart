@@ -1,10 +1,13 @@
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
+import 'dart:ui';
 import '/index.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'email_change_success_model.dart';
 export 'email_change_success_model.dart';
 
@@ -88,10 +91,9 @@ class _EmailChangeSuccessWidgetState extends State<EmailChangeSuccessWidget> {
                               fontSize: 20.0,
                               letterSpacing: 0.07,
                               fontWeight: FontWeight.bold,
-                              useGoogleFonts: GoogleFonts.asMap().containsKey(
-                                  FlutterFlowTheme.of(context)
-                                      .bodyMediumFamily),
                               lineHeight: 1.4,
+                              useGoogleFonts: !FlutterFlowTheme.of(context)
+                                  .bodyMediumIsCustom,
                             ),
                       ),
                     ),
@@ -105,9 +107,9 @@ class _EmailChangeSuccessWidgetState extends State<EmailChangeSuccessWidget> {
                                 FlutterFlowTheme.of(context).bodyMediumFamily,
                             letterSpacing: 0.07,
                             fontWeight: FontWeight.normal,
-                            useGoogleFonts: GoogleFonts.asMap().containsKey(
-                                FlutterFlowTheme.of(context).bodyMediumFamily),
                             lineHeight: 1.4,
+                            useGoogleFonts: !FlutterFlowTheme.of(context)
+                                .bodyMediumIsCustom,
                           ),
                     ),
                   ].divide(SizedBox(height: 12.0)),
@@ -116,12 +118,15 @@ class _EmailChangeSuccessWidgetState extends State<EmailChangeSuccessWidget> {
             ),
             FFButtonWidget(
               onPressed: () async {
+                logFirebaseEvent('EMAIL_CHANGE_SUCCESS_COMP_close_ON_TAP');
+                logFirebaseEvent('close_haptic_feedback');
                 HapticFeedback.selectionClick();
+                logFirebaseEvent('close_navigate_to');
 
                 context.goNamed(
                   HomePageWidget.routeName,
                   extra: <String, dynamic>{
-                    kTransitionInfoKey: TransitionInfo(
+                    '__transition_info__': TransitionInfo(
                       hasTransition: true,
                       transitionType: PageTransitionType.fade,
                       duration: Duration(milliseconds: 0),
@@ -143,9 +148,9 @@ class _EmailChangeSuccessWidgetState extends State<EmailChangeSuccessWidget> {
                       color: FlutterFlowTheme.of(context).primaryText,
                       fontSize: 14.0,
                       letterSpacing: 0.07,
-                      useGoogleFonts: GoogleFonts.asMap().containsKey(
-                          FlutterFlowTheme.of(context).titleSmallFamily),
                       lineHeight: 1.4,
+                      useGoogleFonts:
+                          !FlutterFlowTheme.of(context).titleSmallIsCustom,
                     ),
                 elevation: 0.0,
                 borderSide: BorderSide(

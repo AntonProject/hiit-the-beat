@@ -1,3 +1,4 @@
+import '/backend/schema/structs/index.dart';
 
 class ExportToExcelCloudFunctionCallResponse {
   ExportToExcelCloudFunctionCallResponse({
@@ -16,17 +17,6 @@ class ExportToExcelCloudFunctionCallResponse {
 
 class DeleteWorkoutsSeasonCloudFunctionCallResponse {
   DeleteWorkoutsSeasonCloudFunctionCallResponse({
-    this.errorCode,
-    this.succeeded,
-    this.jsonBody,
-  });
-  String? errorCode;
-  bool? succeeded;
-  dynamic jsonBody;
-}
-
-class LifetimeCheckCloudFunctionCallResponse {
-  LifetimeCheckCloudFunctionCallResponse({
     this.errorCode,
     this.succeeded,
     this.jsonBody,

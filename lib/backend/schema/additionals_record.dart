@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 
 import '/backend/schema/util/firestore_util.dart';
+import '/backend/schema/util/schema_util.dart';
+import '/backend/schema/enums/enums.dart';
 
 import 'index.dart';
 import '/flutter_flow/flutter_flow_util.dart';
@@ -105,6 +107,41 @@ class AdditionalsRecord extends FirestoreRecord {
   bool get de => _de ?? false;
   bool hasDe() => _de != null;
 
+  // "ja" field.
+  bool? _ja;
+  bool get ja => _ja ?? false;
+  bool hasJa() => _ja != null;
+
+  // "title_ja" field.
+  String? _titleJa;
+  String get titleJa => _titleJa ?? '';
+  bool hasTitleJa() => _titleJa != null;
+
+  // "video_url_ja" field.
+  String? _videoUrlJa;
+  String get videoUrlJa => _videoUrlJa ?? '';
+  bool hasVideoUrlJa() => _videoUrlJa != null;
+
+  // "desc_ja" field.
+  String? _descJa;
+  String get descJa => _descJa ?? '';
+  bool hasDescJa() => _descJa != null;
+
+  // "duration_ja" field.
+  String? _durationJa;
+  String get durationJa => _durationJa ?? '';
+  bool hasDurationJa() => _durationJa != null;
+
+  // "trainer_avatar" field.
+  String? _trainerAvatar;
+  String get trainerAvatar => _trainerAvatar ?? '';
+  bool hasTrainerAvatar() => _trainerAvatar != null;
+
+  // "trainer_name_and_surname" field.
+  String? _trainerNameAndSurname;
+  String get trainerNameAndSurname => _trainerNameAndSurname ?? '';
+  bool hasTrainerNameAndSurname() => _trainerNameAndSurname != null;
+
   void _initializeFields() {
     _cover = snapshotData['cover'] as String?;
     _views = castToType<int>(snapshotData['views']);
@@ -124,6 +161,14 @@ class AdditionalsRecord extends FirestoreRecord {
     _free = snapshotData['free'] as bool?;
     _en = snapshotData['en'] as bool?;
     _de = snapshotData['de'] as bool?;
+    _ja = snapshotData['ja'] as bool?;
+    _titleJa = snapshotData['title_ja'] as String?;
+    _videoUrlJa = snapshotData['video_url_ja'] as String?;
+    _descJa = snapshotData['desc_ja'] as String?;
+    _durationJa = snapshotData['duration_ja'] as String?;
+    _trainerAvatar = snapshotData['trainer_avatar'] as String?;
+    _trainerNameAndSurname =
+        snapshotData['trainer_name_and_surname'] as String?;
   }
 
   static CollectionReference get collection =>
@@ -179,6 +224,13 @@ Map<String, dynamic> createAdditionalsRecordData({
   bool? free,
   bool? en,
   bool? de,
+  bool? ja,
+  String? titleJa,
+  String? videoUrlJa,
+  String? descJa,
+  String? durationJa,
+  String? trainerAvatar,
+  String? trainerNameAndSurname,
 }) {
   final firestoreData = mapToFirestore(
     <String, dynamic>{
@@ -200,6 +252,13 @@ Map<String, dynamic> createAdditionalsRecordData({
       'free': free,
       'en': en,
       'de': de,
+      'ja': ja,
+      'title_ja': titleJa,
+      'video_url_ja': videoUrlJa,
+      'desc_ja': descJa,
+      'duration_ja': durationJa,
+      'trainer_avatar': trainerAvatar,
+      'trainer_name_and_surname': trainerNameAndSurname,
     }.withoutNulls,
   );
 
@@ -228,7 +287,14 @@ class AdditionalsRecordDocumentEquality implements Equality<AdditionalsRecord> {
         e1?.durationDe == e2?.durationDe &&
         e1?.free == e2?.free &&
         e1?.en == e2?.en &&
-        e1?.de == e2?.de;
+        e1?.de == e2?.de &&
+        e1?.ja == e2?.ja &&
+        e1?.titleJa == e2?.titleJa &&
+        e1?.videoUrlJa == e2?.videoUrlJa &&
+        e1?.descJa == e2?.descJa &&
+        e1?.durationJa == e2?.durationJa &&
+        e1?.trainerAvatar == e2?.trainerAvatar &&
+        e1?.trainerNameAndSurname == e2?.trainerNameAndSurname;
   }
 
   @override
@@ -250,7 +316,14 @@ class AdditionalsRecordDocumentEquality implements Equality<AdditionalsRecord> {
         e?.durationDe,
         e?.free,
         e?.en,
-        e?.de
+        e?.de,
+        e?.ja,
+        e?.titleJa,
+        e?.videoUrlJa,
+        e?.descJa,
+        e?.durationJa,
+        e?.trainerAvatar,
+        e?.trainerNameAndSurname
       ]);
 
   @override

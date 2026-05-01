@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'dart:typed_data';
+import '../schema/structs/index.dart';
 
 import 'package:flutter/foundation.dart';
 
@@ -20,15 +22,18 @@ class ActivecampaignGroup {
         'fe003b0f5214b5cb584ba3d5c7b4cb4c9d59c8e9150d645c97cffc17a764bbadbf15a367',
   };
   static CreateContactCall createContactCall = CreateContactCall();
-  static NewAppRegistrationENCall newAppRegistrationENCall =
-      NewAppRegistrationENCall();
-  static NewAppRegistrationDECall newAppRegistrationDECall =
-      NewAppRegistrationDECall();
+  static AddUserToAutomationCall addUserToAutomationCall =
+      AddUserToAutomationCall();
   static DeleteUserFromAutomationCall deleteUserFromAutomationCall =
       DeleteUserFromAutomationCall();
   static GetAllAutomationsByUserCall getAllAutomationsByUserCall =
       GetAllAutomationsByUserCall();
   static UpdateContactCall updateContactCall = UpdateContactCall();
+  static GetAllTagsCall getAllTagsCall = GetAllTagsCall();
+  static AddContactTagsCall addContactTagsCall = AddContactTagsCall();
+  static GetContactTagsCall getContactTagsCall = GetContactTagsCall();
+  static DeleteContactTagCall deleteContactTagCall = DeleteContactTagCall();
+  static AddContactToListCall addContactToListCall = AddContactToListCall();
 }
 
 class CreateContactCall {
@@ -74,9 +79,10 @@ class CreateContactCall {
       ));
 }
 
-class NewAppRegistrationENCall {
+class AddUserToAutomationCall {
   Future<ApiCallResponse> call({
     String? contactId = '',
+    String? automationId = '',
   }) async {
     final baseUrl = ActivecampaignGroup.getBaseUrl();
 
@@ -84,11 +90,11 @@ class NewAppRegistrationENCall {
 {
   "contactAutomation": {
     "contact": "${contactId}",
-    "automation": "45"
+    "automation": "${automationId}"
   }
 }''';
     return ApiManager.instance.makeApiCall(
-      callName: 'New App Registration EN',
+      callName: 'Add user to automation',
       apiUrl: '${baseUrl}/api/3/contactAutomations',
       callType: ApiCallType.POST,
       headers: {
@@ -101,43 +107,7 @@ class NewAppRegistrationENCall {
       body: ffApiRequestBody,
       bodyType: BodyType.JSON,
       returnBody: true,
-      encodeBodyUtf8: false,
-      decodeUtf8: false,
-      cache: false,
-      isStreamingApi: false,
-      alwaysAllowBody: false,
-    );
-  }
-}
-
-class NewAppRegistrationDECall {
-  Future<ApiCallResponse> call({
-    String? contactId = '',
-  }) async {
-    final baseUrl = ActivecampaignGroup.getBaseUrl();
-
-    final ffApiRequestBody = '''
-{
-  "contactAutomation": {
-    "contact": "${contactId}",
-    "automation": "44"
-  }
-}''';
-    return ApiManager.instance.makeApiCall(
-      callName: 'New App Registration DE',
-      apiUrl: '${baseUrl}/api/3/contactAutomations',
-      callType: ApiCallType.POST,
-      headers: {
-        'Accept': 'application/json',
-        'Content-type': 'application/json',
-        'Api-Token':
-            'fe003b0f5214b5cb584ba3d5c7b4cb4c9d59c8e9150d645c97cffc17a764bbadbf15a367',
-      },
-      params: {},
-      body: ffApiRequestBody,
-      bodyType: BodyType.JSON,
-      returnBody: true,
-      encodeBodyUtf8: false,
+      encodeBodyUtf8: true,
       decodeUtf8: false,
       cache: false,
       isStreamingApi: false,
@@ -165,7 +135,7 @@ class DeleteUserFromAutomationCall {
       params: {},
       returnBody: true,
       encodeBodyUtf8: false,
-      decodeUtf8: false,
+      decodeUtf8: true,
       cache: false,
       isStreamingApi: false,
       alwaysAllowBody: false,
@@ -192,7 +162,7 @@ class GetAllAutomationsByUserCall {
       params: {},
       returnBody: true,
       encodeBodyUtf8: false,
-      decodeUtf8: false,
+      decodeUtf8: true,
       cache: false,
       isStreamingApi: false,
       alwaysAllowBody: false,
@@ -231,6 +201,170 @@ class UpdateContactCall {
       callName: 'UpdateContact',
       apiUrl: '${baseUrl}/api/3/contacts/${id}',
       callType: ApiCallType.PUT,
+      headers: {
+        'Accept': 'application/json',
+        'Content-type': 'application/json',
+        'Api-Token':
+            'fe003b0f5214b5cb584ba3d5c7b4cb4c9d59c8e9150d645c97cffc17a764bbadbf15a367',
+      },
+      params: {},
+      body: ffApiRequestBody,
+      bodyType: BodyType.JSON,
+      returnBody: true,
+      encodeBodyUtf8: false,
+      decodeUtf8: false,
+      cache: false,
+      isStreamingApi: false,
+      alwaysAllowBody: false,
+    );
+  }
+}
+
+class GetAllTagsCall {
+  Future<ApiCallResponse> call() async {
+    final baseUrl = ActivecampaignGroup.getBaseUrl();
+
+    return ApiManager.instance.makeApiCall(
+      callName: 'getAllTags',
+      apiUrl: '${baseUrl}/api/3/tags',
+      callType: ApiCallType.GET,
+      headers: {
+        'Accept': 'application/json',
+        'Content-type': 'application/json',
+        'Api-Token':
+            'fe003b0f5214b5cb584ba3d5c7b4cb4c9d59c8e9150d645c97cffc17a764bbadbf15a367',
+      },
+      params: {},
+      returnBody: true,
+      encodeBodyUtf8: false,
+      decodeUtf8: false,
+      cache: false,
+      isStreamingApi: false,
+      alwaysAllowBody: false,
+    );
+  }
+}
+
+class AddContactTagsCall {
+  Future<ApiCallResponse> call({
+    String? contactId = '',
+    String? tagId = '',
+  }) async {
+    final baseUrl = ActivecampaignGroup.getBaseUrl();
+
+    final ffApiRequestBody = '''
+{
+  "contactTag": {
+    "contact": "${escapeStringForJson(contactId)}",
+    "tag": "${escapeStringForJson(tagId)}"
+  }
+}''';
+    return ApiManager.instance.makeApiCall(
+      callName: 'addContactTags',
+      apiUrl: '${baseUrl}/api/3/contactTags',
+      callType: ApiCallType.POST,
+      headers: {
+        'Accept': 'application/json',
+        'Content-type': 'application/json',
+        'Api-Token':
+            'fe003b0f5214b5cb584ba3d5c7b4cb4c9d59c8e9150d645c97cffc17a764bbadbf15a367',
+      },
+      params: {},
+      body: ffApiRequestBody,
+      bodyType: BodyType.JSON,
+      returnBody: true,
+      encodeBodyUtf8: false,
+      decodeUtf8: false,
+      cache: false,
+      isStreamingApi: false,
+      alwaysAllowBody: false,
+    );
+  }
+}
+
+class GetContactTagsCall {
+  Future<ApiCallResponse> call({
+    String? contactId = '',
+  }) async {
+    final baseUrl = ActivecampaignGroup.getBaseUrl();
+
+    return ApiManager.instance.makeApiCall(
+      callName: 'getContactTags',
+      apiUrl: '${baseUrl}/api/3/contacts/${contactId}/contactTags',
+      callType: ApiCallType.GET,
+      headers: {
+        'Accept': 'application/json',
+        'Content-type': 'application/json',
+        'Api-Token':
+            'fe003b0f5214b5cb584ba3d5c7b4cb4c9d59c8e9150d645c97cffc17a764bbadbf15a367',
+      },
+      params: {},
+      returnBody: true,
+      encodeBodyUtf8: false,
+      decodeUtf8: false,
+      cache: false,
+      isStreamingApi: false,
+      alwaysAllowBody: false,
+    );
+  }
+
+  List<ContactTagStruct>? contactTags(dynamic response) => (getJsonField(
+        response,
+        r'''$.contactTags''',
+        true,
+      ) as List?)
+          ?.withoutNulls
+          .map((x) => ContactTagStruct.maybeFromMap(x))
+          .withoutNulls
+          .toList();
+}
+
+class DeleteContactTagCall {
+  Future<ApiCallResponse> call({
+    String? contactTagId = '',
+  }) async {
+    final baseUrl = ActivecampaignGroup.getBaseUrl();
+
+    return ApiManager.instance.makeApiCall(
+      callName: 'deleteContactTag',
+      apiUrl: '${baseUrl}/api/3/contactTags/${contactTagId}',
+      callType: ApiCallType.DELETE,
+      headers: {
+        'Accept': 'application/json',
+        'Content-type': 'application/json',
+        'Api-Token':
+            'fe003b0f5214b5cb584ba3d5c7b4cb4c9d59c8e9150d645c97cffc17a764bbadbf15a367',
+      },
+      params: {},
+      returnBody: true,
+      encodeBodyUtf8: false,
+      decodeUtf8: false,
+      cache: false,
+      isStreamingApi: false,
+      alwaysAllowBody: false,
+    );
+  }
+}
+
+class AddContactToListCall {
+  Future<ApiCallResponse> call({
+    String? listId = '',
+    String? contactId = '',
+  }) async {
+    final baseUrl = ActivecampaignGroup.getBaseUrl();
+
+    final ffApiRequestBody = '''
+{
+  "contactList": {
+    "list": "${escapeStringForJson(listId)}",
+    "contact": "${escapeStringForJson(contactId)}",
+    "status": "1"
+  }
+}''';
+    return ApiManager.instance.makeApiCall(
+      callName: 'addContactToList',
+      apiUrl: '${baseUrl}/api/3/contactLists',
+      callType: ApiCallType.POST,
       headers: {
         'Accept': 'application/json',
         'Content-type': 'application/json',

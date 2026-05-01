@@ -1,14 +1,20 @@
 import '/admin/admin_components/admin_additional_dialog/admin_additional_dialog_widget.dart';
 import '/admin/admin_components/admin_nav_bar/admin_nav_bar_widget.dart';
 import '/backend/backend.dart';
+import '/backend/schema/structs/index.dart';
 import '/components/empty_list/empty_list_widget.dart';
 import '/flutter_flow/flutter_flow_data_table.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
+import 'dart:async';
+import 'dart:ui';
+import '/custom_code/actions/index.dart' as actions;
 import '/index.dart';
 import 'package:aligned_dialog/aligned_dialog.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -35,6 +41,21 @@ class _AdminAdditionalWidgetState extends State<AdminAdditionalWidget> {
   void initState() {
     super.initState();
     _model = createModel(context, () => AdminAdditionalModel());
+
+    logFirebaseEvent('screen_view',
+        parameters: {'screen_name': 'AdminAdditional'});
+    // On page load action.
+    SchedulerBinding.instance.addPostFrameCallback((_) async {
+      logFirebaseEvent('ADMIN_ADDITIONAL_AdminAdditional_ON_INIT');
+      logFirebaseEvent('AdminAdditional_set_dark_mode_settings');
+      setDarkModeSetting(context, ThemeMode.dark);
+      logFirebaseEvent('AdminAdditional_custom_action');
+      unawaited(
+        () async {
+          await actions.setStatusBarColor();
+        }(),
+      );
+    });
 
     WidgetsBinding.instance.addPostFrameCallback((_) => safeSetState(() {}));
   }
@@ -64,7 +85,9 @@ class _AdminAdditionalWidgetState extends State<AdminAdditionalWidget> {
             wrapWithModel(
               model: _model.adminNavBarModel,
               updateCallback: () => safeSetState(() {}),
-              child: AdminNavBarWidget(),
+              child: AdminNavBarWidget(
+                pageNum: 3,
+              ),
             ),
             Expanded(
               child: Padding(
@@ -90,15 +113,18 @@ class _AdminAdditionalWidgetState extends State<AdminAdditionalWidget> {
                                   fontSize: 24.0,
                                   letterSpacing: 0.0,
                                   fontWeight: FontWeight.w500,
-                                  useGoogleFonts: GoogleFonts.asMap()
-                                      .containsKey(FlutterFlowTheme.of(context)
-                                          .bodyMediumFamily),
+                                  useGoogleFonts: !FlutterFlowTheme.of(context)
+                                      .bodyMediumIsCustom,
                                 ),
                           ),
                         ),
                         if (_model.tab == 1)
                           FFButtonWidget(
                             onPressed: () async {
+                              logFirebaseEvent(
+                                  'ADMIN_ADDITIONAL_PAGE_Newwarmup_ON_TAP');
+                              logFirebaseEvent('Newwarmup_navigate_to');
+
                               context.pushNamed(
                                 AdminAddAdditWidget.routeName,
                                 queryParameters: {
@@ -108,7 +134,7 @@ class _AdminAdditionalWidgetState extends State<AdminAdditionalWidget> {
                                   ),
                                 }.withoutNulls,
                                 extra: <String, dynamic>{
-                                  kTransitionInfoKey: TransitionInfo(
+                                  '__transition_info__': TransitionInfo(
                                     hasTransition: true,
                                     transitionType: PageTransitionType.fade,
                                     duration: Duration(milliseconds: 0),
@@ -135,11 +161,10 @@ class _AdminAdditionalWidgetState extends State<AdminAdditionalWidget> {
                                     fontSize: 12.0,
                                     letterSpacing: 0.07,
                                     fontWeight: FontWeight.normal,
-                                    useGoogleFonts: GoogleFonts.asMap()
-                                        .containsKey(
-                                            FlutterFlowTheme.of(context)
-                                                .titleSmallFamily),
                                     lineHeight: 1.4,
+                                    useGoogleFonts:
+                                        !FlutterFlowTheme.of(context)
+                                            .titleSmallIsCustom,
                                   ),
                               elevation: 0.0,
                               borderSide: BorderSide(
@@ -152,6 +177,10 @@ class _AdminAdditionalWidgetState extends State<AdminAdditionalWidget> {
                         if (_model.tab == 2)
                           FFButtonWidget(
                             onPressed: () async {
+                              logFirebaseEvent(
+                                  'ADMIN_ADDITIONAL_PAGE_Newcooldown_ON_TAP');
+                              logFirebaseEvent('Newcooldown_navigate_to');
+
                               context.pushNamed(
                                 AdminAddAdditWidget.routeName,
                                 queryParameters: {
@@ -161,7 +190,7 @@ class _AdminAdditionalWidgetState extends State<AdminAdditionalWidget> {
                                   ),
                                 }.withoutNulls,
                                 extra: <String, dynamic>{
-                                  kTransitionInfoKey: TransitionInfo(
+                                  '__transition_info__': TransitionInfo(
                                     hasTransition: true,
                                     transitionType: PageTransitionType.fade,
                                     duration: Duration(milliseconds: 0),
@@ -188,11 +217,10 @@ class _AdminAdditionalWidgetState extends State<AdminAdditionalWidget> {
                                     fontSize: 12.0,
                                     letterSpacing: 0.07,
                                     fontWeight: FontWeight.normal,
-                                    useGoogleFonts: GoogleFonts.asMap()
-                                        .containsKey(
-                                            FlutterFlowTheme.of(context)
-                                                .titleSmallFamily),
                                     lineHeight: 1.4,
+                                    useGoogleFonts:
+                                        !FlutterFlowTheme.of(context)
+                                            .titleSmallIsCustom,
                                   ),
                               elevation: 0.0,
                               borderSide: BorderSide(
@@ -216,7 +244,11 @@ class _AdminAdditionalWidgetState extends State<AdminAdditionalWidget> {
                               final typesItem = types[typesIndex];
                               return FFButtonWidget(
                                 onPressed: () async {
+                                  logFirebaseEvent(
+                                      'ADMIN_ADDITIONAL_PAGE_Warmups_ON_TAP');
+                                  logFirebaseEvent('Warmups_haptic_feedback');
                                   HapticFeedback.selectionClick();
+                                  logFirebaseEvent('Warmups_update_page_state');
                                   _model.tab = valueOrDefault<int>(
                                     typesItem.number,
                                     1,
@@ -227,6 +259,7 @@ class _AdminAdditionalWidgetState extends State<AdminAdditionalWidget> {
                                   FFLocalizations.of(context).getVariableText(
                                     enText: typesItem.titleEn,
                                     deText: typesItem.titleDe,
+                                    jaText: typesItem.titleJa,
                                   ),
                                   'Warm ups',
                                 ),
@@ -258,11 +291,10 @@ class _AdminAdditionalWidgetState extends State<AdminAdditionalWidget> {
                                         ),
                                         fontSize: 14.0,
                                         letterSpacing: 0.07,
-                                        useGoogleFonts: GoogleFonts.asMap()
-                                            .containsKey(
-                                                FlutterFlowTheme.of(context)
-                                                    .titleSmallFamily),
                                         lineHeight: 1.4,
+                                        useGoogleFonts:
+                                            !FlutterFlowTheme.of(context)
+                                                .titleSmallIsCustom,
                                       ),
                                   elevation: 0.0,
                                   borderSide: BorderSide(
@@ -287,7 +319,19 @@ class _AdminAdditionalWidgetState extends State<AdminAdditionalWidget> {
                     ),
                     Expanded(
                       child: FutureBuilder<List<AdditionalsRecord>>(
-                        future: queryAdditionalsRecordOnce(),
+                        future: FFAppState().add(
+                          uniqueQueryKey: valueOrDefault<String>(
+                            FFAppState().refreshDate?.toString(),
+                            '0',
+                          ),
+                          requestFn: () => queryAdditionalsRecordOnce(
+                            queryBuilder: (additionalsRecord) =>
+                                additionalsRecord.where(
+                              'type_index',
+                              isEqualTo: _model.tab,
+                            ),
+                          ),
+                        ),
                         builder: (context, snapshot) {
                           // Customize what your widget looks like when it's loading.
                           if (!snapshot.hasData) {
@@ -309,9 +353,8 @@ class _AdminAdditionalWidgetState extends State<AdminAdditionalWidget> {
                             decoration: BoxDecoration(),
                             child: Builder(
                               builder: (context) {
-                                final addit = containerAdditionalsRecordList
-                                    .where((e) => e.typeIndex == _model.tab)
-                                    .toList();
+                                final addit =
+                                    containerAdditionalsRecordList.toList();
                                 if (addit.isEmpty) {
                                   return EmptyListWidget();
                                 }
@@ -362,12 +405,10 @@ class _AdminAdditionalWidgetState extends State<AdminAdditionalWidget> {
                                                     FlutterFlowTheme.of(context)
                                                         .labelLargeFamily,
                                                 letterSpacing: 0.0,
-                                                useGoogleFonts: GoogleFonts
-                                                        .asMap()
-                                                    .containsKey(
-                                                        FlutterFlowTheme.of(
-                                                                context)
-                                                            .labelLargeFamily),
+                                                useGoogleFonts:
+                                                    !FlutterFlowTheme.of(
+                                                            context)
+                                                        .labelLargeIsCustom,
                                               ),
                                         ),
                                       ),
@@ -377,7 +418,7 @@ class _AdminAdditionalWidgetState extends State<AdminAdditionalWidget> {
                                   dataRowBuilder: (additItem, additIndex,
                                           selected, onSelectChanged) =>
                                       DataRow(
-                                    color: WidgetStateProperty.all(
+                                    color: MaterialStateProperty.all(
                                       additIndex % 2 == 0
                                           ? FlutterFlowTheme.of(context)
                                               .secondaryBackground
@@ -391,6 +432,7 @@ class _AdminAdditionalWidgetState extends State<AdminAdditionalWidget> {
                                               .getVariableText(
                                             enText: additItem.titleEn,
                                             deText: additItem.titleDe,
+                                            jaText: additItem.titleJa,
                                           ),
                                           'Calm Flow',
                                         ),
@@ -403,12 +445,9 @@ class _AdminAdditionalWidgetState extends State<AdminAdditionalWidget> {
                                               fontSize: 16.0,
                                               letterSpacing: 0.0,
                                               fontWeight: FontWeight.w500,
-                                              useGoogleFonts: GoogleFonts
-                                                      .asMap()
-                                                  .containsKey(
-                                                      FlutterFlowTheme.of(
-                                                              context)
-                                                          .bodyMediumFamily),
+                                              useGoogleFonts:
+                                                  !FlutterFlowTheme.of(context)
+                                                      .bodyMediumIsCustom,
                                             ),
                                       ),
                                       Text(
@@ -417,6 +456,7 @@ class _AdminAdditionalWidgetState extends State<AdminAdditionalWidget> {
                                               .getVariableText(
                                             enText: additItem.duration,
                                             deText: additItem.durationDe,
+                                            jaText: additItem.durationJa,
                                           ),
                                           '-',
                                         ),
@@ -431,12 +471,9 @@ class _AdminAdditionalWidgetState extends State<AdminAdditionalWidget> {
                                                       .gray,
                                               fontSize: 12.0,
                                               letterSpacing: 0.0,
-                                              useGoogleFonts: GoogleFonts
-                                                      .asMap()
-                                                  .containsKey(
-                                                      FlutterFlowTheme.of(
-                                                              context)
-                                                          .bodyMediumFamily),
+                                              useGoogleFonts:
+                                                  !FlutterFlowTheme.of(context)
+                                                      .bodyMediumIsCustom,
                                             ),
                                       ),
                                       RichText(
@@ -454,56 +491,50 @@ class _AdminAdditionalWidgetState extends State<AdminAdditionalWidget> {
                                                 ),
                                                 '0 ',
                                               ),
-                                              style:
-                                                  FlutterFlowTheme.of(context)
-                                                      .bodyMedium
-                                                      .override(
-                                                        fontFamily:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .bodyMediumFamily,
-                                                        color:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .gray,
-                                                        fontSize: 12.0,
-                                                        letterSpacing: 0.0,
-                                                        useGoogleFonts: GoogleFonts
-                                                                .asMap()
-                                                            .containsKey(
-                                                                FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .bodyMediumFamily),
-                                                      ),
+                                              style: FlutterFlowTheme.of(
+                                                      context)
+                                                  .bodyMedium
+                                                  .override(
+                                                    fontFamily:
+                                                        FlutterFlowTheme.of(
+                                                                context)
+                                                            .bodyMediumFamily,
+                                                    color: FlutterFlowTheme.of(
+                                                            context)
+                                                        .gray,
+                                                    fontSize: 12.0,
+                                                    letterSpacing: 0.0,
+                                                    useGoogleFonts:
+                                                        !FlutterFlowTheme.of(
+                                                                context)
+                                                            .bodyMediumIsCustom,
+                                                  ),
                                             ),
                                             TextSpan(
                                               text: FFLocalizations.of(context)
                                                   .getText(
                                                 'u4h5hqqi' /* views */,
                                               ),
-                                              style:
-                                                  FlutterFlowTheme.of(context)
-                                                      .bodyMedium
-                                                      .override(
-                                                        fontFamily:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .bodyMediumFamily,
-                                                        color:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .gray,
-                                                        fontSize: 12.0,
-                                                        letterSpacing: 0.0,
-                                                        fontWeight:
-                                                            FontWeight.normal,
-                                                        useGoogleFonts: GoogleFonts
-                                                                .asMap()
-                                                            .containsKey(
-                                                                FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .bodyMediumFamily),
-                                                      ),
+                                              style: FlutterFlowTheme.of(
+                                                      context)
+                                                  .bodyMedium
+                                                  .override(
+                                                    fontFamily:
+                                                        FlutterFlowTheme.of(
+                                                                context)
+                                                            .bodyMediumFamily,
+                                                    color: FlutterFlowTheme.of(
+                                                            context)
+                                                        .gray,
+                                                    fontSize: 12.0,
+                                                    letterSpacing: 0.0,
+                                                    fontWeight:
+                                                        FontWeight.normal,
+                                                    useGoogleFonts:
+                                                        !FlutterFlowTheme.of(
+                                                                context)
+                                                            .bodyMediumIsCustom,
+                                                  ),
                                             )
                                           ],
                                           style: FlutterFlowTheme.of(context)
@@ -513,12 +544,10 @@ class _AdminAdditionalWidgetState extends State<AdminAdditionalWidget> {
                                                     FlutterFlowTheme.of(context)
                                                         .bodyMediumFamily,
                                                 letterSpacing: 0.0,
-                                                useGoogleFonts: GoogleFonts
-                                                        .asMap()
-                                                    .containsKey(
-                                                        FlutterFlowTheme.of(
-                                                                context)
-                                                            .bodyMediumFamily),
+                                                useGoogleFonts:
+                                                    !FlutterFlowTheme.of(
+                                                            context)
+                                                        .bodyMediumIsCustom,
                                               ),
                                         ),
                                       ),
@@ -552,12 +581,10 @@ class _AdminAdditionalWidgetState extends State<AdminAdditionalWidget> {
                                                           letterSpacing: 0.0,
                                                           fontWeight:
                                                               FontWeight.normal,
-                                                          useGoogleFonts: GoogleFonts
-                                                                  .asMap()
-                                                              .containsKey(
-                                                                  FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .bodyMediumFamily),
+                                                          useGoogleFonts:
+                                                              !FlutterFlowTheme
+                                                                      .of(context)
+                                                                  .bodyMediumIsCustom,
                                                         ),
                                                   )
                                                 ],
@@ -570,12 +597,10 @@ class _AdminAdditionalWidgetState extends State<AdminAdditionalWidget> {
                                                                       context)
                                                                   .bodyMediumFamily,
                                                           letterSpacing: 0.0,
-                                                          useGoogleFonts: GoogleFonts
-                                                                  .asMap()
-                                                              .containsKey(
-                                                                  FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .bodyMediumFamily),
+                                                          useGoogleFonts:
+                                                              !FlutterFlowTheme
+                                                                      .of(context)
+                                                                  .bodyMediumIsCustom,
                                                         ),
                                               ),
                                             ),
@@ -606,12 +631,10 @@ class _AdminAdditionalWidgetState extends State<AdminAdditionalWidget> {
                                                           letterSpacing: 0.0,
                                                           fontWeight:
                                                               FontWeight.normal,
-                                                          useGoogleFonts: GoogleFonts
-                                                                  .asMap()
-                                                              .containsKey(
-                                                                  FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .bodyMediumFamily),
+                                                          useGoogleFonts:
+                                                              !FlutterFlowTheme
+                                                                      .of(context)
+                                                                  .bodyMediumIsCustom,
                                                         ),
                                                   )
                                                 ],
@@ -624,12 +647,10 @@ class _AdminAdditionalWidgetState extends State<AdminAdditionalWidget> {
                                                                       context)
                                                                   .bodyMediumFamily,
                                                           letterSpacing: 0.0,
-                                                          useGoogleFonts: GoogleFonts
-                                                                  .asMap()
-                                                              .containsKey(
-                                                                  FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .bodyMediumFamily),
+                                                          useGoogleFonts:
+                                                              !FlutterFlowTheme
+                                                                      .of(context)
+                                                                  .bodyMediumIsCustom,
                                                         ),
                                               ),
                                             ),
@@ -642,6 +663,10 @@ class _AdminAdditionalWidgetState extends State<AdminAdditionalWidget> {
                                           hoverColor: Colors.transparent,
                                           highlightColor: Colors.transparent,
                                           onTap: () async {
+                                            logFirebaseEvent(
+                                                'ADMIN_ADDITIONAL_Container_kh63aezn_ON_T');
+                                            logFirebaseEvent(
+                                                'Container_alert_dialog');
                                             showAlignedDialog(
                                               context: context,
                                               isGlobal: false,

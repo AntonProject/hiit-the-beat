@@ -1,3 +1,5 @@
 NSCameraUsageDescription = "Um ein Profilfoto aufzunehmen, benötigt diese App die Berechtigung, auf die Kamera zuzugreifen";
 NSPhotoLibraryUsageDescription = "Um ein Profilfoto aufzunehmen, benötigt diese App die Berechtigung, auf die Kamera zuzugreifen";
 NSMicrophoneUsageDescription = "Um Audio für Videos aufzunehmen, benötigt diese App die Berechtigung, auf das Mikrofon zuzugreifen";
+ITSAppUsesNonExemptEncryption = "false";
+NSUserTrackingUsageDescription = "Diese Berechtigung ermöglicht es uns, Ihnen ein personalisiertes Trainingserlebnis zu bieten und die Qualität der App zu verbessern.";

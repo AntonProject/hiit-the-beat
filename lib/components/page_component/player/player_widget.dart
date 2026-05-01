@@ -1,6 +1,12 @@
+import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_video_player.dart';
+import '/flutter_flow/flutter_flow_widgets.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'player_model.dart';
 export 'player_model.dart';
 
@@ -49,7 +55,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
         height: MediaQuery.sizeOf(context).height * 0.85,
         decoration: BoxDecoration(),
         child: FlutterFlowVideoPlayer(
-          path: widget.video!,
+          path: widget!.video!,
           videoType: VideoType.network,
           width: MediaQuery.sizeOf(context).width * 1.0,
           height: MediaQuery.sizeOf(context).height * 0.85,

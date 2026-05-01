@@ -1,13 +1,22 @@
+import '/auth/firebase_auth/auth_util.dart';
+import '/backend/backend.dart';
 import '/flutter_flow/flutter_flow_animations.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
+import 'dart:math';
+import 'dart:ui';
 import '/index.dart';
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'expert_seasons_done_dialog_model.dart';
 export 'expert_seasons_done_dialog_model.dart';
@@ -159,10 +168,9 @@ class _ExpertSeasonsDoneDialogWidgetState
                               fontSize: 24.0,
                               letterSpacing: 0.07,
                               fontWeight: FontWeight.bold,
-                              useGoogleFonts: GoogleFonts.asMap().containsKey(
-                                  FlutterFlowTheme.of(context)
-                                      .bodyMediumFamily),
                               lineHeight: 1.4,
+                              useGoogleFonts: !FlutterFlowTheme.of(context)
+                                  .bodyMediumIsCustom,
                             ),
                       ),
                     ),
@@ -184,11 +192,10 @@ class _ExpertSeasonsDoneDialogWidgetState
                                         .bodyMediumFamily,
                                     letterSpacing: 0.07,
                                     fontWeight: FontWeight.w600,
-                                    useGoogleFonts: GoogleFonts.asMap()
-                                        .containsKey(
-                                            FlutterFlowTheme.of(context)
-                                                .bodyMediumFamily),
                                     lineHeight: 1.4,
+                                    useGoogleFonts:
+                                        !FlutterFlowTheme.of(context)
+                                            .bodyMediumIsCustom,
                                   ),
                             ),
                             TextSpan(
@@ -203,19 +210,17 @@ class _ExpertSeasonsDoneDialogWidgetState
                                     color: FlutterFlowTheme.of(context).accent1,
                                     letterSpacing: 0.07,
                                     fontWeight: FontWeight.w600,
-                                    useGoogleFonts: GoogleFonts.asMap()
-                                        .containsKey(
-                                            FlutterFlowTheme.of(context)
-                                                .bodyMediumFamily),
                                     lineHeight: 1.4,
+                                    useGoogleFonts:
+                                        !FlutterFlowTheme.of(context)
+                                            .bodyMediumIsCustom,
                                   ),
                             ),
                             TextSpan(
                               text: FFLocalizations.of(context).getText(
                                 'hatl84jz' /*   */,
                               ),
-                              style: GoogleFonts.getFont(
-                                'Urbanist',
+                              style: GoogleFonts.urbanist(
                                 color: FlutterFlowTheme.of(context).primaryText,
                                 fontWeight: FontWeight.w600,
                                 fontSize: 14.0,
@@ -229,190 +234,283 @@ class _ExpertSeasonsDoneDialogWidgetState
                                 fontFamily: FlutterFlowTheme.of(context)
                                     .bodyMediumFamily,
                                 letterSpacing: 0.0,
-                                useGoogleFonts: GoogleFonts.asMap().containsKey(
-                                    FlutterFlowTheme.of(context)
-                                        .bodyMediumFamily),
+                                useGoogleFonts: !FlutterFlowTheme.of(context)
+                                    .bodyMediumIsCustom,
                               ),
                         ),
                         textAlign: TextAlign.center,
                         maxLines: 7,
                       ),
                     ),
-                    Padding(
-                      padding:
-                          EdgeInsetsDirectional.fromSTEB(0.0, 12.0, 0.0, 0.0),
-                      child: Material(
-                        color: Colors.transparent,
-                        elevation: 0.0,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12.0),
-                        ),
-                        child: Container(
-                          width: double.infinity,
-                          decoration: BoxDecoration(
-                            color:
-                                FlutterFlowTheme.of(context).primaryBackground,
+                    if (!valueOrDefault<bool>(
+                      getRemoteConfigBool('godmodeShow'),
+                      false,
+                    ))
+                      Padding(
+                        padding:
+                            EdgeInsetsDirectional.fromSTEB(0.0, 12.0, 0.0, 0.0),
+                        child: Material(
+                          color: Colors.transparent,
+                          elevation: 0.0,
+                          shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12.0),
-                            border: Border.all(
-                              color: FlutterFlowTheme.of(context).middleGray,
+                          ),
+                          child: Container(
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                              color: FlutterFlowTheme.of(context)
+                                  .primaryBackground,
+                              borderRadius: BorderRadius.circular(12.0),
+                              border: Border.all(
+                                color: FlutterFlowTheme.of(context).middleGray,
+                                width: 1.0,
+                              ),
+                            ),
+                            child: Padding(
+                              padding: EdgeInsetsDirectional.fromSTEB(
+                                  8.0, 12.0, 8.0, 12.0),
+                              child: RichText(
+                                textScaler: MediaQuery.of(context).textScaler,
+                                text: TextSpan(
+                                  children: [
+                                    TextSpan(
+                                      text: FFLocalizations.of(context).getText(
+                                        '98y4o1pj' /*  Send us a mail to */,
+                                      ),
+                                      style: FlutterFlowTheme.of(context)
+                                          .bodyMedium
+                                          .override(
+                                            fontFamily:
+                                                FlutterFlowTheme.of(context)
+                                                    .bodyMediumFamily,
+                                            letterSpacing: 0.07,
+                                            fontWeight: FontWeight.w600,
+                                            lineHeight: 1.4,
+                                            useGoogleFonts:
+                                                !FlutterFlowTheme.of(context)
+                                                    .bodyMediumIsCustom,
+                                          ),
+                                    ),
+                                    TextSpan(
+                                      text: FFLocalizations.of(context).getText(
+                                        'xjmrga16' /*  info@breakletics.com
+ */
+                                        ,
+                                      ),
+                                      style: FlutterFlowTheme.of(context)
+                                          .bodyMedium
+                                          .override(
+                                            fontFamily:
+                                                FlutterFlowTheme.of(context)
+                                                    .bodyMediumFamily,
+                                            color: FlutterFlowTheme.of(context)
+                                                .accent1,
+                                            letterSpacing: 0.07,
+                                            fontWeight: FontWeight.w600,
+                                            lineHeight: 1.4,
+                                            useGoogleFonts:
+                                                !FlutterFlowTheme.of(context)
+                                                    .bodyMediumIsCustom,
+                                          ),
+                                    ),
+                                    TextSpan(
+                                      text: FFLocalizations.of(context).getText(
+                                        'yrdxwaxv' /* So we will hurry up to release... */,
+                                      ),
+                                      style: GoogleFonts.urbanist(
+                                        color: FlutterFlowTheme.of(context)
+                                            .primaryText,
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 14.0,
+                                        height: 1.4,
+                                      ),
+                                    )
+                                  ],
+                                  style: FlutterFlowTheme.of(context)
+                                      .bodyMedium
+                                      .override(
+                                        fontFamily: FlutterFlowTheme.of(context)
+                                            .bodyMediumFamily,
+                                        letterSpacing: 0.0,
+                                        useGoogleFonts:
+                                            !FlutterFlowTheme.of(context)
+                                                .bodyMediumIsCustom,
+                                      ),
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    if (!valueOrDefault<bool>(
+                      getRemoteConfigBool('godmodeShow'),
+                      false,
+                    ))
+                      Padding(
+                        padding:
+                            EdgeInsetsDirectional.fromSTEB(0.0, 32.0, 0.0, 0.0),
+                        child: FFButtonWidget(
+                          onPressed: () async {
+                            logFirebaseEvent(
+                                'EXPERT_SEASONS_DONE_DIALOG_Writemail_ON_');
+                            logFirebaseEvent('Writemail_haptic_feedback');
+                            HapticFeedback.selectionClick();
+                            logFirebaseEvent('Writemail_send_email');
+                            await launchUrl(Uri(
+                                scheme: 'mailto',
+                                path: 'info@breakletics.com',
+                                query: {
+                                  'subject': 'EXPERT SEASONS ARE DONE!',
+                                }
+                                    .entries
+                                    .map((MapEntry<String, String> e) =>
+                                        '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value)}')
+                                    .join('&')));
+                            logFirebaseEvent('Writemail_bottom_sheet');
+                            Navigator.pop(context);
+                            logFirebaseEvent('Writemail_navigate_to');
+
+                            context.goNamed(
+                              HomePageWidget.routeName,
+                              extra: <String, dynamic>{
+                                '__transition_info__': TransitionInfo(
+                                  hasTransition: true,
+                                  transitionType: PageTransitionType.fade,
+                                  duration: Duration(milliseconds: 0),
+                                ),
+                              },
+                            );
+                          },
+                          text: FFLocalizations.of(context).getText(
+                            'oyrgquuj' /* Write mail */,
+                          ),
+                          options: FFButtonOptions(
+                            width: double.infinity,
+                            height: 40.0,
+                            padding: EdgeInsetsDirectional.fromSTEB(
+                                16.0, 0.0, 16.0, 0.0),
+                            iconPadding: EdgeInsetsDirectional.fromSTEB(
+                                0.0, 0.0, 0.0, 0.0),
+                            color: FlutterFlowTheme.of(context).secondary,
+                            textStyle: FlutterFlowTheme.of(context)
+                                .titleSmall
+                                .override(
+                                  fontFamily: FlutterFlowTheme.of(context)
+                                      .titleSmallFamily,
+                                  color: FlutterFlowTheme.of(context).primary,
+                                  fontSize: 14.0,
+                                  letterSpacing: 0.07,
+                                  lineHeight: 1.4,
+                                  useGoogleFonts: !FlutterFlowTheme.of(context)
+                                      .titleSmallIsCustom,
+                                ),
+                            elevation: 0.0,
+                            borderSide: BorderSide(
+                              color: FlutterFlowTheme.of(context).secondary,
                               width: 1.0,
                             ),
-                          ),
-                          child: Padding(
-                            padding: EdgeInsetsDirectional.fromSTEB(
-                                8.0, 12.0, 8.0, 12.0),
-                            child: RichText(
-                              textScaler: MediaQuery.of(context).textScaler,
-                              text: TextSpan(
-                                children: [
-                                  TextSpan(
-                                    text: FFLocalizations.of(context).getText(
-                                      '98y4o1pj' /*  Send us a mail to */,
-                                    ),
-                                    style: FlutterFlowTheme.of(context)
-                                        .bodyMedium
-                                        .override(
-                                          fontFamily:
-                                              FlutterFlowTheme.of(context)
-                                                  .bodyMediumFamily,
-                                          letterSpacing: 0.07,
-                                          fontWeight: FontWeight.w600,
-                                          useGoogleFonts: GoogleFonts.asMap()
-                                              .containsKey(
-                                                  FlutterFlowTheme.of(context)
-                                                      .bodyMediumFamily),
-                                          lineHeight: 1.4,
-                                        ),
-                                  ),
-                                  TextSpan(
-                                    text: FFLocalizations.of(context).getText(
-                                      'xjmrga16' /*  info@breakletics.com
- */
-                                      ,
-                                    ),
-                                    style: FlutterFlowTheme.of(context)
-                                        .bodyMedium
-                                        .override(
-                                          fontFamily:
-                                              FlutterFlowTheme.of(context)
-                                                  .bodyMediumFamily,
-                                          color: FlutterFlowTheme.of(context)
-                                              .accent1,
-                                          letterSpacing: 0.07,
-                                          fontWeight: FontWeight.w600,
-                                          useGoogleFonts: GoogleFonts.asMap()
-                                              .containsKey(
-                                                  FlutterFlowTheme.of(context)
-                                                      .bodyMediumFamily),
-                                          lineHeight: 1.4,
-                                        ),
-                                  ),
-                                  TextSpan(
-                                    text: FFLocalizations.of(context).getText(
-                                      'yrdxwaxv' /* So we will hurry up to release... */,
-                                    ),
-                                    style: GoogleFonts.getFont(
-                                      'Urbanist',
-                                      color: FlutterFlowTheme.of(context)
-                                          .primaryText,
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 14.0,
-                                      height: 1.4,
-                                    ),
-                                  )
-                                ],
-                                style: FlutterFlowTheme.of(context)
-                                    .bodyMedium
-                                    .override(
-                                      fontFamily: FlutterFlowTheme.of(context)
-                                          .bodyMediumFamily,
-                                      letterSpacing: 0.0,
-                                      useGoogleFonts: GoogleFonts.asMap()
-                                          .containsKey(
-                                              FlutterFlowTheme.of(context)
-                                                  .bodyMediumFamily),
-                                    ),
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
+                            borderRadius: BorderRadius.circular(12.0),
                           ),
                         ),
                       ),
-                    ),
-                    Padding(
-                      padding:
-                          EdgeInsetsDirectional.fromSTEB(0.0, 32.0, 0.0, 0.0),
-                      child: FFButtonWidget(
-                        onPressed: () async {
-                          HapticFeedback.selectionClick();
-                          await launchUrl(Uri(
-                              scheme: 'mailto',
-                              path: 'info@breakletics.com',
-                              query: {
-                                'subject': 'EXPERT SEASONS ARE DONE!',
-                              }
-                                  .entries
-                                  .map((MapEntry<String, String> e) =>
-                                      '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value)}')
-                                  .join('&')));
-                          Navigator.pop(context);
+                    if (valueOrDefault<bool>(
+                      getRemoteConfigBool('godmodeShow'),
+                      false,
+                    ))
+                      Padding(
+                        padding:
+                            EdgeInsetsDirectional.fromSTEB(0.0, 32.0, 0.0, 0.0),
+                        child: FFButtonWidget(
+                          onPressed: () async {
+                            logFirebaseEvent(
+                                'EXPERT_SEASONS_DONE_DIALOG_Gotonextseaso');
+                            logFirebaseEvent('Gotonextseason_haptic_feedback');
+                            HapticFeedback.selectionClick();
+                            if (valueOrDefault(
+                                    currentUserDocument?.currentLevel, 0) <
+                                4) {
+                              logFirebaseEvent('Gotonextseason_backend_call');
 
-                          context.goNamed(
-                            HomePageWidget.routeName,
-                            extra: <String, dynamic>{
-                              kTransitionInfoKey: TransitionInfo(
-                                hasTransition: true,
-                                transitionType: PageTransitionType.fade,
-                                duration: Duration(milliseconds: 0),
-                              ),
-                            },
-                          );
-                        },
-                        text: FFLocalizations.of(context).getText(
-                          'oyrgquuj' /* Write mail */,
-                        ),
-                        options: FFButtonOptions(
-                          width: double.infinity,
-                          height: 40.0,
-                          padding: EdgeInsetsDirectional.fromSTEB(
-                              16.0, 0.0, 16.0, 0.0),
-                          iconPadding: EdgeInsetsDirectional.fromSTEB(
-                              0.0, 0.0, 0.0, 0.0),
-                          color: FlutterFlowTheme.of(context).secondary,
-                          textStyle: FlutterFlowTheme.of(context)
-                              .titleSmall
-                              .override(
-                                fontFamily: FlutterFlowTheme.of(context)
-                                    .titleSmallFamily,
-                                color: FlutterFlowTheme.of(context).primary,
-                                fontSize: 14.0,
-                                letterSpacing: 0.07,
-                                useGoogleFonts: GoogleFonts.asMap().containsKey(
-                                    FlutterFlowTheme.of(context)
-                                        .titleSmallFamily),
-                                lineHeight: 1.4,
-                              ),
-                          elevation: 0.0,
-                          borderSide: BorderSide(
-                            color: FlutterFlowTheme.of(context).secondary,
-                            width: 1.0,
+                              await currentUserReference!
+                                  .update(createUsersRecordData(
+                                currentLevel: 4,
+                              ));
+                              logFirebaseEvent(
+                                  'Gotonextseason_update_app_state');
+
+                              FFAppState().update(() {});
+                            }
+                            logFirebaseEvent('Gotonextseason_bottom_sheet');
+                            Navigator.pop(context);
+                            logFirebaseEvent('Gotonextseason_navigate_to');
+
+                            context.goNamed(
+                              SeasonWorkoutPageWidget.routeName,
+                              queryParameters: {
+                                'level': serializeParam(
+                                  4,
+                                  ParamType.int,
+                                ),
+                              }.withoutNulls,
+                              extra: <String, dynamic>{
+                                '__transition_info__': TransitionInfo(
+                                  hasTransition: true,
+                                  transitionType: PageTransitionType.fade,
+                                  duration: Duration(milliseconds: 0),
+                                ),
+                              },
+                            );
+                          },
+                          text: FFLocalizations.of(context).getText(
+                            'zgu1dsru' /* Go to next season */,
                           ),
-                          borderRadius: BorderRadius.circular(12.0),
+                          options: FFButtonOptions(
+                            width: double.infinity,
+                            height: 40.0,
+                            padding: EdgeInsetsDirectional.fromSTEB(
+                                16.0, 0.0, 16.0, 0.0),
+                            iconPadding: EdgeInsetsDirectional.fromSTEB(
+                                0.0, 0.0, 0.0, 0.0),
+                            color: FlutterFlowTheme.of(context).secondary,
+                            textStyle: FlutterFlowTheme.of(context)
+                                .titleSmall
+                                .override(
+                                  fontFamily: FlutterFlowTheme.of(context)
+                                      .titleSmallFamily,
+                                  color: FlutterFlowTheme.of(context).primary,
+                                  fontSize: 14.0,
+                                  letterSpacing: 0.07,
+                                  lineHeight: 1.4,
+                                  useGoogleFonts: !FlutterFlowTheme.of(context)
+                                      .titleSmallIsCustom,
+                                ),
+                            elevation: 0.0,
+                            borderSide: BorderSide(
+                              color: FlutterFlowTheme.of(context).secondary,
+                              width: 1.0,
+                            ),
+                            borderRadius: BorderRadius.circular(12.0),
+                          ),
                         ),
                       ),
-                    ),
                     Padding(
                       padding:
                           EdgeInsetsDirectional.fromSTEB(0.0, 8.0, 0.0, 0.0),
                       child: FFButtonWidget(
                         onPressed: () async {
+                          logFirebaseEvent(
+                              'EXPERT_SEASONS_DONE_DIALOG_Waitfornewsea');
+                          logFirebaseEvent('Waitfornewseasons_haptic_feedback');
                           HapticFeedback.selectionClick();
+                          logFirebaseEvent('Waitfornewseasons_bottom_sheet');
                           Navigator.pop(context);
+                          logFirebaseEvent('Waitfornewseasons_navigate_to');
 
                           context.goNamed(
                             HomePageWidget.routeName,
                             extra: <String, dynamic>{
-                              kTransitionInfoKey: TransitionInfo(
+                              '__transition_info__': TransitionInfo(
                                 hasTransition: true,
                                 transitionType: PageTransitionType.fade,
                                 duration: Duration(milliseconds: 0),
@@ -439,10 +537,9 @@ class _ExpertSeasonsDoneDialogWidgetState
                                 color: FlutterFlowTheme.of(context).primaryText,
                                 fontSize: 14.0,
                                 letterSpacing: 0.07,
-                                useGoogleFonts: GoogleFonts.asMap().containsKey(
-                                    FlutterFlowTheme.of(context)
-                                        .titleSmallFamily),
                                 lineHeight: 1.4,
+                                useGoogleFonts: !FlutterFlowTheme.of(context)
+                                    .titleSmallIsCustom,
                               ),
                           elevation: 0.0,
                           borderSide: BorderSide(

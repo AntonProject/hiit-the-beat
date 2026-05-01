@@ -1,14 +1,19 @@
 import '/auth/firebase_auth/auth_util.dart';
-import '/backend/schema/enums/enums.dart';
 import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
+import 'dart:async';
+import 'dart:ui';
+import '/custom_code/actions/index.dart' as actions;
 import '/index.dart';
 import 'package:easy_debounce/easy_debounce.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'admin_auth_model.dart';
 export 'admin_auth_model.dart';
 
@@ -31,6 +36,20 @@ class _AdminAuthWidgetState extends State<AdminAuthWidget> {
   void initState() {
     super.initState();
     _model = createModel(context, () => AdminAuthModel());
+
+    logFirebaseEvent('screen_view', parameters: {'screen_name': 'AdminAuth'});
+    // On page load action.
+    SchedulerBinding.instance.addPostFrameCallback((_) async {
+      logFirebaseEvent('ADMIN_AUTH_PAGE_AdminAuth_ON_INIT_STATE');
+      logFirebaseEvent('AdminAuth_set_dark_mode_settings');
+      setDarkModeSetting(context, ThemeMode.dark);
+      logFirebaseEvent('AdminAuth_custom_action');
+      unawaited(
+        () async {
+          await actions.setStatusBarColor();
+        }(),
+      );
+    });
 
     _model.emailTextController ??= TextEditingController();
     _model.emailFocusNode ??= FocusNode();
@@ -74,6 +93,8 @@ class _AdminAuthWidgetState extends State<AdminAuthWidget> {
                 size: 24.0,
               ),
               onPressed: () async {
+                logFirebaseEvent('ADMIN_AUTH_arrow_back_rounded_ICN_ON_TAP');
+                logFirebaseEvent('IconButton_navigate_back');
                 context.safePop();
               },
             ),
@@ -113,9 +134,8 @@ class _AdminAuthWidgetState extends State<AdminAuthWidget> {
                                     .bodyMediumFamily,
                                 fontSize: 32.0,
                                 letterSpacing: 0.0,
-                                useGoogleFonts: GoogleFonts.asMap().containsKey(
-                                    FlutterFlowTheme.of(context)
-                                        .bodyMediumFamily),
+                                useGoogleFonts: !FlutterFlowTheme.of(context)
+                                    .bodyMediumIsCustom,
                               ),
                         ),
                         Padding(
@@ -131,9 +151,8 @@ class _AdminAuthWidgetState extends State<AdminAuthWidget> {
                                   fontFamily: FlutterFlowTheme.of(context)
                                       .bodyMediumFamily,
                                   letterSpacing: 0.0,
-                                  useGoogleFonts: GoogleFonts.asMap()
-                                      .containsKey(FlutterFlowTheme.of(context)
-                                          .bodyMediumFamily),
+                                  useGoogleFonts: !FlutterFlowTheme.of(context)
+                                      .bodyMediumIsCustom,
                                 ),
                           ),
                         ),
@@ -162,11 +181,10 @@ class _AdminAuthWidgetState extends State<AdminAuthWidget> {
                                     color: FlutterFlowTheme.of(context).gray,
                                     letterSpacing: 0.07,
                                     fontWeight: FontWeight.w600,
-                                    useGoogleFonts: GoogleFonts.asMap()
-                                        .containsKey(
-                                            FlutterFlowTheme.of(context)
-                                                .bodyMediumFamily),
                                     lineHeight: 1.4,
+                                    useGoogleFonts:
+                                        !FlutterFlowTheme.of(context)
+                                            .bodyMediumIsCustom,
                                   ),
                               enabledBorder: OutlineInputBorder(
                                 borderSide: BorderSide(
@@ -211,10 +229,9 @@ class _AdminAuthWidgetState extends State<AdminAuthWidget> {
                                       .bodyMediumFamily,
                                   letterSpacing: 0.07,
                                   fontWeight: FontWeight.w600,
-                                  useGoogleFonts: GoogleFonts.asMap()
-                                      .containsKey(FlutterFlowTheme.of(context)
-                                          .bodyMediumFamily),
                                   lineHeight: 1.4,
+                                  useGoogleFonts: !FlutterFlowTheme.of(context)
+                                      .bodyMediumIsCustom,
                                 ),
                             keyboardType: TextInputType.emailAddress,
                             cursorColor:
@@ -236,9 +253,8 @@ class _AdminAuthWidgetState extends State<AdminAuthWidget> {
                                   fontFamily: FlutterFlowTheme.of(context)
                                       .bodyMediumFamily,
                                   letterSpacing: 0.0,
-                                  useGoogleFonts: GoogleFonts.asMap()
-                                      .containsKey(FlutterFlowTheme.of(context)
-                                          .bodyMediumFamily),
+                                  useGoogleFonts: !FlutterFlowTheme.of(context)
+                                      .bodyMediumIsCustom,
                                 ),
                           ),
                         ),
@@ -264,11 +280,10 @@ class _AdminAuthWidgetState extends State<AdminAuthWidget> {
                                     color: FlutterFlowTheme.of(context).gray,
                                     letterSpacing: 0.07,
                                     fontWeight: FontWeight.w600,
-                                    useGoogleFonts: GoogleFonts.asMap()
-                                        .containsKey(
-                                            FlutterFlowTheme.of(context)
-                                                .bodyMediumFamily),
                                     lineHeight: 1.4,
+                                    useGoogleFonts:
+                                        !FlutterFlowTheme.of(context)
+                                            .bodyMediumIsCustom,
                                   ),
                               enabledBorder: OutlineInputBorder(
                                 borderSide: BorderSide(
@@ -306,10 +321,10 @@ class _AdminAuthWidgetState extends State<AdminAuthWidget> {
                               contentPadding: EdgeInsetsDirectional.fromSTEB(
                                   16.0, 12.0, 16.0, 12.0),
                               suffixIcon: InkWell(
-                                onTap: () => safeSetState(
-                                  () => _model.passVisibility =
-                                      !_model.passVisibility,
-                                ),
+                                onTap: () async {
+                                  safeSetState(() => _model.passVisibility =
+                                      !_model.passVisibility);
+                                },
                                 focusNode: FocusNode(skipTraversal: true),
                                 child: Icon(
                                   _model.passVisibility
@@ -328,10 +343,9 @@ class _AdminAuthWidgetState extends State<AdminAuthWidget> {
                                       .bodyMediumFamily,
                                   letterSpacing: 0.07,
                                   fontWeight: FontWeight.w600,
-                                  useGoogleFonts: GoogleFonts.asMap()
-                                      .containsKey(FlutterFlowTheme.of(context)
-                                          .bodyMediumFamily),
                                   lineHeight: 1.4,
+                                  useGoogleFonts: !FlutterFlowTheme.of(context)
+                                      .bodyMediumIsCustom,
                                 ),
                             keyboardType: TextInputType.visiblePassword,
                             cursorColor:
@@ -345,6 +359,8 @@ class _AdminAuthWidgetState extends State<AdminAuthWidget> {
                               0.0, 32.0, 0.0, 0.0),
                           child: FFButtonWidget(
                             onPressed: () async {
+                              logFirebaseEvent('ADMIN_AUTH_PAGE_Login_ON_TAP');
+                              logFirebaseEvent('Login_auth');
                               GoRouter.of(context).prepareAuthEvent();
 
                               final user = await authManager.signInWithEmail(
@@ -359,11 +375,13 @@ class _AdminAuthWidgetState extends State<AdminAuthWidget> {
                               if (valueOrDefault(
                                       currentUserDocument?.role, '') ==
                                   'admin') {
+                                logFirebaseEvent('Login_navigate_to');
+
                                 context.pushNamedAuth(
                                   AdminUserManagementWidget.routeName,
                                   context.mounted,
                                   extra: <String, dynamic>{
-                                    kTransitionInfoKey: TransitionInfo(
+                                    '__transition_info__': TransitionInfo(
                                       hasTransition: true,
                                       transitionType: PageTransitionType.fade,
                                       duration: Duration(milliseconds: 0),
@@ -371,10 +389,29 @@ class _AdminAuthWidgetState extends State<AdminAuthWidget> {
                                   },
                                 );
 
-                                FFAppState().adminPage = AdminPages.users.name;
+                                logFirebaseEvent('Login_update_app_state');
+                                FFAppState().refreshDate = getCurrentTimestamp;
                                 safeSetState(() {});
+                                logFirebaseEvent('Login_clear_query_cache');
+                                FFAppState().clearUsersCache();
+                                logFirebaseEvent('Login_clear_query_cache');
+                                FFAppState().clearSeasonsCache();
+                                logFirebaseEvent('Login_clear_query_cache');
+                                FFAppState().clearWorkoutsCache();
+                                logFirebaseEvent('Login_clear_query_cache');
+                                FFAppState().clearZoomCache();
+                                logFirebaseEvent('Login_clear_query_cache');
+                                FFAppState().clearAddCache();
+                                logFirebaseEvent('Login_clear_query_cache');
+                                FFAppState().clearBannersCache();
+                                logFirebaseEvent('Login_clear_query_cache');
+                                FFAppState().clearPromoCache();
+                                logFirebaseEvent('Login_clear_query_cache');
+                                FFAppState().clearProgressCache();
                               } else {
+                                logFirebaseEvent('Login_haptic_feedback');
                                 HapticFeedback.vibrate();
+                                logFirebaseEvent('Login_auth');
                                 GoRouter.of(context).prepareAuthEvent();
                                 await authManager.signOut();
                                 GoRouter.of(context).clearRedirectLocation();
@@ -400,11 +437,10 @@ class _AdminAuthWidgetState extends State<AdminAuthWidget> {
                                     fontSize: 12.0,
                                     letterSpacing: 0.07,
                                     fontWeight: FontWeight.normal,
-                                    useGoogleFonts: GoogleFonts.asMap()
-                                        .containsKey(
-                                            FlutterFlowTheme.of(context)
-                                                .titleSmallFamily),
                                     lineHeight: 1.4,
+                                    useGoogleFonts:
+                                        !FlutterFlowTheme.of(context)
+                                            .titleSmallIsCustom,
                                   ),
                               elevation: 0.0,
                               borderSide: BorderSide(

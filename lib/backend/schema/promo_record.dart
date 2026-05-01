@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 
 import '/backend/schema/util/firestore_util.dart';
+import '/backend/schema/util/schema_util.dart';
+import '/backend/schema/enums/enums.dart';
 
 import 'index.dart';
 import '/flutter_flow/flutter_flow_util.dart';
@@ -40,12 +42,18 @@ class PromoRecord extends FirestoreRecord {
   String get linkURL => _linkURL ?? '';
   bool hasLinkURL() => _linkURL != null;
 
+  // "text_ja" field.
+  String? _textJa;
+  String get textJa => _textJa ?? '';
+  bool hasTextJa() => _textJa != null;
+
   void _initializeFields() {
     _textEn = snapshotData['text_en'] as String?;
     _textDe = snapshotData['text_de'] as String?;
     _show = snapshotData['show'] as bool?;
     _createdAt = snapshotData['created_at'] as DateTime?;
     _linkURL = snapshotData['linkURL'] as String?;
+    _textJa = snapshotData['text_ja'] as String?;
   }
 
   static CollectionReference get collection =>
@@ -87,6 +95,7 @@ Map<String, dynamic> createPromoRecordData({
   bool? show,
   DateTime? createdAt,
   String? linkURL,
+  String? textJa,
 }) {
   final firestoreData = mapToFirestore(
     <String, dynamic>{
@@ -95,6 +104,7 @@ Map<String, dynamic> createPromoRecordData({
       'show': show,
       'created_at': createdAt,
       'linkURL': linkURL,
+      'text_ja': textJa,
     }.withoutNulls,
   );
 
@@ -110,12 +120,13 @@ class PromoRecordDocumentEquality implements Equality<PromoRecord> {
         e1?.textDe == e2?.textDe &&
         e1?.show == e2?.show &&
         e1?.createdAt == e2?.createdAt &&
-        e1?.linkURL == e2?.linkURL;
+        e1?.linkURL == e2?.linkURL &&
+        e1?.textJa == e2?.textJa;
   }
 
   @override
-  int hash(PromoRecord? e) => const ListEquality()
-      .hash([e?.textEn, e?.textDe, e?.show, e?.createdAt, e?.linkURL]);
+  int hash(PromoRecord? e) => const ListEquality().hash(
+      [e?.textEn, e?.textDe, e?.show, e?.createdAt, e?.linkURL, e?.textJa]);
 
   @override
   bool isValidKey(Object? o) => o is PromoRecord;

@@ -3,7 +3,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '/backend/schema/util/firestore_util.dart';
+import '/backend/schema/util/schema_util.dart';
+import '/backend/schema/enums/enums.dart';
 
+import 'index.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 
 class LevelStruct extends FFFirebaseStruct {
@@ -11,10 +14,12 @@ class LevelStruct extends FFFirebaseStruct {
     int? number,
     String? titleEn,
     String? titleDe,
+    String? titleJa,
     FirestoreUtilData firestoreUtilData = const FirestoreUtilData(),
   })  : _number = number,
         _titleEn = titleEn,
         _titleDe = titleDe,
+        _titleJa = titleJa,
         super(firestoreUtilData);
 
   // "number" field.
@@ -40,10 +45,18 @@ class LevelStruct extends FFFirebaseStruct {
 
   bool hasTitleDe() => _titleDe != null;
 
+  // "title_ja" field.
+  String? _titleJa;
+  String get titleJa => _titleJa ?? '';
+  set titleJa(String? val) => _titleJa = val;
+
+  bool hasTitleJa() => _titleJa != null;
+
   static LevelStruct fromMap(Map<String, dynamic> data) => LevelStruct(
         number: castToType<int>(data['number']),
         titleEn: data['title_en'] as String?,
         titleDe: data['title_de'] as String?,
+        titleJa: data['title_ja'] as String?,
       );
 
   static LevelStruct? maybeFromMap(dynamic data) =>
@@ -53,6 +66,7 @@ class LevelStruct extends FFFirebaseStruct {
         'number': _number,
         'title_en': _titleEn,
         'title_de': _titleDe,
+        'title_ja': _titleJa,
       }.withoutNulls;
 
   @override
@@ -67,6 +81,10 @@ class LevelStruct extends FFFirebaseStruct {
         ),
         'title_de': serializeParam(
           _titleDe,
+          ParamType.String,
+        ),
+        'title_ja': serializeParam(
+          _titleJa,
           ParamType.String,
         ),
       }.withoutNulls;
@@ -88,6 +106,11 @@ class LevelStruct extends FFFirebaseStruct {
           ParamType.String,
           false,
         ),
+        titleJa: deserializeParam(
+          data['title_ja'],
+          ParamType.String,
+          false,
+        ),
       );
 
   @override
@@ -98,17 +121,20 @@ class LevelStruct extends FFFirebaseStruct {
     return other is LevelStruct &&
         number == other.number &&
         titleEn == other.titleEn &&
-        titleDe == other.titleDe;
+        titleDe == other.titleDe &&
+        titleJa == other.titleJa;
   }
 
   @override
-  int get hashCode => const ListEquality().hash([number, titleEn, titleDe]);
+  int get hashCode =>
+      const ListEquality().hash([number, titleEn, titleDe, titleJa]);
 }
 
 LevelStruct createLevelStruct({
   int? number,
   String? titleEn,
   String? titleDe,
+  String? titleJa,
   Map<String, dynamic> fieldValues = const {},
   bool clearUnsetFields = true,
   bool create = false,
@@ -118,6 +144,7 @@ LevelStruct createLevelStruct({
       number: number,
       titleEn: titleEn,
       titleDe: titleDe,
+      titleJa: titleJa,
       firestoreUtilData: FirestoreUtilData(
         clearUnsetFields: clearUnsetFields,
         create: create,
@@ -174,7 +201,8 @@ Map<String, dynamic> getLevelFirestoreData(
   final firestoreData = mapToFirestore(level.toMap());
 
   // Add any Firestore field values
-  level.firestoreUtilData.fieldValues.forEach((k, v) => firestoreData[k] = v);
+  mapToFirestore(level.firestoreUtilData.fieldValues)
+      .forEach((k, v) => firestoreData[k] = v);
 
   return forFieldValue ? mergeNestedFields(firestoreData) : firestoreData;
 }

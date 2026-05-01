@@ -1,11 +1,16 @@
 import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
+import '/flutter_flow/flutter_flow_widgets.dart';
 import 'dart:async';
+import 'dart:ui';
 import '/custom_code/actions/index.dart' as actions;
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'imprint_page_model.dart';
 export 'imprint_page_model.dart';
 
@@ -29,11 +34,20 @@ class _ImprintPageWidgetState extends State<ImprintPageWidget> {
     super.initState();
     _model = createModel(context, () => ImprintPageModel());
 
+    logFirebaseEvent('screen_view', parameters: {'screen_name': 'ImprintPage'});
     // On page load action.
     SchedulerBinding.instance.addPostFrameCallback((_) async {
+      logFirebaseEvent('IMPRINT_ImprintPage_ON_INIT_STATE');
+      logFirebaseEvent('ImprintPage_custom_action');
       unawaited(
         () async {
           await actions.lockLandscapeMode();
+        }(),
+      );
+      logFirebaseEvent('ImprintPage_custom_action');
+      unawaited(
+        () async {
+          await actions.setStatusBarColor();
         }(),
       );
     });
@@ -79,6 +93,9 @@ class _ImprintPageWidgetState extends State<ImprintPageWidget> {
                       size: 24.0,
                     ),
                     onPressed: () async {
+                      logFirebaseEvent(
+                          'IMPRINT_PAGE_PAGE_arrowLeft24_ICN_ON_TAP');
+                      logFirebaseEvent('IconButton_navigate_back');
                       context.safePop();
                     },
                   ),
@@ -91,9 +108,9 @@ class _ImprintPageWidgetState extends State<ImprintPageWidget> {
                               FlutterFlowTheme.of(context).bodyMediumFamily,
                           letterSpacing: 0.07,
                           fontWeight: FontWeight.w600,
-                          useGoogleFonts: GoogleFonts.asMap().containsKey(
-                              FlutterFlowTheme.of(context).bodyMediumFamily),
                           lineHeight: 1.4,
+                          useGoogleFonts:
+                              !FlutterFlowTheme.of(context).bodyMediumIsCustom,
                         ),
                   ),
                   Container(
@@ -121,10 +138,9 @@ class _ImprintPageWidgetState extends State<ImprintPageWidget> {
                               fontFamily:
                                   FlutterFlowTheme.of(context).bodyMediumFamily,
                               letterSpacing: 0.07,
-                              useGoogleFonts: GoogleFonts.asMap().containsKey(
-                                  FlutterFlowTheme.of(context)
-                                      .bodyMediumFamily),
                               lineHeight: 1.4,
+                              useGoogleFonts: !FlutterFlowTheme.of(context)
+                                  .bodyMediumIsCustom,
                             ),
                       ),
                       RichText(
@@ -144,11 +160,10 @@ class _ImprintPageWidgetState extends State<ImprintPageWidget> {
                                         .bodyMediumFamily,
                                     color: FlutterFlowTheme.of(context).gray,
                                     letterSpacing: 0.07,
-                                    useGoogleFonts: GoogleFonts.asMap()
-                                        .containsKey(
-                                            FlutterFlowTheme.of(context)
-                                                .bodyMediumFamily),
                                     lineHeight: 1.4,
+                                    useGoogleFonts:
+                                        !FlutterFlowTheme.of(context)
+                                            .bodyMediumIsCustom,
                                   ),
                             ),
                             TextSpan(
@@ -163,11 +178,10 @@ class _ImprintPageWidgetState extends State<ImprintPageWidget> {
                                         .bodyMediumFamily,
                                     letterSpacing: 0.07,
                                     fontWeight: FontWeight.normal,
-                                    useGoogleFonts: GoogleFonts.asMap()
-                                        .containsKey(
-                                            FlutterFlowTheme.of(context)
-                                                .bodyMediumFamily),
                                     lineHeight: 1.4,
+                                    useGoogleFonts:
+                                        !FlutterFlowTheme.of(context)
+                                            .bodyMediumIsCustom,
                                   ),
                             )
                           ],
@@ -177,9 +191,8 @@ class _ImprintPageWidgetState extends State<ImprintPageWidget> {
                                 fontFamily: FlutterFlowTheme.of(context)
                                     .bodyMediumFamily,
                                 letterSpacing: 0.0,
-                                useGoogleFonts: GoogleFonts.asMap().containsKey(
-                                    FlutterFlowTheme.of(context)
-                                        .bodyMediumFamily),
+                                useGoogleFonts: !FlutterFlowTheme.of(context)
+                                    .bodyMediumIsCustom,
                               ),
                         ),
                       ),
@@ -200,11 +213,10 @@ class _ImprintPageWidgetState extends State<ImprintPageWidget> {
                                         .bodyMediumFamily,
                                     color: FlutterFlowTheme.of(context).gray,
                                     letterSpacing: 0.07,
-                                    useGoogleFonts: GoogleFonts.asMap()
-                                        .containsKey(
-                                            FlutterFlowTheme.of(context)
-                                                .bodyMediumFamily),
                                     lineHeight: 1.4,
+                                    useGoogleFonts:
+                                        !FlutterFlowTheme.of(context)
+                                            .bodyMediumIsCustom,
                                   ),
                             ),
                             TextSpan(
@@ -219,11 +231,10 @@ class _ImprintPageWidgetState extends State<ImprintPageWidget> {
                                         .bodyMediumFamily,
                                     letterSpacing: 0.07,
                                     fontWeight: FontWeight.normal,
-                                    useGoogleFonts: GoogleFonts.asMap()
-                                        .containsKey(
-                                            FlutterFlowTheme.of(context)
-                                                .bodyMediumFamily),
                                     lineHeight: 1.4,
+                                    useGoogleFonts:
+                                        !FlutterFlowTheme.of(context)
+                                            .bodyMediumIsCustom,
                                   ),
                             )
                           ],
@@ -233,9 +244,8 @@ class _ImprintPageWidgetState extends State<ImprintPageWidget> {
                                 fontFamily: FlutterFlowTheme.of(context)
                                     .bodyMediumFamily,
                                 letterSpacing: 0.0,
-                                useGoogleFonts: GoogleFonts.asMap().containsKey(
-                                    FlutterFlowTheme.of(context)
-                                        .bodyMediumFamily),
+                                useGoogleFonts: !FlutterFlowTheme.of(context)
+                                    .bodyMediumIsCustom,
                               ),
                         ),
                       ),
@@ -256,11 +266,10 @@ class _ImprintPageWidgetState extends State<ImprintPageWidget> {
                                         .bodyMediumFamily,
                                     color: FlutterFlowTheme.of(context).gray,
                                     letterSpacing: 0.07,
-                                    useGoogleFonts: GoogleFonts.asMap()
-                                        .containsKey(
-                                            FlutterFlowTheme.of(context)
-                                                .bodyMediumFamily),
                                     lineHeight: 1.4,
+                                    useGoogleFonts:
+                                        !FlutterFlowTheme.of(context)
+                                            .bodyMediumIsCustom,
                                   ),
                             ),
                             TextSpan(
@@ -275,11 +284,10 @@ class _ImprintPageWidgetState extends State<ImprintPageWidget> {
                                         .bodyMediumFamily,
                                     letterSpacing: 0.07,
                                     fontWeight: FontWeight.normal,
-                                    useGoogleFonts: GoogleFonts.asMap()
-                                        .containsKey(
-                                            FlutterFlowTheme.of(context)
-                                                .bodyMediumFamily),
                                     lineHeight: 1.4,
+                                    useGoogleFonts:
+                                        !FlutterFlowTheme.of(context)
+                                            .bodyMediumIsCustom,
                                   ),
                             )
                           ],
@@ -289,9 +297,8 @@ class _ImprintPageWidgetState extends State<ImprintPageWidget> {
                                 fontFamily: FlutterFlowTheme.of(context)
                                     .bodyMediumFamily,
                                 letterSpacing: 0.0,
-                                useGoogleFonts: GoogleFonts.asMap().containsKey(
-                                    FlutterFlowTheme.of(context)
-                                        .bodyMediumFamily),
+                                useGoogleFonts: !FlutterFlowTheme.of(context)
+                                    .bodyMediumIsCustom,
                               ),
                         ),
                       ),
@@ -312,11 +319,10 @@ class _ImprintPageWidgetState extends State<ImprintPageWidget> {
                                         .bodyMediumFamily,
                                     color: FlutterFlowTheme.of(context).gray,
                                     letterSpacing: 0.07,
-                                    useGoogleFonts: GoogleFonts.asMap()
-                                        .containsKey(
-                                            FlutterFlowTheme.of(context)
-                                                .bodyMediumFamily),
                                     lineHeight: 1.4,
+                                    useGoogleFonts:
+                                        !FlutterFlowTheme.of(context)
+                                            .bodyMediumIsCustom,
                                   ),
                             ),
                             TextSpan(
@@ -331,11 +337,10 @@ class _ImprintPageWidgetState extends State<ImprintPageWidget> {
                                         .bodyMediumFamily,
                                     letterSpacing: 0.07,
                                     fontWeight: FontWeight.normal,
-                                    useGoogleFonts: GoogleFonts.asMap()
-                                        .containsKey(
-                                            FlutterFlowTheme.of(context)
-                                                .bodyMediumFamily),
                                     lineHeight: 1.4,
+                                    useGoogleFonts:
+                                        !FlutterFlowTheme.of(context)
+                                            .bodyMediumIsCustom,
                                   ),
                             )
                           ],
@@ -345,9 +350,8 @@ class _ImprintPageWidgetState extends State<ImprintPageWidget> {
                                 fontFamily: FlutterFlowTheme.of(context)
                                     .bodyMediumFamily,
                                 letterSpacing: 0.0,
-                                useGoogleFonts: GoogleFonts.asMap().containsKey(
-                                    FlutterFlowTheme.of(context)
-                                        .bodyMediumFamily),
+                                useGoogleFonts: !FlutterFlowTheme.of(context)
+                                    .bodyMediumIsCustom,
                               ),
                         ),
                       ),
@@ -368,11 +372,10 @@ class _ImprintPageWidgetState extends State<ImprintPageWidget> {
                                         .bodyMediumFamily,
                                     color: FlutterFlowTheme.of(context).gray,
                                     letterSpacing: 0.07,
-                                    useGoogleFonts: GoogleFonts.asMap()
-                                        .containsKey(
-                                            FlutterFlowTheme.of(context)
-                                                .bodyMediumFamily),
                                     lineHeight: 1.4,
+                                    useGoogleFonts:
+                                        !FlutterFlowTheme.of(context)
+                                            .bodyMediumIsCustom,
                                   ),
                             ),
                             TextSpan(
@@ -387,11 +390,10 @@ class _ImprintPageWidgetState extends State<ImprintPageWidget> {
                                         .bodyMediumFamily,
                                     letterSpacing: 0.07,
                                     fontWeight: FontWeight.normal,
-                                    useGoogleFonts: GoogleFonts.asMap()
-                                        .containsKey(
-                                            FlutterFlowTheme.of(context)
-                                                .bodyMediumFamily),
                                     lineHeight: 1.4,
+                                    useGoogleFonts:
+                                        !FlutterFlowTheme.of(context)
+                                            .bodyMediumIsCustom,
                                   ),
                             )
                           ],
@@ -401,9 +403,8 @@ class _ImprintPageWidgetState extends State<ImprintPageWidget> {
                                 fontFamily: FlutterFlowTheme.of(context)
                                     .bodyMediumFamily,
                                 letterSpacing: 0.0,
-                                useGoogleFonts: GoogleFonts.asMap().containsKey(
-                                    FlutterFlowTheme.of(context)
-                                        .bodyMediumFamily),
+                                useGoogleFonts: !FlutterFlowTheme.of(context)
+                                    .bodyMediumIsCustom,
                               ),
                         ),
                       ),
@@ -416,10 +417,9 @@ class _ImprintPageWidgetState extends State<ImprintPageWidget> {
                                   FlutterFlowTheme.of(context).bodyMediumFamily,
                               color: FlutterFlowTheme.of(context).gray,
                               letterSpacing: 0.07,
-                              useGoogleFonts: GoogleFonts.asMap().containsKey(
-                                  FlutterFlowTheme.of(context)
-                                      .bodyMediumFamily),
                               lineHeight: 1.4,
+                              useGoogleFonts: !FlutterFlowTheme.of(context)
+                                  .bodyMediumIsCustom,
                             ),
                       ),
                     ]

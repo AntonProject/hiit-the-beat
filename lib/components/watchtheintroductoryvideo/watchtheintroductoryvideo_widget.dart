@@ -4,10 +4,14 @@ import '/components/skeleton/skeleton_homezoom/skeleton_homezoom_widget.dart';
 import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
+import '/flutter_flow/flutter_flow_widgets.dart';
 import 'dart:async';
+import 'dart:ui';
 import '/index.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'watchtheintroductoryvideo_model.dart';
@@ -84,7 +88,10 @@ class _WatchtheintroductoryvideoWidgetState
             hoverColor: Colors.transparent,
             highlightColor: Colors.transparent,
             onTap: () async {
+              logFirebaseEvent('WATCHTHEINTRODUCTORYVIDEO_Watchtheintrod');
+              logFirebaseEvent('Watchtheintroductoryvideo_haptic_feedbac');
               HapticFeedback.mediumImpact();
+              logFirebaseEvent('Watchtheintroductoryvideo_navigate_to');
               unawaited(
                 () async {
                   context.pushNamed(
@@ -98,10 +105,15 @@ class _WatchtheintroductoryvideoWidgetState
                         watchtheintroductoryvideoVideosRecord?.videoUrlDe,
                         ParamType.String,
                       ),
+                      'videoJa': serializeParam(
+                        watchtheintroductoryvideoVideosRecord?.videoUrlJa,
+                        ParamType.String,
+                      ),
                     }.withoutNulls,
                   );
                 }(),
               );
+              logFirebaseEvent('Watchtheintroductoryvideo_backend_call');
 
               await watchtheintroductoryvideoVideosRecord!.reference.update({
                 ...mapToFirestore(
@@ -157,10 +169,9 @@ class _WatchtheintroductoryvideoWidgetState
                                       .bodyMediumFamily,
                                   letterSpacing: 0.07,
                                   fontWeight: FontWeight.w600,
-                                  useGoogleFonts: GoogleFonts.asMap()
-                                      .containsKey(FlutterFlowTheme.of(context)
-                                          .bodyMediumFamily),
                                   lineHeight: 1.4,
+                                  useGoogleFonts: !FlutterFlowTheme.of(context)
+                                      .bodyMediumIsCustom,
                                 ),
                           ),
                           Padding(
@@ -179,18 +190,17 @@ class _WatchtheintroductoryvideoWidgetState
                                     fontSize: 12.0,
                                     letterSpacing: 0.07,
                                     fontWeight: FontWeight.normal,
-                                    useGoogleFonts: GoogleFonts.asMap()
-                                        .containsKey(
-                                            FlutterFlowTheme.of(context)
-                                                .bodyMediumFamily),
                                     lineHeight: 1.4,
+                                    useGoogleFonts:
+                                        !FlutterFlowTheme.of(context)
+                                            .bodyMediumIsCustom,
                                   ),
                             ),
                           ),
                         ],
                       ),
                     ),
-                    if (currentUserEmail != '')
+                    if (currentUserEmail != null && currentUserEmail != '')
                       FlutterFlowIconButton(
                         borderColor: FlutterFlowTheme.of(context).middleGray,
                         borderRadius: 12.0,
@@ -203,6 +213,9 @@ class _WatchtheintroductoryvideoWidgetState
                           size: 24.0,
                         ),
                         onPressed: () async {
+                          logFirebaseEvent(
+                              'WATCHTHEINTRODUCTORYVIDEO_close24_ICN_ON');
+                          logFirebaseEvent('IconButton_update_app_state');
                           FFAppState().addToHideBanners('watch');
                           safeSetState(() {});
                         },

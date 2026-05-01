@@ -1,4 +1,5 @@
 import '/backend/backend.dart';
+import '/backend/schema/structs/index.dart';
 import '/components/additional_comp/additional_comp_widget.dart';
 import '/components/empty_list/empty_list_widget.dart';
 import '/components/navbar/navbar_widget.dart';
@@ -7,10 +8,12 @@ import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
 import 'dart:async';
+import 'dart:ui';
 import '/custom_code/actions/index.dart' as actions;
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'additionals_page_model.dart';
@@ -36,11 +39,21 @@ class _AdditionalsPageWidgetState extends State<AdditionalsPageWidget> {
     super.initState();
     _model = createModel(context, () => AdditionalsPageModel());
 
+    logFirebaseEvent('screen_view',
+        parameters: {'screen_name': 'AdditionalsPage'});
     // On page load action.
     SchedulerBinding.instance.addPostFrameCallback((_) async {
+      logFirebaseEvent('ADDITIONALS_AdditionalsPage_ON_INIT_STAT');
+      logFirebaseEvent('AdditionalsPage_custom_action');
       unawaited(
         () async {
           await actions.lockLandscapeMode();
+        }(),
+      );
+      logFirebaseEvent('AdditionalsPage_custom_action');
+      unawaited(
+        () async {
+          await actions.setStatusBarColor();
         }(),
       );
     });
@@ -118,10 +131,9 @@ class _AdditionalsPageWidgetState extends State<AdditionalsPageWidget> {
                                 fontSize: 24.0,
                                 letterSpacing: 0.07,
                                 fontWeight: FontWeight.bold,
-                                useGoogleFonts: GoogleFonts.asMap().containsKey(
-                                    FlutterFlowTheme.of(context)
-                                        .bodyMediumFamily),
                                 lineHeight: 1.4,
+                                useGoogleFonts: !FlutterFlowTheme.of(context)
+                                    .bodyMediumIsCustom,
                               ),
                         ),
                       ),
@@ -141,12 +153,18 @@ class _AdditionalsPageWidgetState extends State<AdditionalsPageWidget> {
                                 final typesItem = types[typesIndex];
                                 return FFButtonWidget(
                                   onPressed: () async {
+                                    logFirebaseEvent(
+                                        'ADDITIONALS_PAGE_PAGE_Warmups_ON_TAP');
+                                    logFirebaseEvent('Warmups_haptic_feedback');
                                     HapticFeedback.selectionClick();
+                                    logFirebaseEvent(
+                                        'Warmups_update_page_state');
                                     _model.tab = valueOrDefault<int>(
                                       typesItem.number,
                                       1,
                                     );
                                     safeSetState(() {});
+                                    logFirebaseEvent('Warmups_page_view');
                                     await _model.pageViewController
                                         ?.animateToPage(
                                       valueOrDefault<int>(
@@ -192,11 +210,10 @@ class _AdditionalsPageWidgetState extends State<AdditionalsPageWidget> {
                                           ),
                                           fontSize: 14.0,
                                           letterSpacing: 0.07,
-                                          useGoogleFonts: GoogleFonts.asMap()
-                                              .containsKey(
-                                                  FlutterFlowTheme.of(context)
-                                                      .titleSmallFamily),
                                           lineHeight: 1.4,
+                                          useGoogleFonts:
+                                              !FlutterFlowTheme.of(context)
+                                                  .titleSmallIsCustom,
                                         ),
                                     elevation: 0.0,
                                     borderSide: BorderSide(
@@ -243,6 +260,10 @@ class _AdditionalsPageWidgetState extends State<AdditionalsPageWidget> {
                                         initialPage:
                                             max(0, min(0, type.length - 1))),
                                 onPageChanged: (_) async {
+                                  logFirebaseEvent(
+                                      'ADDITIONALS_PageView_13uyhiel_ON_WIDGET_');
+                                  logFirebaseEvent(
+                                      'PageView_update_page_state');
                                   _model.tab = valueOrDefault<int>(
                                     _model.pageViewCurrentIndex + 1,
                                     1,
@@ -282,15 +303,42 @@ class _AdditionalsPageWidgetState extends State<AdditionalsPageWidget> {
                                             builder: (context) {
                                               final containerVar =
                                                   containerAdditionalsRecordList
-                                                      .where((e) => FFLocalizations
-                                                                      .of(
-                                                                          context)
-                                                                  .languageCode ==
-                                                              'en'
-                                                          ? (e.en ||
-                                                              (e.en && e.de))
-                                                          : (e.de ||
-                                                              (e.en && e.de)))
+                                                      .where((e) => () {
+                                                            if (FFLocalizations.of(
+                                                                        context)
+                                                                    .languageCode ==
+                                                                'en') {
+                                                              return (e.en ||
+                                                                  (e.en &&
+                                                                      e.de &&
+                                                                      e.ja) ||
+                                                                  (e.en &&
+                                                                      e.ja) ||
+                                                                  (e.de &&
+                                                                      e.ja));
+                                                            } else if (FFLocalizations.of(
+                                                                        context)
+                                                                    .languageCode ==
+                                                                'de') {
+                                                              return (e.de ||
+                                                                  (e.en &&
+                                                                      e.de &&
+                                                                      e.ja) ||
+                                                                  (e.en &&
+                                                                      e.de) ||
+                                                                  (e.de &&
+                                                                      e.ja));
+                                                            } else {
+                                                              return (e.ja ||
+                                                                  (e.en &&
+                                                                      e.de &&
+                                                                      e.ja) ||
+                                                                  (e.en &&
+                                                                      e.ja) ||
+                                                                  (e.de &&
+                                                                      e.ja));
+                                                            }
+                                                          }())
                                                       .toList();
                                               if (containerVar.isEmpty) {
                                                 return EmptyListWidget();

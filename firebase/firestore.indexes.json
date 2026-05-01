@@ -29,20 +29,6 @@
       ]
     },
     {
-      "collectionGroup": "seasons",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "level",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "released_at",
-          "order": "ASCENDING"
-        }
-      ]
-    },
-    {
       "collectionGroup": "additionals",
       "queryScope": "COLLECTION",
       "fields": [
@@ -66,6 +52,20 @@
         },
         {
           "fieldPath": "index",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "additionals",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "type_index",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "datetime",
           "order": "ASCENDING"
         }
       ]

@@ -1,13 +1,16 @@
 import '/auth/firebase_auth/auth_util.dart';
 import '/backend/backend.dart';
-import '/components/dialogs/payment_dialog_start/payment_dialog_start_widget.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
+import 'dart:ui';
 import '/index.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'signup_success_model.dart';
 export 'signup_success_model.dart';
 
@@ -90,10 +93,9 @@ class _SignupSuccessWidgetState extends State<SignupSuccessWidget> {
                               fontSize: 20.0,
                               letterSpacing: 0.07,
                               fontWeight: FontWeight.bold,
-                              useGoogleFonts: GoogleFonts.asMap().containsKey(
-                                  FlutterFlowTheme.of(context)
-                                      .bodyMediumFamily),
                               lineHeight: 1.4,
+                              useGoogleFonts: !FlutterFlowTheme.of(context)
+                                  .bodyMediumIsCustom,
                             ),
                       ),
                     ),
@@ -107,9 +109,9 @@ class _SignupSuccessWidgetState extends State<SignupSuccessWidget> {
                                 FlutterFlowTheme.of(context).bodyMediumFamily,
                             letterSpacing: 0.07,
                             fontWeight: FontWeight.normal,
-                            useGoogleFonts: GoogleFonts.asMap().containsKey(
-                                FlutterFlowTheme.of(context).bodyMediumFamily),
                             lineHeight: 1.4,
+                            useGoogleFonts: !FlutterFlowTheme.of(context)
+                                .bodyMediumIsCustom,
                           ),
                     ),
                   ].divide(SizedBox(height: 12.0)),
@@ -118,50 +120,26 @@ class _SignupSuccessWidgetState extends State<SignupSuccessWidget> {
             ),
             FFButtonWidget(
               onPressed: () async {
+                logFirebaseEvent('SIGNUP_SUCCESS_COMP_LETS_GO_BTN_ON_TAP');
+                logFirebaseEvent('Button_haptic_feedback');
                 HapticFeedback.selectionClick();
+                logFirebaseEvent('Button_backend_call');
 
                 await currentUserReference!.update(createUsersRecordData(
                   language: FFLocalizations.of(context).languageCode,
                 ));
+                logFirebaseEvent('Button_navigate_to');
 
                 context.goNamed(
-                  HomePageWidget.routeName,
+                  StartPageWidget.routeName,
                   extra: <String, dynamic>{
-                    kTransitionInfoKey: TransitionInfo(
+                    '__transition_info__': TransitionInfo(
                       hasTransition: true,
                       transitionType: PageTransitionType.fade,
                       duration: Duration(milliseconds: 0),
                     ),
                   },
                 );
-
-                Navigator.pop(context);
-                if (((valueOrDefault<bool>(
-                                currentUserDocument?.showTrialDialog, false) !=
-                            true) ||
-                        (valueOrDefault<bool>(
-                                currentUserDocument?.showTrialDialog, false) ==
-                            null)) &&
-                    ((valueOrDefault<bool>(
-                                currentUserDocument?.plusmember, false) !=
-                            true) ||
-                        (valueOrDefault<bool>(
-                                currentUserDocument?.plusmember, false) ==
-                            null))) {
-                  showModalBottomSheet(
-                    isScrollControlled: true,
-                    backgroundColor: Colors.transparent,
-                    isDismissible: false,
-                    enableDrag: false,
-                    context: context,
-                    builder: (context) {
-                      return Padding(
-                        padding: MediaQuery.viewInsetsOf(context),
-                        child: PaymentDialogStartWidget(),
-                      );
-                    },
-                  ).then((value) => safeSetState(() {}));
-                }
               },
               text: FFLocalizations.of(context).getText(
                 'zsvpt7s3' /* Let’s go! */,
@@ -177,9 +155,9 @@ class _SignupSuccessWidgetState extends State<SignupSuccessWidget> {
                       color: FlutterFlowTheme.of(context).primaryText,
                       fontSize: 14.0,
                       letterSpacing: 0.07,
-                      useGoogleFonts: GoogleFonts.asMap().containsKey(
-                          FlutterFlowTheme.of(context).titleSmallFamily),
                       lineHeight: 1.4,
+                      useGoogleFonts:
+                          !FlutterFlowTheme.of(context).titleSmallIsCustom,
                     ),
                 elevation: 0.0,
                 borderSide: BorderSide(

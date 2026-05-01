@@ -3,7 +3,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '/backend/schema/util/firestore_util.dart';
+import '/backend/schema/util/schema_util.dart';
+import '/backend/schema/enums/enums.dart';
 
+import 'index.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 
 class SeasonStatisticStruct extends FFFirebaseStruct {
@@ -205,7 +208,7 @@ Map<String, dynamic> getSeasonStatisticFirestoreData(
   final firestoreData = mapToFirestore(seasonStatistic.toMap());
 
   // Add any Firestore field values
-  seasonStatistic.firestoreUtilData.fieldValues
+  mapToFirestore(seasonStatistic.firestoreUtilData.fieldValues)
       .forEach((k, v) => firestoreData[k] = v);
 
   return forFieldValue ? mergeNestedFields(firestoreData) : firestoreData;

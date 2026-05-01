@@ -1,18 +1,25 @@
+import '/auth/firebase_auth/auth_util.dart';
 import '/backend/backend.dart';
+import '/backend/schema/structs/index.dart';
 import '/components/dialogs/season_done_dialog/season_done_dialog_widget.dart';
 import '/flutter_flow/flutter_flow_animations.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
 import 'dart:async';
+import 'dart:math';
 import 'dart:ui';
 import '/flutter_flow/custom_functions.dart' as functions;
 import '/index.dart';
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'workout_success_dialog_model.dart';
 export 'workout_success_dialog_model.dart';
 
@@ -23,12 +30,14 @@ class WorkoutSuccessDialogWidget extends StatefulWidget {
     required this.progress,
     required this.season,
     int? wockoutCount,
+    required this.seasonNumber,
   }) : this.wockoutCount = wockoutCount ?? 0;
 
   final WorkoutStatisticStruct? workoutDone;
   final DocumentReference? progress;
   final SeasonsRecord? season;
   final int wockoutCount;
+  final int? seasonNumber;
 
   @override
   State<WorkoutSuccessDialogWidget> createState() =>
@@ -125,15 +134,15 @@ class _WorkoutSuccessDialogWidgetState extends State<WorkoutSuccessDialogWidget>
                               valueOrDefault<String>(
                                 formatNumber(
                                   valueOrDefault<int>(
-                                        widget.workoutDone?.warpmupPoints,
+                                        widget!.workoutDone?.warpmupPoints,
                                         0,
                                       ) +
                                       valueOrDefault<int>(
-                                        widget.workoutDone?.cooldownPoints,
+                                        widget!.workoutDone?.cooldownPoints,
                                         0,
                                       ) +
                                       valueOrDefault<int>(
-                                        widget.workoutDone?.workoutPoints,
+                                        widget!.workoutDone?.workoutPoints,
                                         0,
                                       ),
                                   formatType: FormatType.custom,
@@ -152,11 +161,10 @@ class _WorkoutSuccessDialogWidgetState extends State<WorkoutSuccessDialogWidget>
                                     fontSize: 24.0,
                                     letterSpacing: 0.07,
                                     fontWeight: FontWeight.bold,
-                                    useGoogleFonts: GoogleFonts.asMap()
-                                        .containsKey(
-                                            FlutterFlowTheme.of(context)
-                                                .bodyMediumFamily),
                                     lineHeight: 1.4,
+                                    useGoogleFonts:
+                                        !FlutterFlowTheme.of(context)
+                                            .bodyMediumIsCustom,
                                   ),
                             ),
                             AutoSizeText(
@@ -172,11 +180,10 @@ class _WorkoutSuccessDialogWidgetState extends State<WorkoutSuccessDialogWidget>
                                     color: FlutterFlowTheme.of(context).primary,
                                     letterSpacing: 0.07,
                                     fontWeight: FontWeight.w600,
-                                    useGoogleFonts: GoogleFonts.asMap()
-                                        .containsKey(
-                                            FlutterFlowTheme.of(context)
-                                                .bodyMediumFamily),
                                     lineHeight: 1.4,
+                                    useGoogleFonts:
+                                        !FlutterFlowTheme.of(context)
+                                            .bodyMediumIsCustom,
                                   ),
                             ),
                           ]
@@ -201,10 +208,9 @@ class _WorkoutSuccessDialogWidgetState extends State<WorkoutSuccessDialogWidget>
                                 fontSize: 24.0,
                                 letterSpacing: 0.07,
                                 fontWeight: FontWeight.bold,
-                                useGoogleFonts: GoogleFonts.asMap().containsKey(
-                                    FlutterFlowTheme.of(context)
-                                        .bodyMediumFamily),
                                 lineHeight: 1.4,
+                                useGoogleFonts: !FlutterFlowTheme.of(context)
+                                    .bodyMediumIsCustom,
                               ),
                         ),
                       ),
@@ -218,10 +224,9 @@ class _WorkoutSuccessDialogWidgetState extends State<WorkoutSuccessDialogWidget>
                                   FlutterFlowTheme.of(context).bodyMediumFamily,
                               letterSpacing: 0.07,
                               fontWeight: FontWeight.w600,
-                              useGoogleFonts: GoogleFonts.asMap().containsKey(
-                                  FlutterFlowTheme.of(context)
-                                      .bodyMediumFamily),
                               lineHeight: 1.4,
+                              useGoogleFonts: !FlutterFlowTheme.of(context)
+                                  .bodyMediumIsCustom,
                             ),
                       ),
                       ClipRRect(
@@ -264,13 +269,11 @@ class _WorkoutSuccessDialogWidgetState extends State<WorkoutSuccessDialogWidget>
                                                               context)
                                                           .bodyMediumFamily,
                                                   letterSpacing: 0.07,
-                                                  useGoogleFonts: GoogleFonts
-                                                          .asMap()
-                                                      .containsKey(
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .bodyMediumFamily),
                                                   lineHeight: 1.4,
+                                                  useGoogleFonts:
+                                                      !FlutterFlowTheme.of(
+                                                              context)
+                                                          .bodyMediumIsCustom,
                                                 ),
                                           ),
                                         ),
@@ -278,7 +281,7 @@ class _WorkoutSuccessDialogWidgetState extends State<WorkoutSuccessDialogWidget>
                                           valueOrDefault<String>(
                                             '${valueOrDefault<String>(
                                               formatNumber(
-                                                widget
+                                                widget!
                                                     .workoutDone?.warpmupPoints,
                                                 formatType: FormatType.custom,
                                                 format: '+ 0 ',
@@ -290,6 +293,7 @@ class _WorkoutSuccessDialogWidgetState extends State<WorkoutSuccessDialogWidget>
                                                   .getVariableText(
                                                 enText: 'points',
                                                 deText: 'Punkte',
+                                                jaText: 'ポイント',
                                               ),
                                               'points',
                                             )}',
@@ -307,13 +311,11 @@ class _WorkoutSuccessDialogWidgetState extends State<WorkoutSuccessDialogWidget>
                                                         .secondary,
                                                 letterSpacing: 0.07,
                                                 fontWeight: FontWeight.w600,
-                                                useGoogleFonts: GoogleFonts
-                                                        .asMap()
-                                                    .containsKey(
-                                                        FlutterFlowTheme.of(
-                                                                context)
-                                                            .bodyMediumFamily),
                                                 lineHeight: 1.4,
+                                                useGoogleFonts:
+                                                    !FlutterFlowTheme.of(
+                                                            context)
+                                                        .bodyMediumIsCustom,
                                               ),
                                         ),
                                       ].divide(SizedBox(width: 12.0)),
@@ -337,13 +339,11 @@ class _WorkoutSuccessDialogWidgetState extends State<WorkoutSuccessDialogWidget>
                                                               context)
                                                           .bodyMediumFamily,
                                                   letterSpacing: 0.07,
-                                                  useGoogleFonts: GoogleFonts
-                                                          .asMap()
-                                                      .containsKey(
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .bodyMediumFamily),
                                                   lineHeight: 1.4,
+                                                  useGoogleFonts:
+                                                      !FlutterFlowTheme.of(
+                                                              context)
+                                                          .bodyMediumIsCustom,
                                                 ),
                                           ),
                                         ),
@@ -351,7 +351,7 @@ class _WorkoutSuccessDialogWidgetState extends State<WorkoutSuccessDialogWidget>
                                           valueOrDefault<String>(
                                             '${valueOrDefault<String>(
                                               formatNumber(
-                                                widget
+                                                widget!
                                                     .workoutDone?.workoutPoints,
                                                 formatType: FormatType.custom,
                                                 format: '+ 0 ',
@@ -363,6 +363,7 @@ class _WorkoutSuccessDialogWidgetState extends State<WorkoutSuccessDialogWidget>
                                                   .getVariableText(
                                                 enText: 'points',
                                                 deText: 'punkte',
+                                                jaText: 'ポイント',
                                               ),
                                               'points',
                                             )}',
@@ -380,13 +381,11 @@ class _WorkoutSuccessDialogWidgetState extends State<WorkoutSuccessDialogWidget>
                                                         .secondary,
                                                 letterSpacing: 0.07,
                                                 fontWeight: FontWeight.w600,
-                                                useGoogleFonts: GoogleFonts
-                                                        .asMap()
-                                                    .containsKey(
-                                                        FlutterFlowTheme.of(
-                                                                context)
-                                                            .bodyMediumFamily),
                                                 lineHeight: 1.4,
+                                                useGoogleFonts:
+                                                    !FlutterFlowTheme.of(
+                                                            context)
+                                                        .bodyMediumIsCustom,
                                               ),
                                         ),
                                       ].divide(SizedBox(width: 12.0)),
@@ -410,13 +409,11 @@ class _WorkoutSuccessDialogWidgetState extends State<WorkoutSuccessDialogWidget>
                                                               context)
                                                           .bodyMediumFamily,
                                                   letterSpacing: 0.07,
-                                                  useGoogleFonts: GoogleFonts
-                                                          .asMap()
-                                                      .containsKey(
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .bodyMediumFamily),
                                                   lineHeight: 1.4,
+                                                  useGoogleFonts:
+                                                      !FlutterFlowTheme.of(
+                                                              context)
+                                                          .bodyMediumIsCustom,
                                                 ),
                                           ),
                                         ),
@@ -424,7 +421,7 @@ class _WorkoutSuccessDialogWidgetState extends State<WorkoutSuccessDialogWidget>
                                           valueOrDefault<String>(
                                             '${valueOrDefault<String>(
                                               formatNumber(
-                                                widget.workoutDone
+                                                widget!.workoutDone
                                                     ?.cooldownPoints,
                                                 formatType: FormatType.custom,
                                                 format: '+ 0 ',
@@ -436,6 +433,7 @@ class _WorkoutSuccessDialogWidgetState extends State<WorkoutSuccessDialogWidget>
                                                   .getVariableText(
                                                 enText: 'points',
                                                 deText: 'punkte',
+                                                jaText: 'ポイント',
                                               ),
                                               'points',
                                             )}',
@@ -453,13 +451,11 @@ class _WorkoutSuccessDialogWidgetState extends State<WorkoutSuccessDialogWidget>
                                                         .secondary,
                                                 letterSpacing: 0.07,
                                                 fontWeight: FontWeight.w600,
-                                                useGoogleFonts: GoogleFonts
-                                                        .asMap()
-                                                    .containsKey(
-                                                        FlutterFlowTheme.of(
-                                                                context)
-                                                            .bodyMediumFamily),
                                                 lineHeight: 1.4,
+                                                useGoogleFonts:
+                                                    !FlutterFlowTheme.of(
+                                                            context)
+                                                        .bodyMediumIsCustom,
                                               ),
                                         ),
                                       ].divide(SizedBox(width: 12.0)),
@@ -490,22 +486,28 @@ class _WorkoutSuccessDialogWidgetState extends State<WorkoutSuccessDialogWidget>
                         EdgeInsetsDirectional.fromSTEB(16.0, 32.0, 16.0, 0.0),
                     child: FFButtonWidget(
                       onPressed: () async {
+                        logFirebaseEvent(
+                            'WORKOUT_SUCCESS_DIALOG_LetsGo_ON_TAP');
                         var _shouldSetState = false;
+                        logFirebaseEvent('LetsGo_haptic_feedback');
                         HapticFeedback.selectionClick();
+                        logFirebaseEvent('LetsGo_backend_call');
                         _model.progress = await ProgressRecord.getDocumentOnce(
-                            widget.progress!);
+                            widget!.progress!);
                         _shouldSetState = true;
+                        logFirebaseEvent('LetsGo_bottom_sheet');
                         Navigator.pop(context);
                         if (functions.workoutSeasonDone(
-                            _model.progress?.workoutDone.toList(),
-                            widget.season!.reference.id,
-                            widget.wockoutCount)) {
+                            _model.progress?.workoutDone?.toList(),
+                            widget!.season!.reference.id,
+                            widget!.wockoutCount)) {
                           if (!functions.seasonDoneExist(
-                              _model.progress?.seasonDone.toList(),
-                              widget.season!.reference.id)) {
+                              _model.progress?.seasonDone?.toList(),
+                              widget!.season!.reference.id)) {
+                            logFirebaseEvent('LetsGo_backend_call');
                             unawaited(
                               () async {
-                                await widget.progress!.update({
+                                await widget!.progress!.update({
                                   ...mapToFirestore(
                                     {
                                       'season_done': FieldValue.arrayUnion([
@@ -513,16 +515,16 @@ class _WorkoutSuccessDialogWidgetState extends State<WorkoutSuccessDialogWidget>
                                           updateSeasonStatisticStruct(
                                             SeasonStatisticStruct(
                                               seasonNumber: valueOrDefault<int>(
-                                                widget.season?.number,
+                                                widget!.season?.number,
                                                 1,
                                               ),
                                               datetime: getCurrentTimestamp,
                                               seasonLevel: valueOrDefault<int>(
-                                                widget.season?.level,
+                                                widget!.season?.level,
                                                 1,
                                               ),
                                               seasonId:
-                                                  widget.season?.reference.id,
+                                                  widget!.season?.reference.id,
                                             ),
                                             clearUnsetFields: false,
                                           ),
@@ -534,6 +536,7 @@ class _WorkoutSuccessDialogWidgetState extends State<WorkoutSuccessDialogWidget>
                                 });
                               }(),
                             );
+                            logFirebaseEvent('LetsGo_bottom_sheet');
                             await showModalBottomSheet(
                               isScrollControlled: true,
                               backgroundColor: Colors.transparent,
@@ -544,8 +547,12 @@ class _WorkoutSuccessDialogWidgetState extends State<WorkoutSuccessDialogWidget>
                                 return Padding(
                                   padding: MediaQuery.viewInsetsOf(context),
                                   child: SeasonDoneDialogWidget(
-                                    season: widget.season!,
-                                    progress: widget.progress!,
+                                    season: widget!.season!,
+                                    progress: widget!.progress!,
+                                    seasonNumber: valueOrDefault<int>(
+                                      widget!.seasonNumber,
+                                      0,
+                                    ),
                                   ),
                                 );
                               },
@@ -554,26 +561,28 @@ class _WorkoutSuccessDialogWidgetState extends State<WorkoutSuccessDialogWidget>
                           if (_shouldSetState) safeSetState(() {});
                           return;
                         } else {
+                          logFirebaseEvent('LetsGo_bottom_sheet');
                           Navigator.pop(context);
+                          logFirebaseEvent('LetsGo_navigate_to');
 
                           context.goNamed(
                             SeasonPageWidget.routeName,
                             queryParameters: {
                               'season': serializeParam(
-                                widget.season,
+                                widget!.season,
                                 ParamType.Document,
                               ),
                               'workoutCount': serializeParam(
                                 valueOrDefault<int>(
-                                  widget.wockoutCount,
+                                  widget!.wockoutCount,
                                   0,
                                 ),
                                 ParamType.int,
                               ),
                             }.withoutNulls,
                             extra: <String, dynamic>{
-                              'season': widget.season,
-                              kTransitionInfoKey: TransitionInfo(
+                              'season': widget!.season,
+                              '__transition_info__': TransitionInfo(
                                 hasTransition: true,
                                 transitionType: PageTransitionType.fade,
                                 duration: Duration(milliseconds: 0),
@@ -606,10 +615,9 @@ class _WorkoutSuccessDialogWidgetState extends State<WorkoutSuccessDialogWidget>
                               color: FlutterFlowTheme.of(context).primary,
                               fontSize: 14.0,
                               letterSpacing: 0.07,
-                              useGoogleFonts: GoogleFonts.asMap().containsKey(
-                                  FlutterFlowTheme.of(context)
-                                      .titleSmallFamily),
                               lineHeight: 1.4,
+                              useGoogleFonts: !FlutterFlowTheme.of(context)
+                                  .titleSmallIsCustom,
                             ),
                         elevation: 0.0,
                         borderSide: BorderSide(

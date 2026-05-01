@@ -5,11 +5,15 @@ import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
+import 'dart:async';
 import 'dart:ui';
+import '/custom_code/actions/index.dart' as actions;
 import '/index.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'admin_banners_model.dart';
 export 'admin_banners_model.dart';
 
@@ -33,6 +37,19 @@ class _AdminBannersWidgetState extends State<AdminBannersWidget> {
     super.initState();
     _model = createModel(context, () => AdminBannersModel());
 
+    logFirebaseEvent('screen_view',
+        parameters: {'screen_name': 'AdminBanners'});
+    // On page load action.
+    SchedulerBinding.instance.addPostFrameCallback((_) async {
+      logFirebaseEvent('ADMIN_BANNERS_AdminBanners_ON_INIT_STATE');
+      logFirebaseEvent('AdminBanners_custom_action');
+      unawaited(
+        () async {
+          await actions.setStatusBarColor();
+        }(),
+      );
+    });
+
     WidgetsBinding.instance.addPostFrameCallback((_) => safeSetState(() {}));
   }
 
@@ -45,6 +62,8 @@ class _AdminBannersWidgetState extends State<AdminBannersWidget> {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<FFAppState>();
+
     return GestureDetector(
       onTap: () {
         FocusScope.of(context).unfocus();
@@ -59,7 +78,9 @@ class _AdminBannersWidgetState extends State<AdminBannersWidget> {
             wrapWithModel(
               model: _model.adminNavBarModel,
               updateCallback: () => safeSetState(() {}),
-              child: AdminNavBarWidget(),
+              child: AdminNavBarWidget(
+                pageNum: 6,
+              ),
             ),
             Expanded(
               child: Padding(
@@ -86,22 +107,27 @@ class _AdminBannersWidgetState extends State<AdminBannersWidget> {
                                   fontSize: 24.0,
                                   letterSpacing: 0.0,
                                   fontWeight: FontWeight.w500,
-                                  useGoogleFonts: GoogleFonts.asMap()
-                                      .containsKey(FlutterFlowTheme.of(context)
-                                          .bodyMediumFamily),
+                                  useGoogleFonts: !FlutterFlowTheme.of(context)
+                                      .bodyMediumIsCustom,
                                 ),
                           ),
                         ),
                       ].divide(SizedBox(width: 24.0)),
                     ),
-                    StreamBuilder<List<VideosRecord>>(
-                      stream: queryVideosRecord(
-                        queryBuilder: (videosRecord) => videosRecord
-                            .where(
-                              'type',
-                              isEqualTo: 'Home',
-                            )
-                            .orderBy('index'),
+                    FutureBuilder<List<VideosRecord>>(
+                      future: FFAppState().banners(
+                        uniqueQueryKey: valueOrDefault<String>(
+                          FFAppState().refreshDate?.toString(),
+                          '0',
+                        ),
+                        requestFn: () => queryVideosRecordOnce(
+                          queryBuilder: (videosRecord) => videosRecord
+                              .where(
+                                'type',
+                                isEqualTo: 'Home',
+                              )
+                              .orderBy('index'),
+                        ),
                       ),
                       builder: (context, snapshot) {
                         // Customize what your widget looks like when it's loading.
@@ -181,6 +207,8 @@ class _AdminBannersWidgetState extends State<AdminBannersWidget> {
                                                         fit: BoxFit.cover,
                                                         image: Image.network(
                                                           bannersItem.coverDe !=
+                                                                      null &&
+                                                                  bannersItem.coverDe !=
                                                                       ''
                                                               ? bannersItem
                                                                   .coverDe
@@ -228,8 +256,12 @@ class _AdminBannersWidgetState extends State<AdminBannersWidget> {
                                                                 child:
                                                                     Visibility(
                                                                   visible: (bannersItem.videoUrlEn !=
+                                                                              null &&
+                                                                          bannersItem.videoUrlEn !=
                                                                               '') ||
                                                                       (bannersItem.videoUrlDe !=
+                                                                              null &&
+                                                                          bannersItem.videoUrlDe !=
                                                                               ''),
                                                                   child:
                                                                       ClipRRect(
@@ -359,8 +391,12 @@ class _AdminBannersWidgetState extends State<AdminBannersWidget> {
                                                                 child:
                                                                     Visibility(
                                                                   visible: (bannersItem.urlEn !=
+                                                                              null &&
+                                                                          bannersItem.urlEn !=
                                                                               '') ||
                                                                       (bannersItem.urlDe !=
+                                                                              null &&
+                                                                          bannersItem.urlDe !=
                                                                               ''),
                                                                   child:
                                                                       ClipRRect(
@@ -417,6 +453,11 @@ class _AdminBannersWidgetState extends State<AdminBannersWidget> {
                                                       Expanded(
                                                         child: FFButtonWidget(
                                                           onPressed: () async {
+                                                            logFirebaseEvent(
+                                                                'ADMIN_BANNERS_PAGE_Replace_ON_TAP');
+                                                            logFirebaseEvent(
+                                                                'Replace_navigate_to');
+
                                                             context.pushNamed(
                                                               AdminEditBannerWidget
                                                                   .routeName,
@@ -432,7 +473,7 @@ class _AdminBannersWidgetState extends State<AdminBannersWidget> {
                                                                   dynamic>{
                                                                 'banner':
                                                                     bannersItem,
-                                                                kTransitionInfoKey:
+                                                                '__transition_info__':
                                                                     TransitionInfo(
                                                                   hasTransition:
                                                                       true,
@@ -487,12 +528,11 @@ class _AdminBannersWidgetState extends State<AdminBannersWidget> {
                                                                           14.0,
                                                                       letterSpacing:
                                                                           0.07,
-                                                                      useGoogleFonts: GoogleFonts
-                                                                              .asMap()
-                                                                          .containsKey(
-                                                                              FlutterFlowTheme.of(context).titleSmallFamily),
                                                                       lineHeight:
                                                                           1.4,
+                                                                      useGoogleFonts:
+                                                                          !FlutterFlowTheme.of(context)
+                                                                              .titleSmallIsCustom,
                                                                     ),
                                                             elevation: 0.0,
                                                             borderSide:
@@ -509,52 +549,64 @@ class _AdminBannersWidgetState extends State<AdminBannersWidget> {
                                                           ),
                                                         ),
                                                       ),
-                                                      FlutterFlowIconButton(
-                                                        borderRadius: 12.0,
-                                                        borderWidth: 1.0,
-                                                        buttonSize: 40.0,
-                                                        icon: Icon(
-                                                          FFIcons.ktrash24,
-                                                          color: FlutterFlowTheme
-                                                                  .of(context)
-                                                              .primaryText,
-                                                          size: 24.0,
-                                                        ),
-                                                        onPressed: () async {
-                                                          showModalBottomSheet(
-                                                            isScrollControlled:
-                                                                true,
-                                                            backgroundColor:
-                                                                Colors
-                                                                    .transparent,
-                                                            context: context,
-                                                            builder: (context) {
-                                                              return GestureDetector(
-                                                                onTap: () {
-                                                                  FocusScope.of(
-                                                                          context)
-                                                                      .unfocus();
-                                                                  FocusManager
-                                                                      .instance
-                                                                      .primaryFocus
-                                                                      ?.unfocus();
-                                                                },
-                                                                child: Padding(
-                                                                  padding: MediaQuery
-                                                                      .viewInsetsOf(
-                                                                          context),
+                                                      Builder(
+                                                        builder: (context) =>
+                                                            FlutterFlowIconButton(
+                                                          borderRadius: 12.0,
+                                                          borderWidth: 1.0,
+                                                          buttonSize: 40.0,
+                                                          icon: Icon(
+                                                            FFIcons.ktrash24,
+                                                            color: FlutterFlowTheme
+                                                                    .of(context)
+                                                                .primaryText,
+                                                            size: 24.0,
+                                                          ),
+                                                          onPressed: () async {
+                                                            logFirebaseEvent(
+                                                                'ADMIN_BANNERS_PAGE_trash24_ICN_ON_TAP');
+                                                            logFirebaseEvent(
+                                                                'IconButton_alert_dialog');
+                                                            showDialog(
+                                                              context: context,
+                                                              builder:
+                                                                  (dialogContext) {
+                                                                return Dialog(
+                                                                  elevation: 0,
+                                                                  insetPadding:
+                                                                      EdgeInsets
+                                                                          .zero,
+                                                                  backgroundColor:
+                                                                      Colors
+                                                                          .transparent,
+                                                                  alignment: AlignmentDirectional(
+                                                                          0.0,
+                                                                          0.0)
+                                                                      .resolve(
+                                                                          Directionality.of(
+                                                                              context)),
                                                                   child:
-                                                                      AdminBannerDeleteWidget(
-                                                                    video:
-                                                                        bannersItem,
+                                                                      GestureDetector(
+                                                                    onTap: () {
+                                                                      FocusScope.of(
+                                                                              dialogContext)
+                                                                          .unfocus();
+                                                                      FocusManager
+                                                                          .instance
+                                                                          .primaryFocus
+                                                                          ?.unfocus();
+                                                                    },
+                                                                    child:
+                                                                        AdminBannerDeleteWidget(
+                                                                      video:
+                                                                          bannersItem,
+                                                                    ),
                                                                   ),
-                                                                ),
-                                                              );
-                                                            },
-                                                          ).then((value) =>
-                                                              safeSetState(
-                                                                  () {}));
-                                                        },
+                                                                );
+                                                              },
+                                                            );
+                                                          },
+                                                        ),
                                                       ),
                                                     ].divide(
                                                         SizedBox(width: 8.0)),
@@ -584,10 +636,15 @@ class _AdminBannersWidgetState extends State<AdminBannersWidget> {
                                     ),
                                     child: FFButtonWidget(
                                       onPressed: () async {
+                                        logFirebaseEvent(
+                                            'ADMIN_BANNERS__CREATE_NEW_BANNER_BTN_ON_');
+                                        logFirebaseEvent('Button_navigate_to');
+
                                         context.pushNamed(
                                           AdminAddBannerWidget.routeName,
                                           extra: <String, dynamic>{
-                                            kTransitionInfoKey: TransitionInfo(
+                                            '__transition_info__':
+                                                TransitionInfo(
                                               hasTransition: true,
                                               transitionType:
                                                   PageTransitionType.fade,
@@ -619,12 +676,9 @@ class _AdminBannersWidgetState extends State<AdminBannersWidget> {
                                                       .primaryText,
                                               fontSize: 14.0,
                                               letterSpacing: 0.0,
-                                              useGoogleFonts: GoogleFonts
-                                                      .asMap()
-                                                  .containsKey(
-                                                      FlutterFlowTheme.of(
-                                                              context)
-                                                          .titleSmallFamily),
+                                              useGoogleFonts:
+                                                  !FlutterFlowTheme.of(context)
+                                                      .titleSmallIsCustom,
                                             ),
                                         elevation: 0.0,
                                         borderRadius:

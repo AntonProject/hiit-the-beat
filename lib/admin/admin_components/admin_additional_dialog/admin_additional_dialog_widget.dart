@@ -3,9 +3,12 @@ import '/backend/backend.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
+import 'dart:ui';
 import '/index.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'admin_additional_dialog_model.dart';
 export 'admin_additional_dialog_model.dart';
 
@@ -61,19 +64,22 @@ class _AdminAdditionalDialogWidgetState
         children: [
           FFButtonWidget(
             onPressed: () async {
+              logFirebaseEvent('ADMIN_ADDITIONAL_DIALOG_COMP_Edit_ON_TAP');
+              logFirebaseEvent('Edit_dismiss_dialog');
               Navigator.pop(context);
+              logFirebaseEvent('Edit_navigate_to');
 
               context.pushNamed(
                 AdminEditAdditWidget.routeName,
                 queryParameters: {
                   'addit': serializeParam(
-                    widget.addit,
+                    widget!.addit,
                     ParamType.Document,
                   ),
                 }.withoutNulls,
                 extra: <String, dynamic>{
-                  'addit': widget.addit,
-                  kTransitionInfoKey: TransitionInfo(
+                  'addit': widget!.addit,
+                  '__transition_info__': TransitionInfo(
                     hasTransition: true,
                     transitionType: PageTransitionType.fade,
                     duration: Duration(milliseconds: 0),
@@ -94,8 +100,8 @@ class _AdminAdditionalDialogWidgetState
                     fontSize: 12.0,
                     letterSpacing: 0.0,
                     fontWeight: FontWeight.normal,
-                    useGoogleFonts: GoogleFonts.asMap().containsKey(
-                        FlutterFlowTheme.of(context).titleSmallFamily),
+                    useGoogleFonts:
+                        !FlutterFlowTheme.of(context).titleSmallIsCustom,
                   ),
               elevation: 0.0,
               borderSide: BorderSide(
@@ -104,49 +110,55 @@ class _AdminAdditionalDialogWidgetState
               borderRadius: BorderRadius.circular(4.0),
             ),
           ),
-          FFButtonWidget(
-            onPressed: () async {
-              Navigator.pop(context);
-              showModalBottomSheet(
-                isScrollControlled: true,
-                backgroundColor: Colors.transparent,
-                useSafeArea: true,
-                context: context,
-                builder: (context) {
-                  return Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: AdminAdditDeleteWidget(
-                      add: widget.addit!,
-                      type: valueOrDefault<int>(
-                        widget.addit?.typeIndex,
-                        1,
+          Builder(
+            builder: (context) => FFButtonWidget(
+              onPressed: () async {
+                logFirebaseEvent('ADMIN_ADDITIONAL_DIALOG_Delete_ON_TAP');
+                logFirebaseEvent('Delete_dismiss_dialog');
+                Navigator.pop(context);
+                logFirebaseEvent('Delete_alert_dialog');
+                showDialog(
+                  context: context,
+                  builder: (dialogContext) {
+                    return Dialog(
+                      elevation: 0,
+                      insetPadding: EdgeInsets.zero,
+                      backgroundColor: Colors.transparent,
+                      alignment: AlignmentDirectional(0.0, 0.0)
+                          .resolve(Directionality.of(context)),
+                      child: AdminAdditDeleteWidget(
+                        add: widget!.addit!,
+                        type: valueOrDefault<int>(
+                          widget!.addit?.typeIndex,
+                          1,
+                        ),
                       ),
-                    ),
-                  );
-                },
-              ).then((value) => safeSetState(() {}));
-            },
-            text: FFLocalizations.of(context).getText(
-              'yxv1s5km' /* Delete */,
-            ),
-            options: FFButtonOptions(
-              padding: EdgeInsetsDirectional.fromSTEB(8.0, 0.0, 35.0, 0.0),
-              iconPadding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
-              color: FlutterFlowTheme.of(context).secondaryBackground,
-              textStyle: FlutterFlowTheme.of(context).titleSmall.override(
-                    fontFamily: FlutterFlowTheme.of(context).titleSmallFamily,
-                    color: Colors.white,
-                    fontSize: 12.0,
-                    letterSpacing: 0.0,
-                    fontWeight: FontWeight.normal,
-                    useGoogleFonts: GoogleFonts.asMap().containsKey(
-                        FlutterFlowTheme.of(context).titleSmallFamily),
-                  ),
-              elevation: 0.0,
-              borderSide: BorderSide(
-                color: FlutterFlowTheme.of(context).secondaryBackground,
+                    );
+                  },
+                );
+              },
+              text: FFLocalizations.of(context).getText(
+                'yxv1s5km' /* Delete */,
               ),
-              borderRadius: BorderRadius.circular(4.0),
+              options: FFButtonOptions(
+                padding: EdgeInsetsDirectional.fromSTEB(8.0, 0.0, 35.0, 0.0),
+                iconPadding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
+                color: FlutterFlowTheme.of(context).secondaryBackground,
+                textStyle: FlutterFlowTheme.of(context).titleSmall.override(
+                      fontFamily: FlutterFlowTheme.of(context).titleSmallFamily,
+                      color: Colors.white,
+                      fontSize: 12.0,
+                      letterSpacing: 0.0,
+                      fontWeight: FontWeight.normal,
+                      useGoogleFonts:
+                          !FlutterFlowTheme.of(context).titleSmallIsCustom,
+                    ),
+                elevation: 0.0,
+                borderSide: BorderSide(
+                  color: FlutterFlowTheme.of(context).secondaryBackground,
+                ),
+                borderRadius: BorderRadius.circular(4.0),
+              ),
             ),
           ),
         ].addToStart(SizedBox(height: 8.0)).addToEnd(SizedBox(height: 8.0)),

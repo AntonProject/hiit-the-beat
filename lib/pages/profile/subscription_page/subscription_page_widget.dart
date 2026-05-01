@@ -1,8 +1,10 @@
 import '/auth/firebase_auth/auth_util.dart';
+import '/backend/api_requests/api_calls.dart';
 import '/backend/backend.dart';
 import '/components/dialog/dialog_widget.dart';
 import '/components/dialogs/guest_dialog/guest_dialog_widget.dart';
 import '/components/dialogs/payment_dialog/payment_dialog_widget.dart';
+import '/components/dialogs/payment_dialog_start/payment_dialog_start_widget.dart';
 import '/components/empty_list/empty_list_widget.dart';
 import '/components/page_component/change_subs/change_subs_widget.dart';
 import '/components/page_component/success_subs/success_subs_widget.dart';
@@ -16,13 +18,15 @@ import '/actions/actions.dart' as action_blocks;
 import '/custom_code/actions/index.dart' as actions;
 import '/flutter_flow/custom_functions.dart' as functions;
 import '/flutter_flow/revenue_cat_util.dart' as revenue_cat;
-import '/index.dart';
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'subscription_page_model.dart';
 export 'subscription_page_model.dart';
 
@@ -46,11 +50,21 @@ class _SubscriptionPageWidgetState extends State<SubscriptionPageWidget> {
     super.initState();
     _model = createModel(context, () => SubscriptionPageModel());
 
+    logFirebaseEvent('screen_view',
+        parameters: {'screen_name': 'SubscriptionPage'});
     // On page load action.
     SchedulerBinding.instance.addPostFrameCallback((_) async {
+      logFirebaseEvent('SUBSCRIPTION_SubscriptionPage_ON_INIT_ST');
+      logFirebaseEvent('SubscriptionPage_custom_action');
       unawaited(
         () async {
           await actions.lockLandscapeMode();
+        }(),
+      );
+      logFirebaseEvent('SubscriptionPage_custom_action');
+      unawaited(
+        () async {
+          await actions.setStatusBarColor();
         }(),
       );
     });
@@ -105,6 +119,8 @@ class _SubscriptionPageWidgetState extends State<SubscriptionPageWidget> {
                         size: 24.0,
                       ),
                       onPressed: () async {
+                        logFirebaseEvent('SUBSCRIPTION_arrowLeft24_ICN_ON_TAP');
+                        logFirebaseEvent('IconButton_navigate_back');
                         context.safePop();
                       },
                     ),
@@ -123,10 +139,9 @@ class _SubscriptionPageWidgetState extends State<SubscriptionPageWidget> {
                                 fontSize: 16.0,
                                 letterSpacing: 0.07,
                                 fontWeight: FontWeight.bold,
-                                useGoogleFonts: GoogleFonts.asMap().containsKey(
-                                    FlutterFlowTheme.of(context)
-                                        .bodyMediumFamily),
                                 lineHeight: 1.4,
+                                useGoogleFonts: !FlutterFlowTheme.of(context)
+                                    .bodyMediumIsCustom,
                               ),
                         ),
                       ),
@@ -145,10 +160,9 @@ class _SubscriptionPageWidgetState extends State<SubscriptionPageWidget> {
                                 fontSize: 16.0,
                                 letterSpacing: 0.07,
                                 fontWeight: FontWeight.bold,
-                                useGoogleFonts: GoogleFonts.asMap().containsKey(
-                                    FlutterFlowTheme.of(context)
-                                        .bodyMediumFamily),
                                 lineHeight: 1.4,
+                                useGoogleFonts: !FlutterFlowTheme.of(context)
+                                    .bodyMediumIsCustom,
                               ),
                         ),
                       ),
@@ -209,7 +223,13 @@ class _SubscriptionPageWidgetState extends State<SubscriptionPageWidget> {
                                           hoverColor: Colors.transparent,
                                           highlightColor: Colors.transparent,
                                           onTap: () async {
+                                            logFirebaseEvent(
+                                                'SUBSCRIPTION_PAGE_PAGE_month_ON_TAP');
+                                            logFirebaseEvent(
+                                                'month_haptic_feedback');
                                             HapticFeedback.mediumImpact();
+                                            logFirebaseEvent(
+                                                'month_update_page_state');
                                             _model.price =
                                                 valueOrDefault<double>(
                                               packagesItem.storeProduct.price,
@@ -273,12 +293,6 @@ class _SubscriptionPageWidgetState extends State<SubscriptionPageWidget> {
                                                       ),
                                                       borderRadius:
                                                           BorderRadius.only(
-                                                        bottomLeft:
-                                                            Radius.circular(
-                                                                0.0),
-                                                        bottomRight:
-                                                            Radius.circular(
-                                                                0.0),
                                                         topLeft:
                                                             Radius.circular(
                                                                 8.0),
@@ -322,7 +336,7 @@ class _SubscriptionPageWidgetState extends State<SubscriptionPageWidget> {
                                                           FFLocalizations.of(
                                                                   context)
                                                               .getText(
-                                                            'tqv5js2f' /* GET 2.5 MONTHS FREE! */,
+                                                            'tqv5js2f' /* GET 3 MONTHS FREE! */,
                                                           ),
                                                           maxLines: 1,
                                                           style: FlutterFlowTheme
@@ -340,13 +354,12 @@ class _SubscriptionPageWidgetState extends State<SubscriptionPageWidget> {
                                                                 fontWeight:
                                                                     FontWeight
                                                                         .w600,
-                                                                useGoogleFonts: GoogleFonts
-                                                                        .asMap()
-                                                                    .containsKey(
-                                                                        FlutterFlowTheme.of(context)
-                                                                            .bodyMediumFamily),
                                                                 lineHeight:
                                                                     1.25,
+                                                                useGoogleFonts:
+                                                                    !FlutterFlowTheme.of(
+                                                                            context)
+                                                                        .bodyMediumIsCustom,
                                                               ),
                                                         ),
                                                       ),
@@ -382,11 +395,13 @@ class _SubscriptionPageWidgetState extends State<SubscriptionPageWidget> {
                                                                               context)
                                                                           .getVariableText(
                                                                         enText:
-                                                                            'Yearly',
+                                                                            'Annual',
                                                                         deText:
-                                                                            'jährlich',
+                                                                            'Jährlich',
+                                                                        jaText:
+                                                                            '年間',
                                                                       ),
-                                                                      'Yearly',
+                                                                      'Annual',
                                                                     );
                                                                   } else if (packagesItem
                                                                           .identifier ==
@@ -400,6 +415,8 @@ class _SubscriptionPageWidgetState extends State<SubscriptionPageWidget> {
                                                                             '6 months',
                                                                         deText:
                                                                             '6 Monate',
+                                                                        jaText:
+                                                                            '6ヶ月',
                                                                       ),
                                                                       '6 months',
                                                                     );
@@ -414,7 +431,9 @@ class _SubscriptionPageWidgetState extends State<SubscriptionPageWidget> {
                                                                         enText:
                                                                             'Monthly',
                                                                         deText:
-                                                                            'monatlich',
+                                                                            'Monatlich',
+                                                                        jaText:
+                                                                            '月次',
                                                                       ),
                                                                       'Monthly',
                                                                     );
@@ -425,15 +444,17 @@ class _SubscriptionPageWidgetState extends State<SubscriptionPageWidget> {
                                                                               context)
                                                                           .getVariableText(
                                                                         enText:
-                                                                            'Yearly',
+                                                                            'Annual',
                                                                         deText:
-                                                                            'jährlich',
+                                                                            'Jährlich',
+                                                                        jaText:
+                                                                            '年間',
                                                                       ),
-                                                                      'Yearly',
+                                                                      'Annual',
                                                                     );
                                                                   }
                                                                 }(),
-                                                                'Yearly',
+                                                                'Annual',
                                                               ),
                                                               maxLines: 1,
                                                               minFontSize: 10.0,
@@ -451,12 +472,11 @@ class _SubscriptionPageWidgetState extends State<SubscriptionPageWidget> {
                                                                     fontWeight:
                                                                         FontWeight
                                                                             .bold,
-                                                                    useGoogleFonts: GoogleFonts
-                                                                            .asMap()
-                                                                        .containsKey(
-                                                                            FlutterFlowTheme.of(context).bodyMediumFamily),
                                                                     lineHeight:
                                                                         1.4,
+                                                                    useGoogleFonts:
+                                                                        !FlutterFlowTheme.of(context)
+                                                                            .bodyMediumIsCustom,
                                                                   ),
                                                             );
                                                           } else {
@@ -473,11 +493,13 @@ class _SubscriptionPageWidgetState extends State<SubscriptionPageWidget> {
                                                                               context)
                                                                           .getVariableText(
                                                                         enText:
-                                                                            'Yearly',
+                                                                            'Annual',
                                                                         deText:
-                                                                            'jährlich',
+                                                                            'Jährlich',
+                                                                        jaText:
+                                                                            '年間',
                                                                       ),
-                                                                      'Yearly',
+                                                                      'Annual',
                                                                     );
                                                                   } else if (packagesItem
                                                                           .identifier ==
@@ -491,6 +513,8 @@ class _SubscriptionPageWidgetState extends State<SubscriptionPageWidget> {
                                                                             '6 months',
                                                                         deText:
                                                                             '6 Monate',
+                                                                        jaText:
+                                                                            '6ヶ月',
                                                                       ),
                                                                       '6 months',
                                                                     );
@@ -505,7 +529,9 @@ class _SubscriptionPageWidgetState extends State<SubscriptionPageWidget> {
                                                                         enText:
                                                                             'Monthly',
                                                                         deText:
-                                                                            'monatlich',
+                                                                            'Monatlich',
+                                                                        jaText:
+                                                                            '月次',
                                                                       ),
                                                                       'Monthly',
                                                                     );
@@ -519,12 +545,14 @@ class _SubscriptionPageWidgetState extends State<SubscriptionPageWidget> {
                                                                             'Monthly',
                                                                         deText:
                                                                             'monatlich',
+                                                                        jaText:
+                                                                            '年間',
                                                                       ),
                                                                       'Monthly',
                                                                     );
                                                                   }
                                                                 }(),
-                                                                'Yearly',
+                                                                'Annual',
                                                               ),
                                                               maxLines: 1,
                                                               minFontSize: 10.0,
@@ -542,12 +570,11 @@ class _SubscriptionPageWidgetState extends State<SubscriptionPageWidget> {
                                                                     fontWeight:
                                                                         FontWeight
                                                                             .w500,
-                                                                    useGoogleFonts: GoogleFonts
-                                                                            .asMap()
-                                                                        .containsKey(
-                                                                            FlutterFlowTheme.of(context).bodyMediumFamily),
                                                                     lineHeight:
                                                                         1.4,
+                                                                    useGoogleFonts:
+                                                                        !FlutterFlowTheme.of(context)
+                                                                            .bodyMediumIsCustom,
                                                                   ),
                                                             );
                                                           }
@@ -600,10 +627,10 @@ class _SubscriptionPageWidgetState extends State<SubscriptionPageWidget> {
                                                                                 0.07,
                                                                             fontWeight:
                                                                                 FontWeight.bold,
-                                                                            useGoogleFonts:
-                                                                                GoogleFonts.asMap().containsKey(FlutterFlowTheme.of(context).bodyMediumFamily),
                                                                             lineHeight:
                                                                                 1.4,
+                                                                            useGoogleFonts:
+                                                                                !FlutterFlowTheme.of(context).bodyMediumIsCustom,
                                                                           ),
                                                                     ),
                                                                     TextSpan(
@@ -616,6 +643,7 @@ class _SubscriptionPageWidgetState extends State<SubscriptionPageWidget> {
                                                                               FFLocalizations.of(context).getVariableText(
                                                                                 enText: ' / 6 months',
                                                                                 deText: ' / 6 Monate',
+                                                                                jaText: ' / 6ヶ月',
                                                                               ),
                                                                               ' / 6 months',
                                                                             );
@@ -625,6 +653,7 @@ class _SubscriptionPageWidgetState extends State<SubscriptionPageWidget> {
                                                                               FFLocalizations.of(context).getVariableText(
                                                                                 enText: ' / year',
                                                                                 deText: ' / Jahr',
+                                                                                jaText: ' / 年',
                                                                               ),
                                                                               ' / year',
                                                                             );
@@ -634,16 +663,18 @@ class _SubscriptionPageWidgetState extends State<SubscriptionPageWidget> {
                                                                               FFLocalizations.of(context).getVariableText(
                                                                                 enText: ' / month',
                                                                                 deText: ' / Monat',
+                                                                                jaText: ' / 月',
                                                                               ),
-                                                                              ' / year',
+                                                                              ' / month',
                                                                             );
                                                                           } else {
                                                                             return valueOrDefault<String>(
                                                                               FFLocalizations.of(context).getVariableText(
                                                                                 enText: ' / month',
                                                                                 deText: ' / Monat',
+                                                                                jaText: ' / 月',
                                                                               ),
-                                                                              ' / year',
+                                                                              ' / month',
                                                                             );
                                                                           }
                                                                         }(),
@@ -663,10 +694,10 @@ class _SubscriptionPageWidgetState extends State<SubscriptionPageWidget> {
                                                                                 0.07,
                                                                             fontWeight:
                                                                                 FontWeight.w600,
-                                                                            useGoogleFonts:
-                                                                                GoogleFonts.asMap().containsKey(FlutterFlowTheme.of(context).bodyMediumFamily),
                                                                             lineHeight:
                                                                                 1.4,
+                                                                            useGoogleFonts:
+                                                                                !FlutterFlowTheme.of(context).bodyMediumIsCustom,
                                                                           ),
                                                                     )
                                                                   ],
@@ -684,10 +715,10 @@ class _SubscriptionPageWidgetState extends State<SubscriptionPageWidget> {
                                                                             0.07,
                                                                         fontWeight:
                                                                             FontWeight.bold,
-                                                                        useGoogleFonts:
-                                                                            GoogleFonts.asMap().containsKey(FlutterFlowTheme.of(context).bodyMediumFamily),
                                                                         lineHeight:
                                                                             1.4,
+                                                                        useGoogleFonts:
+                                                                            !FlutterFlowTheme.of(context).bodyMediumIsCustom,
                                                                       ),
                                                                 ),
                                                                 maxLines: 1,
@@ -735,10 +766,10 @@ class _SubscriptionPageWidgetState extends State<SubscriptionPageWidget> {
                                                                                 0.07,
                                                                             fontWeight:
                                                                                 FontWeight.w500,
-                                                                            useGoogleFonts:
-                                                                                GoogleFonts.asMap().containsKey(FlutterFlowTheme.of(context).bodyMediumFamily),
                                                                             lineHeight:
                                                                                 1.4,
+                                                                            useGoogleFonts:
+                                                                                !FlutterFlowTheme.of(context).bodyMediumIsCustom,
                                                                           ),
                                                                     ),
                                                                     TextSpan(
@@ -751,6 +782,7 @@ class _SubscriptionPageWidgetState extends State<SubscriptionPageWidget> {
                                                                               FFLocalizations.of(context).getVariableText(
                                                                                 enText: ' / 6 months',
                                                                                 deText: ' / 6 Monate',
+                                                                                jaText: ' / 6ヶ月',
                                                                               ),
                                                                               ' / 6 months',
                                                                             );
@@ -760,6 +792,7 @@ class _SubscriptionPageWidgetState extends State<SubscriptionPageWidget> {
                                                                               FFLocalizations.of(context).getVariableText(
                                                                                 enText: ' / year',
                                                                                 deText: ' / Jahr',
+                                                                                jaText: ' / 年',
                                                                               ),
                                                                               ' / year',
                                                                             );
@@ -769,14 +802,16 @@ class _SubscriptionPageWidgetState extends State<SubscriptionPageWidget> {
                                                                               FFLocalizations.of(context).getVariableText(
                                                                                 enText: ' / month',
                                                                                 deText: ' / Monat',
+                                                                                jaText: ' / 月',
                                                                               ),
-                                                                              ' / year',
+                                                                              ' / month',
                                                                             );
                                                                           } else {
                                                                             return valueOrDefault<String>(
                                                                               FFLocalizations.of(context).getVariableText(
                                                                                 enText: ' / month',
                                                                                 deText: ' / Monat',
+                                                                                jaText: ' / 月',
                                                                               ),
                                                                               ' / year',
                                                                             );
@@ -798,10 +833,10 @@ class _SubscriptionPageWidgetState extends State<SubscriptionPageWidget> {
                                                                                 0.07,
                                                                             fontWeight:
                                                                                 FontWeight.w600,
-                                                                            useGoogleFonts:
-                                                                                GoogleFonts.asMap().containsKey(FlutterFlowTheme.of(context).bodyMediumFamily),
                                                                             lineHeight:
                                                                                 1.4,
+                                                                            useGoogleFonts:
+                                                                                !FlutterFlowTheme.of(context).bodyMediumIsCustom,
                                                                           ),
                                                                     )
                                                                   ],
@@ -819,10 +854,10 @@ class _SubscriptionPageWidgetState extends State<SubscriptionPageWidget> {
                                                                             0.07,
                                                                         fontWeight:
                                                                             FontWeight.bold,
-                                                                        useGoogleFonts:
-                                                                            GoogleFonts.asMap().containsKey(FlutterFlowTheme.of(context).bodyMediumFamily),
                                                                         lineHeight:
                                                                             1.4,
+                                                                        useGoogleFonts:
+                                                                            !FlutterFlowTheme.of(context).bodyMediumIsCustom,
                                                                       ),
                                                                 ),
                                                                 maxLines: 1,
@@ -875,7 +910,7 @@ class _SubscriptionPageWidgetState extends State<SubscriptionPageWidget> {
                                                                         letterSpacing:
                                                                             0.0,
                                                                         useGoogleFonts:
-                                                                            GoogleFonts.asMap().containsKey(FlutterFlowTheme.of(context).bodyMediumFamily),
+                                                                            !FlutterFlowTheme.of(context).bodyMediumIsCustom,
                                                                       ),
                                                                 ),
                                                               ),
@@ -916,7 +951,7 @@ class _SubscriptionPageWidgetState extends State<SubscriptionPageWidget> {
                                                                   FFLocalizations.of(
                                                                           context)
                                                                       .getText(
-                                                                    '3j0q74op' /* Only $2.40 / week — less than ... */,
+                                                                    '3j0q74op' /* $2.9 / week - instead of a cup... */,
                                                                   ),
                                                                   style: FlutterFlowTheme.of(
                                                                           context)
@@ -927,7 +962,7 @@ class _SubscriptionPageWidgetState extends State<SubscriptionPageWidget> {
                                                                         letterSpacing:
                                                                             0.0,
                                                                         useGoogleFonts:
-                                                                            GoogleFonts.asMap().containsKey(FlutterFlowTheme.of(context).bodyMediumFamily),
+                                                                            !FlutterFlowTheme.of(context).bodyMediumIsCustom,
                                                                       ),
                                                                 ),
                                                               ),
@@ -979,7 +1014,7 @@ class _SubscriptionPageWidgetState extends State<SubscriptionPageWidget> {
                                                                         letterSpacing:
                                                                             0.0,
                                                                         useGoogleFonts:
-                                                                            GoogleFonts.asMap().containsKey(FlutterFlowTheme.of(context).bodyMediumFamily),
+                                                                            !FlutterFlowTheme.of(context).bodyMediumIsCustom,
                                                                       ),
                                                                 ),
                                                               ),
@@ -1031,7 +1066,7 @@ class _SubscriptionPageWidgetState extends State<SubscriptionPageWidget> {
                                                                         letterSpacing:
                                                                             0.0,
                                                                         useGoogleFonts:
-                                                                            GoogleFonts.asMap().containsKey(FlutterFlowTheme.of(context).bodyMediumFamily),
+                                                                            !FlutterFlowTheme.of(context).bodyMediumIsCustom,
                                                                       ),
                                                                 ),
                                                               ),
@@ -1053,8 +1088,8 @@ class _SubscriptionPageWidgetState extends State<SubscriptionPageWidget> {
                               ),
                             ),
                           ]
-                              .addToStart(SizedBox(height: 24.0))
-                              .addToEnd(SizedBox(height: 220.0)),
+                              .addToStart(SizedBox(height: 14.0))
+                              .addToEnd(SizedBox(height: 240.0)),
                         ),
                       ),
                       Align(
@@ -1079,30 +1114,72 @@ class _SubscriptionPageWidgetState extends State<SubscriptionPageWidget> {
                                           0.0, 0.0, 0.0, 8.0),
                                       child: FFButtonWidget(
                                         onPressed: () async {
+                                          logFirebaseEvent(
+                                              'SUBSCRIPTION_PAGE_PAGE_Learnmore_ON_TAP');
+                                          logFirebaseEvent(
+                                              'Learnmore_haptic_feedback');
                                           HapticFeedback.selectionClick();
-                                          showModalBottomSheet(
-                                            isScrollControlled: true,
-                                            backgroundColor: Colors.transparent,
-                                            context: context,
-                                            builder: (context) {
-                                              return GestureDetector(
-                                                onTap: () {
-                                                  FocusScope.of(context)
-                                                      .unfocus();
-                                                  FocusManager
-                                                      .instance.primaryFocus
-                                                      ?.unfocus();
-                                                },
-                                                child: Padding(
-                                                  padding:
-                                                      MediaQuery.viewInsetsOf(
-                                                          context),
-                                                  child: PaymentDialogWidget(),
-                                                ),
-                                              );
-                                            },
-                                          ).then(
-                                              (value) => safeSetState(() {}));
+                                          if (valueOrDefault<bool>(
+                                                  currentUserDocument
+                                                      ?.plusmember,
+                                                  false) ==
+                                              false) {
+                                            logFirebaseEvent(
+                                                'Learnmore_bottom_sheet');
+                                            showModalBottomSheet(
+                                              isScrollControlled: true,
+                                              backgroundColor:
+                                                  Colors.transparent,
+                                              context: context,
+                                              builder: (context) {
+                                                return GestureDetector(
+                                                  onTap: () {
+                                                    FocusScope.of(context)
+                                                        .unfocus();
+                                                    FocusManager
+                                                        .instance.primaryFocus
+                                                        ?.unfocus();
+                                                  },
+                                                  child: Padding(
+                                                    padding:
+                                                        MediaQuery.viewInsetsOf(
+                                                            context),
+                                                    child:
+                                                        PaymentDialogStartWidget(),
+                                                  ),
+                                                );
+                                              },
+                                            ).then(
+                                                (value) => safeSetState(() {}));
+                                          } else {
+                                            logFirebaseEvent(
+                                                'Learnmore_bottom_sheet');
+                                            showModalBottomSheet(
+                                              isScrollControlled: true,
+                                              backgroundColor:
+                                                  Colors.transparent,
+                                              context: context,
+                                              builder: (context) {
+                                                return GestureDetector(
+                                                  onTap: () {
+                                                    FocusScope.of(context)
+                                                        .unfocus();
+                                                    FocusManager
+                                                        .instance.primaryFocus
+                                                        ?.unfocus();
+                                                  },
+                                                  child: Padding(
+                                                    padding:
+                                                        MediaQuery.viewInsetsOf(
+                                                            context),
+                                                    child:
+                                                        PaymentDialogWidget(),
+                                                  ),
+                                                );
+                                              },
+                                            ).then(
+                                                (value) => safeSetState(() {}));
+                                          }
                                         },
                                         text:
                                             FFLocalizations.of(context).getText(
@@ -1129,13 +1206,11 @@ class _SubscriptionPageWidgetState extends State<SubscriptionPageWidget> {
                                                 fontSize: 14.0,
                                                 letterSpacing: 0.07,
                                                 fontWeight: FontWeight.w600,
-                                                useGoogleFonts: GoogleFonts
-                                                        .asMap()
-                                                    .containsKey(
-                                                        FlutterFlowTheme.of(
-                                                                context)
-                                                            .titleSmallFamily),
                                                 lineHeight: 1.4,
+                                                useGoogleFonts:
+                                                    !FlutterFlowTheme.of(
+                                                            context)
+                                                        .titleSmallIsCustom,
                                               ),
                                           elevation: 0.0,
                                           borderSide: BorderSide(
@@ -1157,9 +1232,16 @@ class _SubscriptionPageWidgetState extends State<SubscriptionPageWidget> {
                                                 _model.packageId == '')
                                             ? null
                                             : () async {
+                                                logFirebaseEvent(
+                                                    'SUBSCRIPTION_Gotopayment_ON_TAP');
                                                 var _shouldSetState = false;
+                                                logFirebaseEvent(
+                                                    'Gotopayment_haptic_feedback');
                                                 HapticFeedback.selectionClick();
-                                                if (currentUserEmail != '') {
+                                                if (currentUserEmail != null &&
+                                                    currentUserEmail != '') {
+                                                  logFirebaseEvent(
+                                                      'Gotopayment_revenue_cat');
                                                   _model.revenue =
                                                       await revenue_cat
                                                           .purchasePackage(
@@ -1174,6 +1256,8 @@ class _SubscriptionPageWidgetState extends State<SubscriptionPageWidget> {
                                                         currentUserDocument
                                                             ?.plusmember,
                                                         false)) {
+                                                      logFirebaseEvent(
+                                                          'Gotopayment_bottom_sheet');
                                                       showModalBottomSheet(
                                                         isScrollControlled:
                                                             true,
@@ -1205,11 +1289,71 @@ class _SubscriptionPageWidgetState extends State<SubscriptionPageWidget> {
                                                       ).then((value) =>
                                                           safeSetState(() {}));
                                                     } else {
+                                                      logFirebaseEvent(
+                                                          'Gotopayment_backend_call');
+
                                                       await currentUserReference!
                                                           .update(
                                                               createUsersRecordData(
                                                         plusmember: true,
                                                       ));
+                                                      logFirebaseEvent(
+                                                          'Gotopayment_backend_call');
+                                                      _model.apiResultu1f =
+                                                          await ActivecampaignGroup
+                                                              .addContactTagsCall
+                                                              .call(
+                                                        contactId: valueOrDefault(
+                                                            currentUserDocument
+                                                                ?.activeCampgainContactId,
+                                                            ''),
+                                                        tagId: FFAppConstants
+                                                            .activeCampaignPlusmemberTagId,
+                                                      );
+
+                                                      _shouldSetState = true;
+                                                      logFirebaseEvent(
+                                                          'Gotopayment_backend_call');
+                                                      _model.contactTags =
+                                                          await ActivecampaignGroup
+                                                              .getContactTagsCall
+                                                              .call(
+                                                        contactId: valueOrDefault(
+                                                            currentUserDocument
+                                                                ?.activeCampgainContactId,
+                                                            ''),
+                                                      );
+
+                                                      _shouldSetState = true;
+                                                      logFirebaseEvent(
+                                                          'Gotopayment_backend_call');
+                                                      _model.apiResultm5v =
+                                                          await ActivecampaignGroup
+                                                              .deleteContactTagCall
+                                                              .call(
+                                                        contactTagId: ActivecampaignGroup
+                                                            .getContactTagsCall
+                                                            .contactTags(
+                                                              (_model.contactTags
+                                                                      ?.jsonBody ??
+                                                                  ''),
+                                                            )
+                                                            ?.where((e) =>
+                                                                e.tag ==
+                                                                FFAppConstants
+                                                                    .activeCampaignFreememberTagId)
+                                                            .toList()
+                                                            ?.firstOrNull
+                                                            ?.id,
+                                                      );
+
+                                                      _shouldSetState = true;
+                                                      logFirebaseEvent(
+                                                          'Gotopayment_action_block');
+                                                      await action_blocks
+                                                          .startTrial(context);
+                                                      logFirebaseEvent(
+                                                          'Gotopayment_bottom_sheet');
                                                       showModalBottomSheet(
                                                         isScrollControlled:
                                                             true,
@@ -1242,14 +1386,8 @@ class _SubscriptionPageWidgetState extends State<SubscriptionPageWidget> {
                                                           safeSetState(() {}));
                                                     }
 
-                                                    await action_blocks
-                                                        .removeAllActiveCampaignSubscriptions(
-                                                      context,
-                                                      id: valueOrDefault(
-                                                          currentUserDocument
-                                                              ?.activeCampgainContactId,
-                                                          ''),
-                                                    );
+                                                    logFirebaseEvent(
+                                                        'Gotopayment_backend_call');
 
                                                     await currentUserReference!
                                                         .update(
@@ -1257,6 +1395,8 @@ class _SubscriptionPageWidgetState extends State<SubscriptionPageWidget> {
                                                       hasPayable: true,
                                                     ));
                                                   } else {
+                                                    logFirebaseEvent(
+                                                        'Gotopayment_navigate_back');
                                                     context.safePop();
                                                   }
 
@@ -1264,6 +1404,8 @@ class _SubscriptionPageWidgetState extends State<SubscriptionPageWidget> {
                                                     safeSetState(() {});
                                                   return;
                                                 } else {
+                                                  logFirebaseEvent(
+                                                      'Gotopayment_bottom_sheet');
                                                   showModalBottomSheet(
                                                     isScrollControlled: true,
                                                     backgroundColor:
@@ -1310,6 +1452,7 @@ class _SubscriptionPageWidgetState extends State<SubscriptionPageWidget> {
                                                         'Start your 7-day free trial',
                                                     deText:
                                                         'Jetzt 7 Tage gratis testen',
+                                                    jaText: '7日間の無料トライアルを始める',
                                                   ),
                                                   'Start your 7-day free trial',
                                                 )
@@ -1319,6 +1462,7 @@ class _SubscriptionPageWidgetState extends State<SubscriptionPageWidget> {
                                                     enText: 'Go to payment',
                                                     deText:
                                                         'Weiter zur Zahlung',
+                                                    jaText: '支払いへ進む',
                                                   ),
                                                   'Go to payment',
                                                 ),
@@ -1347,13 +1491,11 @@ class _SubscriptionPageWidgetState extends State<SubscriptionPageWidget> {
                                                         .primary,
                                                 fontSize: 14.0,
                                                 letterSpacing: 0.07,
-                                                useGoogleFonts: GoogleFonts
-                                                        .asMap()
-                                                    .containsKey(
-                                                        FlutterFlowTheme.of(
-                                                                context)
-                                                            .titleSmallFamily),
                                                 lineHeight: 1.4,
+                                                useGoogleFonts:
+                                                    !FlutterFlowTheme.of(
+                                                            context)
+                                                        .titleSmallIsCustom,
                                               ),
                                           elevation: 0.0,
                                           borderSide: BorderSide(
@@ -1387,11 +1529,13 @@ class _SubscriptionPageWidgetState extends State<SubscriptionPageWidget> {
                                                               context)
                                                           .getVariableText(
                                                         enText:
-                                                            'Try 7 days for free. If you love it, continue for just ',
+                                                            'Start your 7-day free trial. After the trial, your plan renews automatically at ',
                                                         deText:
-                                                            'Teste 7 Tage kostenlos, dann ',
+                                                            'Teste 7 Tage kostenlos, dann verlängert sich dein Abo automatisch',
+                                                        jaText:
+                                                            '7日間無料でお試しください。気に入ったら、今すぐ継続してください。 ',
                                                       ),
-                                                      'Try 7 days for free. If you love it, continue for just ',
+                                                      'Start your 7-day free trial. After the trial, your plan renews automatically at ',
                                                     )
                                                   : ' ',
                                               style:
@@ -1402,15 +1546,18 @@ class _SubscriptionPageWidgetState extends State<SubscriptionPageWidget> {
                                                             FlutterFlowTheme.of(
                                                                     context)
                                                                 .bodyMediumFamily,
-                                                        fontSize: 12.0,
-                                                        letterSpacing: 0.07,
-                                                        useGoogleFonts: GoogleFonts
-                                                                .asMap()
-                                                            .containsKey(
-                                                                FlutterFlowTheme.of(
+                                                        fontSize: MediaQuery.sizeOf(
                                                                         context)
-                                                                    .bodyMediumFamily),
+                                                                    .width <
+                                                                415.0
+                                                            ? 10.0
+                                                            : 12.0,
+                                                        letterSpacing: 0.07,
                                                         lineHeight: 1.4,
+                                                        useGoogleFonts:
+                                                            !FlutterFlowTheme
+                                                                    .of(context)
+                                                                .bodyMediumIsCustom,
                                                       ),
                                             ),
                                             TextSpan(
@@ -1436,6 +1583,8 @@ class _SubscriptionPageWidgetState extends State<SubscriptionPageWidget> {
                                                                       ' / month',
                                                                   deText:
                                                                       ' / Monat',
+                                                                  jaText:
+                                                                      ' / 月',
                                                                 ),
                                                                 ' / month',
                                                               )}',
@@ -1458,6 +1607,8 @@ class _SubscriptionPageWidgetState extends State<SubscriptionPageWidget> {
                                                                       ' / 6 months',
                                                                   deText:
                                                                       ' / 6 Monate',
+                                                                  jaText:
+                                                                      ' / 6ヶ月',
                                                                 ),
                                                                 ' / 6 months',
                                                               )}',
@@ -1480,6 +1631,8 @@ class _SubscriptionPageWidgetState extends State<SubscriptionPageWidget> {
                                                                       ' / year',
                                                                   deText:
                                                                       ' / Jahr',
+                                                                  jaText:
+                                                                      ' / 年',
                                                                 ),
                                                                 ' / year',
                                                               )}',
@@ -1511,6 +1664,7 @@ class _SubscriptionPageWidgetState extends State<SubscriptionPageWidget> {
                                                               .getVariableText(
                                                             enText: ' / year',
                                                             deText: ' / Jahr',
+                                                            jaText: ' / 年',
                                                           ),
                                                           ' / year',
                                                         )}',
@@ -1526,53 +1680,77 @@ class _SubscriptionPageWidgetState extends State<SubscriptionPageWidget> {
                                                             FlutterFlowTheme.of(
                                                                     context)
                                                                 .bodyMediumFamily,
-                                                        fontSize: 12.0,
+                                                        fontSize: MediaQuery.sizeOf(
+                                                                        context)
+                                                                    .width <
+                                                                415.0
+                                                            ? 10.0
+                                                            : 12.0,
                                                         letterSpacing: 0.07,
                                                         fontWeight:
                                                             FontWeight.normal,
-                                                        useGoogleFonts: GoogleFonts
-                                                                .asMap()
-                                                            .containsKey(
-                                                                FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .bodyMediumFamily),
                                                         lineHeight: 1.4,
+                                                        useGoogleFonts:
+                                                            !FlutterFlowTheme
+                                                                    .of(context)
+                                                                .bodyMediumIsCustom,
                                                       ),
                                             ),
                                             TextSpan(
                                               text: FFLocalizations.of(context)
                                                   .getText(
-                                                'hivpj2fq' /*  (billed annually, $125 charge... */,
+                                                'hivpj2fq' /* . Cancel anytime during the tr... */,
                                               ),
-                                              style: GoogleFonts.getFont(
-                                                'Urbanist',
+                                              style: GoogleFonts.urbanist(
                                                 color:
                                                     FlutterFlowTheme.of(context)
                                                         .primaryText,
-                                                fontSize: 12.0,
+                                                fontSize:
+                                                    MediaQuery.sizeOf(context)
+                                                                .width <
+                                                            415.0
+                                                        ? 10.0
+                                                        : 12.0,
                                                 height: 1.4,
                                               ),
                                             ),
                                             TextSpan(
                                               text: FFLocalizations.of(context)
                                                   .getText(
-                                                'e3lyamf9' /* privacy policy */,
+                                                'e3lyamf9' /*  Privacy policy */,
                                               ),
-                                              style: GoogleFonts.getFont(
-                                                'Urbanist',
+                                              style: GoogleFonts.urbanist(
                                                 color:
                                                     FlutterFlowTheme.of(context)
                                                         .secondary,
-                                                fontSize: 12.0,
+                                                fontSize:
+                                                    MediaQuery.sizeOf(context)
+                                                                .width <
+                                                            415.0
+                                                        ? 10.0
+                                                        : 12.0,
                                                 height: 1.4,
                                               ),
                                               mouseCursor:
                                                   SystemMouseCursors.click,
                                               recognizer: TapGestureRecognizer()
                                                 ..onTap = () async {
-                                                  context.pushNamed(
-                                                      PolicyPageWidget
-                                                          .routeName);
+                                                  logFirebaseEvent(
+                                                      'SUBSCRIPTION_RichTextSpan_e9h44lgb_ON_TA');
+                                                  if (FFLocalizations.of(
+                                                              context)
+                                                          .languageCode ==
+                                                      'en') {
+                                                    logFirebaseEvent(
+                                                        'RichTextSpan_launch_u_r_l');
+                                                    await launchURL(
+                                                        'https://www.hiit-the-beat.com/app/privacy-policy');
+                                                  } else {
+                                                    logFirebaseEvent(
+                                                        'RichTextSpan_launch_u_r_l');
+                                                    await launchURL(
+                                                        'https://www.hiit-the-beat.com/de/app/privacy-policy');
+                                                  }
                                                 },
                                             ),
                                             TextSpan(
@@ -1580,35 +1758,56 @@ class _SubscriptionPageWidgetState extends State<SubscriptionPageWidget> {
                                                   .getText(
                                                 'tn4ewelj' /*  and  */,
                                               ),
-                                              style: GoogleFonts.getFont(
-                                                'Urbanist',
+                                              style: GoogleFonts.urbanist(
                                                 color:
                                                     FlutterFlowTheme.of(context)
                                                         .primaryText,
-                                                fontSize: 12.0,
+                                                fontSize:
+                                                    MediaQuery.sizeOf(context)
+                                                                .width <
+                                                            415.0
+                                                        ? 10.0
+                                                        : 12.0,
                                                 height: 1.4,
                                               ),
                                             ),
                                             TextSpan(
                                               text: FFLocalizations.of(context)
                                                   .getText(
-                                                'lp2f9po6' /* terms of use */,
+                                                'lp2f9po6' /* Terms of Use */,
                                               ),
-                                              style: GoogleFonts.getFont(
-                                                'Urbanist',
+                                              style: GoogleFonts.urbanist(
                                                 color:
                                                     FlutterFlowTheme.of(context)
                                                         .secondary,
-                                                fontSize: 12.0,
+                                                fontSize:
+                                                    MediaQuery.sizeOf(context)
+                                                                .width <
+                                                            415.0
+                                                        ? 10.0
+                                                        : 12.0,
                                                 height: 1.4,
                                               ),
                                               mouseCursor:
                                                   SystemMouseCursors.click,
                                               recognizer: TapGestureRecognizer()
                                                 ..onTap = () async {
-                                                  context.pushNamed(
-                                                      TermsPageWidget
-                                                          .routeName);
+                                                  logFirebaseEvent(
+                                                      'SUBSCRIPTION_RichTextSpan_ulq11ab3_ON_TA');
+                                                  if (FFLocalizations.of(
+                                                              context)
+                                                          .languageCode ==
+                                                      'en') {
+                                                    logFirebaseEvent(
+                                                        'RichTextSpan_launch_u_r_l');
+                                                    await launchURL(
+                                                        'https://www.hiit-the-beat.com/app/terms-and-conditions');
+                                                  } else {
+                                                    logFirebaseEvent(
+                                                        'RichTextSpan_launch_u_r_l');
+                                                    await launchURL(
+                                                        'https://www.hiit-the-beat.com/de/app/terms-and-conditions');
+                                                  }
                                                 },
                                             )
                                           ],
@@ -1620,13 +1819,11 @@ class _SubscriptionPageWidgetState extends State<SubscriptionPageWidget> {
                                                         .bodyMediumFamily,
                                                 fontSize: 12.0,
                                                 letterSpacing: 0.07,
-                                                useGoogleFonts: GoogleFonts
-                                                        .asMap()
-                                                    .containsKey(
-                                                        FlutterFlowTheme.of(
-                                                                context)
-                                                            .bodyMediumFamily),
                                                 lineHeight: 1.4,
+                                                useGoogleFonts:
+                                                    !FlutterFlowTheme.of(
+                                                            context)
+                                                        .bodyMediumIsCustom,
                                               ),
                                         ),
                                         textAlign: TextAlign.center,
@@ -1645,6 +1842,10 @@ class _SubscriptionPageWidgetState extends State<SubscriptionPageWidget> {
                                                 AlignmentDirectional(0.0, 1.0),
                                             child: FFButtonWidget(
                                               onPressed: () async {
+                                                logFirebaseEvent(
+                                                    'SUBSCRIPTION_Restorepurchase_ON_TAP');
+                                                logFirebaseEvent(
+                                                    'Restorepurchase_bottom_sheet');
                                                 showModalBottomSheet(
                                                   isScrollControlled: true,
                                                   backgroundColor:
@@ -1676,6 +1877,8 @@ class _SubscriptionPageWidgetState extends State<SubscriptionPageWidget> {
                                                                   'Restoring purchases...',
                                                               deText:
                                                                   'Käufe werden wiederhergestellt...',
+                                                              jaText:
+                                                                  '購入を復元しています...',
                                                             ),
                                                             'Restoring purchases...',
                                                           ),
@@ -1686,6 +1889,8 @@ class _SubscriptionPageWidgetState extends State<SubscriptionPageWidget> {
                                                 ).then((value) =>
                                                     safeSetState(() {}));
 
+                                                logFirebaseEvent(
+                                                    'Restorepurchase_revenue_cat');
                                                 unawaited(
                                                   () async {
                                                     await revenue_cat
@@ -1706,32 +1911,35 @@ class _SubscriptionPageWidgetState extends State<SubscriptionPageWidget> {
                                                         .fromSTEB(
                                                             0.0, 0.0, 0.0, 0.0),
                                                 color: Colors.transparent,
-                                                textStyle:
-                                                    FlutterFlowTheme.of(context)
-                                                        .titleSmall
-                                                        .override(
-                                                          fontFamily:
-                                                              FlutterFlowTheme.of(
-                                                                      context)
-                                                                  .titleSmallFamily,
-                                                          color: FlutterFlowTheme
-                                                                  .of(context)
+                                                textStyle: FlutterFlowTheme.of(
+                                                        context)
+                                                    .titleSmall
+                                                    .override(
+                                                      fontFamily:
+                                                          FlutterFlowTheme.of(
+                                                                  context)
+                                                              .titleSmallFamily,
+                                                      color:
+                                                          FlutterFlowTheme.of(
+                                                                  context)
                                                               .primaryText,
-                                                          fontSize: 12.0,
-                                                          letterSpacing: 0.07,
-                                                          fontWeight:
-                                                              FontWeight.normal,
-                                                          decoration:
-                                                              TextDecoration
-                                                                  .underline,
-                                                          useGoogleFonts: GoogleFonts
-                                                                  .asMap()
-                                                              .containsKey(
-                                                                  FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .titleSmallFamily),
-                                                          lineHeight: 1.4,
-                                                        ),
+                                                      fontSize: MediaQuery.sizeOf(
+                                                                      context)
+                                                                  .width <
+                                                              365.0
+                                                          ? 10.0
+                                                          : 12.0,
+                                                      letterSpacing: 0.07,
+                                                      fontWeight:
+                                                          FontWeight.normal,
+                                                      decoration: TextDecoration
+                                                          .underline,
+                                                      lineHeight: 1.4,
+                                                      useGoogleFonts:
+                                                          !FlutterFlowTheme.of(
+                                                                  context)
+                                                              .titleSmallIsCustom,
+                                                    ),
                                                 elevation: 0.0,
                                                 borderSide: BorderSide(
                                                   color: Colors.transparent,
@@ -1754,8 +1962,14 @@ class _SubscriptionPageWidgetState extends State<SubscriptionPageWidget> {
                                                 builder: (context) =>
                                                     FFButtonWidget(
                                                   onPressed: () async {
+                                                    logFirebaseEvent(
+                                                        'SUBSCRIPTION_Cancelcurrentsubscription_O');
+                                                    logFirebaseEvent(
+                                                        'Cancelcurrentsubscription_haptic_feedbac');
                                                     HapticFeedback
                                                         .selectionClick();
+                                                    logFirebaseEvent(
+                                                        'Cancelcurrentsubscription_launch_u_r_l');
                                                     unawaited(
                                                       () async {
                                                         await launchURL(
@@ -1786,32 +2000,38 @@ class _SubscriptionPageWidgetState extends State<SubscriptionPageWidget> {
                                                             .fromSTEB(0.0, 0.0,
                                                                 0.0, 0.0),
                                                     color: Colors.transparent,
-                                                    textStyle: FlutterFlowTheme
-                                                            .of(context)
-                                                        .titleSmall
-                                                        .override(
-                                                          fontFamily:
-                                                              FlutterFlowTheme.of(
-                                                                      context)
-                                                                  .titleSmallFamily,
-                                                          color: FlutterFlowTheme
-                                                                  .of(context)
-                                                              .primaryText,
-                                                          fontSize: 12.0,
-                                                          letterSpacing: 0.07,
-                                                          fontWeight:
-                                                              FontWeight.normal,
-                                                          decoration:
-                                                              TextDecoration
-                                                                  .underline,
-                                                          useGoogleFonts: GoogleFonts
-                                                                  .asMap()
-                                                              .containsKey(
+                                                    textStyle:
+                                                        FlutterFlowTheme.of(
+                                                                context)
+                                                            .titleSmall
+                                                            .override(
+                                                              fontFamily:
                                                                   FlutterFlowTheme.of(
                                                                           context)
-                                                                      .titleSmallFamily),
-                                                          lineHeight: 1.4,
-                                                        ),
+                                                                      .titleSmallFamily,
+                                                              color: FlutterFlowTheme
+                                                                      .of(context)
+                                                                  .primaryText,
+                                                              fontSize:
+                                                                  MediaQuery.sizeOf(context)
+                                                                              .width <
+                                                                          365.0
+                                                                      ? 10.0
+                                                                      : 12.0,
+                                                              letterSpacing:
+                                                                  0.07,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .normal,
+                                                              decoration:
+                                                                  TextDecoration
+                                                                      .underline,
+                                                              lineHeight: 1.4,
+                                                              useGoogleFonts:
+                                                                  !FlutterFlowTheme.of(
+                                                                          context)
+                                                                      .titleSmallIsCustom,
+                                                            ),
                                                     elevation: 0.0,
                                                     borderSide: BorderSide(
                                                       color: Colors.transparent,
@@ -1828,7 +2048,7 @@ class _SubscriptionPageWidgetState extends State<SubscriptionPageWidget> {
                                       ],
                                     ),
                                   ),
-                                ].addToEnd(SizedBox(height: 34.0)),
+                                ].addToEnd(SizedBox(height: 14.0)),
                               ),
                             ),
                           ),

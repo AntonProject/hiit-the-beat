@@ -1,12 +1,17 @@
 import '/admin/admin_components/admin_user_delete/admin_user_delete_widget.dart';
+import '/auth/firebase_auth/auth_util.dart';
 import '/backend/backend.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
 import 'dart:async';
+import 'dart:ui';
 import '/index.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'admin_user_dialog_model.dart';
 export 'admin_user_dialog_model.dart';
 
@@ -60,19 +65,22 @@ class _AdminUserDialogWidgetState extends State<AdminUserDialogWidget> {
         children: [
           FFButtonWidget(
             onPressed: () async {
+              logFirebaseEvent('ADMIN_USER_DIALOG_COMP_Edit_ON_TAP');
+              logFirebaseEvent('Edit_dismiss_dialog');
               Navigator.pop(context);
+              logFirebaseEvent('Edit_navigate_to');
 
               context.pushNamed(
                 AdminEditUserWidget.routeName,
                 queryParameters: {
                   'user': serializeParam(
-                    widget.user,
+                    widget!.user,
                     ParamType.Document,
                   ),
                 }.withoutNulls,
                 extra: <String, dynamic>{
-                  'user': widget.user,
-                  kTransitionInfoKey: TransitionInfo(
+                  'user': widget!.user,
+                  '__transition_info__': TransitionInfo(
                     hasTransition: true,
                     transitionType: PageTransitionType.fade,
                     duration: Duration(milliseconds: 0),
@@ -93,8 +101,8 @@ class _AdminUserDialogWidgetState extends State<AdminUserDialogWidget> {
                     fontSize: 12.0,
                     letterSpacing: 0.0,
                     fontWeight: FontWeight.normal,
-                    useGoogleFonts: GoogleFonts.asMap().containsKey(
-                        FlutterFlowTheme.of(context).titleSmallFamily),
+                    useGoogleFonts:
+                        !FlutterFlowTheme.of(context).titleSmallIsCustom,
                   ),
               elevation: 0.0,
               borderSide: BorderSide(
@@ -103,7 +111,7 @@ class _AdminUserDialogWidgetState extends State<AdminUserDialogWidget> {
               borderRadius: BorderRadius.circular(4.0),
             ),
           ),
-          if (!widget.user!.blocked &&
+          if (!widget!.user!.blocked &&
               responsiveVisibility(
                 context: context,
                 phone: false,
@@ -113,16 +121,22 @@ class _AdminUserDialogWidgetState extends State<AdminUserDialogWidget> {
               ))
             FFButtonWidget(
               onPressed: () async {
-                if (widget.user!.blocked) {
-                  await widget.user!.reference.update(createUsersRecordData(
+                logFirebaseEvent('ADMIN_USER_DIALOG_COMP_Block_ON_TAP');
+                if (widget!.user!.blocked) {
+                  logFirebaseEvent('Block_backend_call');
+
+                  await widget!.user!.reference.update(createUsersRecordData(
                     blocked: false,
                   ));
                 } else {
-                  await widget.user!.reference.update(createUsersRecordData(
+                  logFirebaseEvent('Block_backend_call');
+
+                  await widget!.user!.reference.update(createUsersRecordData(
                     blocked: true,
                   ));
                 }
 
+                logFirebaseEvent('Block_dismiss_dialog');
                 Navigator.pop(context);
               },
               text: FFLocalizations.of(context).getText(
@@ -138,8 +152,8 @@ class _AdminUserDialogWidgetState extends State<AdminUserDialogWidget> {
                       fontSize: 12.0,
                       letterSpacing: 0.0,
                       fontWeight: FontWeight.normal,
-                      useGoogleFonts: GoogleFonts.asMap().containsKey(
-                          FlutterFlowTheme.of(context).titleSmallFamily),
+                      useGoogleFonts:
+                          !FlutterFlowTheme.of(context).titleSmallIsCustom,
                     ),
                 elevation: 0.0,
                 borderSide: BorderSide(
@@ -148,7 +162,7 @@ class _AdminUserDialogWidgetState extends State<AdminUserDialogWidget> {
                 borderRadius: BorderRadius.circular(4.0),
               ),
             ),
-          if ((widget.user?.blocked ?? true) &&
+          if ((widget!.user?.blocked ?? true) &&
               responsiveVisibility(
                 context: context,
                 phone: false,
@@ -158,16 +172,22 @@ class _AdminUserDialogWidgetState extends State<AdminUserDialogWidget> {
               ))
             FFButtonWidget(
               onPressed: () async {
-                if (widget.user!.blocked) {
-                  await widget.user!.reference.update(createUsersRecordData(
+                logFirebaseEvent('ADMIN_USER_DIALOG_COMP_Unblock_ON_TAP');
+                if (widget!.user!.blocked) {
+                  logFirebaseEvent('Unblock_backend_call');
+
+                  await widget!.user!.reference.update(createUsersRecordData(
                     blocked: false,
                   ));
                 } else {
-                  await widget.user!.reference.update(createUsersRecordData(
+                  logFirebaseEvent('Unblock_backend_call');
+
+                  await widget!.user!.reference.update(createUsersRecordData(
                     blocked: true,
                   ));
                 }
 
+                logFirebaseEvent('Unblock_dismiss_dialog');
                 Navigator.pop(context);
               },
               text: FFLocalizations.of(context).getText(
@@ -183,8 +203,8 @@ class _AdminUserDialogWidgetState extends State<AdminUserDialogWidget> {
                       fontSize: 12.0,
                       letterSpacing: 0.0,
                       fontWeight: FontWeight.normal,
-                      useGoogleFonts: GoogleFonts.asMap().containsKey(
-                          FlutterFlowTheme.of(context).titleSmallFamily),
+                      useGoogleFonts:
+                          !FlutterFlowTheme.of(context).titleSmallIsCustom,
                     ),
                 elevation: 0.0,
                 borderSide: BorderSide(
@@ -193,55 +213,66 @@ class _AdminUserDialogWidgetState extends State<AdminUserDialogWidget> {
                 borderRadius: BorderRadius.circular(4.0),
               ),
             ),
-          if (!widget.user!.deleted)
-            FFButtonWidget(
-              onPressed: () async {
-                Navigator.pop(context);
-                showModalBottomSheet(
-                  isScrollControlled: true,
-                  backgroundColor: Colors.transparent,
-                  useSafeArea: true,
-                  context: context,
-                  builder: (context) {
-                    return Padding(
-                      padding: MediaQuery.viewInsetsOf(context),
-                      child: AdminUserDeleteWidget(
-                        user: widget.user!,
+          if (!widget!.user!.deleted)
+            Builder(
+              builder: (context) => FFButtonWidget(
+                onPressed: () async {
+                  logFirebaseEvent('ADMIN_USER_DIALOG_COMP_Delete_ON_TAP');
+                  logFirebaseEvent('Delete_dismiss_dialog');
+                  Navigator.pop(context);
+                  logFirebaseEvent('Delete_alert_dialog');
+                  showDialog(
+                    context: context,
+                    builder: (dialogContext) {
+                      return Dialog(
+                        elevation: 0,
+                        insetPadding: EdgeInsets.zero,
+                        backgroundColor: Colors.transparent,
+                        alignment: AlignmentDirectional(0.0, 0.0)
+                            .resolve(Directionality.of(context)),
+                        child: AdminUserDeleteWidget(
+                          user: widget!.user!,
+                        ),
+                      );
+                    },
+                  );
+                },
+                text: FFLocalizations.of(context).getText(
+                  'yg69qf30' /* Delete */,
+                ),
+                options: FFButtonOptions(
+                  padding: EdgeInsetsDirectional.fromSTEB(8.0, 0.0, 35.0, 0.0),
+                  iconPadding:
+                      EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
+                  color: FlutterFlowTheme.of(context).secondaryBackground,
+                  textStyle: FlutterFlowTheme.of(context).titleSmall.override(
+                        fontFamily:
+                            FlutterFlowTheme.of(context).titleSmallFamily,
+                        color: Colors.white,
+                        fontSize: 12.0,
+                        letterSpacing: 0.0,
+                        fontWeight: FontWeight.normal,
+                        useGoogleFonts:
+                            !FlutterFlowTheme.of(context).titleSmallIsCustom,
                       ),
-                    );
-                  },
-                ).then((value) => safeSetState(() {}));
-              },
-              text: FFLocalizations.of(context).getText(
-                'yg69qf30' /* Delete */,
-              ),
-              options: FFButtonOptions(
-                padding: EdgeInsetsDirectional.fromSTEB(8.0, 0.0, 35.0, 0.0),
-                iconPadding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
-                color: FlutterFlowTheme.of(context).secondaryBackground,
-                textStyle: FlutterFlowTheme.of(context).titleSmall.override(
-                      fontFamily: FlutterFlowTheme.of(context).titleSmallFamily,
-                      color: Colors.white,
-                      fontSize: 12.0,
-                      letterSpacing: 0.0,
-                      fontWeight: FontWeight.normal,
-                      useGoogleFonts: GoogleFonts.asMap().containsKey(
-                          FlutterFlowTheme.of(context).titleSmallFamily),
-                    ),
-                elevation: 0.0,
-                borderSide: BorderSide(
-                  color: FlutterFlowTheme.of(context).secondaryBackground,
+                  elevation: 0.0,
+                  borderSide: BorderSide(
+                    color: FlutterFlowTheme.of(context).secondaryBackground,
+                  ),
+                  borderRadius: BorderRadius.circular(4.0),
                 ),
-                borderRadius: BorderRadius.circular(4.0),
               ),
             ),
-          if (widget.user?.deleted ?? true)
+          if (widget!.user?.deleted ?? true)
             FFButtonWidget(
               onPressed: () async {
+                logFirebaseEvent('ADMIN_USER_DIALOG_COMP_Delete_ON_TAP');
+                logFirebaseEvent('Delete_dismiss_dialog');
                 Navigator.pop(context);
+                logFirebaseEvent('Delete_backend_call');
                 unawaited(
                   () async {
-                    await widget.user!.reference.update(createUsersRecordData(
+                    await widget!.user!.reference.update(createUsersRecordData(
                       deleted: false,
                     ));
                   }(),
@@ -260,8 +291,8 @@ class _AdminUserDialogWidgetState extends State<AdminUserDialogWidget> {
                       fontSize: 12.0,
                       letterSpacing: 0.0,
                       fontWeight: FontWeight.normal,
-                      useGoogleFonts: GoogleFonts.asMap().containsKey(
-                          FlutterFlowTheme.of(context).titleSmallFamily),
+                      useGoogleFonts:
+                          !FlutterFlowTheme.of(context).titleSmallIsCustom,
                     ),
                 elevation: 0.0,
                 borderSide: BorderSide(

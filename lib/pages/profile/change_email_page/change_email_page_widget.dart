@@ -4,13 +4,16 @@ import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
 import 'dart:async';
+import 'dart:ui';
 import '/custom_code/actions/index.dart' as actions;
 import '/index.dart';
 import 'package:easy_debounce/easy_debounce.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'change_email_page_model.dart';
 export 'change_email_page_model.dart';
 
@@ -34,11 +37,21 @@ class _ChangeEmailPageWidgetState extends State<ChangeEmailPageWidget> {
     super.initState();
     _model = createModel(context, () => ChangeEmailPageModel());
 
+    logFirebaseEvent('screen_view',
+        parameters: {'screen_name': 'ChangeEmailPage'});
     // On page load action.
     SchedulerBinding.instance.addPostFrameCallback((_) async {
+      logFirebaseEvent('CHANGE_EMAIL_ChangeEmailPage_ON_INIT_STA');
+      logFirebaseEvent('ChangeEmailPage_custom_action');
       unawaited(
         () async {
           await actions.lockLandscapeMode();
+        }(),
+      );
+      logFirebaseEvent('ChangeEmailPage_custom_action');
+      unawaited(
+        () async {
+          await actions.setStatusBarColor();
         }(),
       );
     });
@@ -88,6 +101,8 @@ class _ChangeEmailPageWidgetState extends State<ChangeEmailPageWidget> {
                       size: 24.0,
                     ),
                     onPressed: () async {
+                      logFirebaseEvent('CHANGE_EMAIL_arrowLeft24_ICN_ON_TAP');
+                      logFirebaseEvent('IconButton_navigate_back');
                       context.safePop();
                     },
                   ),
@@ -100,9 +115,9 @@ class _ChangeEmailPageWidgetState extends State<ChangeEmailPageWidget> {
                               FlutterFlowTheme.of(context).bodyMediumFamily,
                           letterSpacing: 0.07,
                           fontWeight: FontWeight.w600,
-                          useGoogleFonts: GoogleFonts.asMap().containsKey(
-                              FlutterFlowTheme.of(context).bodyMediumFamily),
                           lineHeight: 1.4,
+                          useGoogleFonts:
+                              !FlutterFlowTheme.of(context).bodyMediumIsCustom,
                         ),
                   ),
                   Container(
@@ -127,9 +142,9 @@ class _ChangeEmailPageWidgetState extends State<ChangeEmailPageWidget> {
                             fontSize: 24.0,
                             letterSpacing: 0.0,
                             fontWeight: FontWeight.bold,
-                            useGoogleFonts: GoogleFonts.asMap().containsKey(
-                                FlutterFlowTheme.of(context).bodyMediumFamily),
                             lineHeight: 1.3,
+                            useGoogleFonts: !FlutterFlowTheme.of(context)
+                                .bodyMediumIsCustom,
                           ),
                     ),
                     Padding(
@@ -145,10 +160,9 @@ class _ChangeEmailPageWidgetState extends State<ChangeEmailPageWidget> {
                               fontSize: 12.0,
                               letterSpacing: 0.0,
                               fontWeight: FontWeight.w500,
-                              useGoogleFonts: GoogleFonts.asMap().containsKey(
-                                  FlutterFlowTheme.of(context)
-                                      .bodyMediumFamily),
                               lineHeight: 1.3,
+                              useGoogleFonts: !FlutterFlowTheme.of(context)
+                                  .bodyMediumIsCustom,
                             ),
                       ),
                     ),
@@ -177,10 +191,9 @@ class _ChangeEmailPageWidgetState extends State<ChangeEmailPageWidget> {
                                   color: FlutterFlowTheme.of(context).gray,
                                   letterSpacing: 0.07,
                                   fontWeight: FontWeight.w600,
-                                  useGoogleFonts: GoogleFonts.asMap()
-                                      .containsKey(FlutterFlowTheme.of(context)
-                                          .bodyMediumFamily),
                                   lineHeight: 1.4,
+                                  useGoogleFonts: !FlutterFlowTheme.of(context)
+                                      .bodyMediumIsCustom,
                                 ),
                             enabledBorder: OutlineInputBorder(
                               borderSide: BorderSide(
@@ -223,10 +236,9 @@ class _ChangeEmailPageWidgetState extends State<ChangeEmailPageWidget> {
                                     .bodyMediumFamily,
                                 letterSpacing: 0.07,
                                 fontWeight: FontWeight.w600,
-                                useGoogleFonts: GoogleFonts.asMap().containsKey(
-                                    FlutterFlowTheme.of(context)
-                                        .bodyMediumFamily),
                                 lineHeight: 1.4,
+                                useGoogleFonts: !FlutterFlowTheme.of(context)
+                                    .bodyMediumIsCustom,
                               ),
                           maxLength: 50,
                           maxLengthEnforcement: MaxLengthEnforcement.none,
@@ -246,10 +258,15 @@ class _ChangeEmailPageWidgetState extends State<ChangeEmailPageWidget> {
                 ),
               ),
               FFButtonWidget(
-                onPressed: (_model.emailTextController.text == '')
+                onPressed: (_model.emailTextController.text == null ||
+                        _model.emailTextController.text == '')
                     ? null
                     : () async {
+                        logFirebaseEvent(
+                            'CHANGE_EMAIL_PAGE_PAGE_Sendlink_ON_TAP');
+                        logFirebaseEvent('Sendlink_haptic_feedback');
                         HapticFeedback.selectionClick();
+                        logFirebaseEvent('Sendlink_navigate_to');
 
                         context.pushNamed(
                           EmailChangeSendLinkPageWidget.routeName,
@@ -261,6 +278,7 @@ class _ChangeEmailPageWidgetState extends State<ChangeEmailPageWidget> {
                           }.withoutNulls,
                         );
 
+                        logFirebaseEvent('Sendlink_auth');
                         if (_model.emailTextController.text.isEmpty) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
@@ -296,9 +314,9 @@ class _ChangeEmailPageWidgetState extends State<ChangeEmailPageWidget> {
                         color: FlutterFlowTheme.of(context).primary,
                         fontSize: 14.0,
                         letterSpacing: 0.07,
-                        useGoogleFonts: GoogleFonts.asMap().containsKey(
-                            FlutterFlowTheme.of(context).titleSmallFamily),
                         lineHeight: 1.4,
+                        useGoogleFonts:
+                            !FlutterFlowTheme.of(context).titleSmallIsCustom,
                       ),
                   elevation: 0.0,
                   borderSide: BorderSide(

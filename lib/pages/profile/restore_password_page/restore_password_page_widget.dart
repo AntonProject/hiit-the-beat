@@ -1,9 +1,11 @@
+import '/auth/base_auth_user_provider.dart';
 import '/auth/firebase_auth/auth_util.dart';
 import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
 import 'dart:async';
+import 'dart:ui';
 import '/custom_code/actions/index.dart' as actions;
 import '/index.dart';
 import 'package:easy_debounce/easy_debounce.dart';
@@ -11,7 +13,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'restore_password_page_model.dart';
 export 'restore_password_page_model.dart';
 
@@ -38,11 +42,21 @@ class _RestorePasswordPageWidgetState extends State<RestorePasswordPageWidget> {
     super.initState();
     _model = createModel(context, () => RestorePasswordPageModel());
 
+    logFirebaseEvent('screen_view',
+        parameters: {'screen_name': 'RestorePasswordPage'});
     // On page load action.
     SchedulerBinding.instance.addPostFrameCallback((_) async {
+      logFirebaseEvent('RESTORE_PASSWORD_RestorePasswordPage_ON_');
+      logFirebaseEvent('RestorePasswordPage_custom_action');
       unawaited(
         () async {
           await actions.lockLandscapeMode();
+        }(),
+      );
+      logFirebaseEvent('RestorePasswordPage_custom_action');
+      unawaited(
+        () async {
+          await actions.setStatusBarColor();
         }(),
       );
     });
@@ -102,6 +116,8 @@ class _RestorePasswordPageWidgetState extends State<RestorePasswordPageWidget> {
                     size: 24.0,
                   ),
                   onPressed: () async {
+                    logFirebaseEvent('RESTORE_PASSWORD_arrowLeft24_ICN_ON_TAP');
+                    logFirebaseEvent('IconButton_navigate_back');
                     context.safePop();
                   },
                 ),
@@ -121,9 +137,9 @@ class _RestorePasswordPageWidgetState extends State<RestorePasswordPageWidget> {
                             fontSize: 24.0,
                             letterSpacing: 0.0,
                             fontWeight: FontWeight.bold,
-                            useGoogleFonts: GoogleFonts.asMap().containsKey(
-                                FlutterFlowTheme.of(context).bodyMediumFamily),
                             lineHeight: 1.3,
+                            useGoogleFonts: !FlutterFlowTheme.of(context)
+                                .bodyMediumIsCustom,
                           ),
                     ),
                     Padding(
@@ -139,10 +155,9 @@ class _RestorePasswordPageWidgetState extends State<RestorePasswordPageWidget> {
                               fontSize: 12.0,
                               letterSpacing: 0.0,
                               fontWeight: FontWeight.w500,
-                              useGoogleFonts: GoogleFonts.asMap().containsKey(
-                                  FlutterFlowTheme.of(context)
-                                      .bodyMediumFamily),
                               lineHeight: 1.3,
+                              useGoogleFonts: !FlutterFlowTheme.of(context)
+                                  .bodyMediumIsCustom,
                             ),
                       ),
                     ),
@@ -175,11 +190,10 @@ class _RestorePasswordPageWidgetState extends State<RestorePasswordPageWidget> {
                                     color: FlutterFlowTheme.of(context).gray,
                                     letterSpacing: 0.07,
                                     fontWeight: FontWeight.w600,
-                                    useGoogleFonts: GoogleFonts.asMap()
-                                        .containsKey(
-                                            FlutterFlowTheme.of(context)
-                                                .bodyMediumFamily),
                                     lineHeight: 1.4,
+                                    useGoogleFonts:
+                                        !FlutterFlowTheme.of(context)
+                                            .bodyMediumIsCustom,
                                   ),
                               enabledBorder: OutlineInputBorder(
                                 borderSide: BorderSide(
@@ -224,10 +238,9 @@ class _RestorePasswordPageWidgetState extends State<RestorePasswordPageWidget> {
                                       .bodyMediumFamily,
                                   letterSpacing: 0.07,
                                   fontWeight: FontWeight.w600,
-                                  useGoogleFonts: GoogleFonts.asMap()
-                                      .containsKey(FlutterFlowTheme.of(context)
-                                          .bodyMediumFamily),
                                   lineHeight: 1.4,
+                                  useGoogleFonts: !FlutterFlowTheme.of(context)
+                                      .bodyMediumIsCustom,
                                 ),
                             maxLength: 50,
                             maxLengthEnforcement: MaxLengthEnforcement.none,
@@ -253,11 +266,15 @@ class _RestorePasswordPageWidgetState extends State<RestorePasswordPageWidget> {
                   : _isKeyboardVisible))
                 FFButtonWidget(
                   onPressed: () async {
+                    logFirebaseEvent('RESTORE_PASSWORD_Sendlink_ON_TAP');
+                    logFirebaseEvent('Sendlink_haptic_feedback');
                     HapticFeedback.selectionClick();
+                    logFirebaseEvent('Sendlink_validate_form');
                     if (_model.formKey.currentState == null ||
                         !_model.formKey.currentState!.validate()) {
                       return;
                     }
+                    logFirebaseEvent('Sendlink_auth');
                     if (_model.emailTextController.text.isEmpty) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
@@ -274,6 +291,7 @@ class _RestorePasswordPageWidgetState extends State<RestorePasswordPageWidget> {
                       email: _model.emailTextController.text,
                       context: context,
                     );
+                    logFirebaseEvent('Sendlink_navigate_to');
 
                     context.pushNamed(
                       PasswordChangePage2Widget.routeName,
@@ -302,9 +320,9 @@ class _RestorePasswordPageWidgetState extends State<RestorePasswordPageWidget> {
                           color: FlutterFlowTheme.of(context).primary,
                           fontSize: 14.0,
                           letterSpacing: 0.07,
-                          useGoogleFonts: GoogleFonts.asMap().containsKey(
-                              FlutterFlowTheme.of(context).titleSmallFamily),
                           lineHeight: 1.4,
+                          useGoogleFonts:
+                              !FlutterFlowTheme.of(context).titleSmallIsCustom,
                         ),
                     elevation: 0.0,
                     borderSide: BorderSide(

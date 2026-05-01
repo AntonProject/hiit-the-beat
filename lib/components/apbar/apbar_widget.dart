@@ -1,9 +1,13 @@
 import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
+import '/flutter_flow/flutter_flow_widgets.dart';
+import 'dart:ui';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'apbar_model.dart';
 export 'apbar_model.dart';
 
@@ -63,6 +67,8 @@ class _ApbarWidgetState extends State<ApbarWidget> {
                   size: 24.0,
                 ),
                 onPressed: () async {
+                  logFirebaseEvent('APBAR_COMP_arrowLeft24_ICN_ON_TAP');
+                  logFirebaseEvent('IconButton_navigate_back');
                   context.safePop();
                 },
               ),
@@ -78,12 +84,16 @@ class _ApbarWidgetState extends State<ApbarWidget> {
                   ),
                   maxLines: 1,
                   style: FlutterFlowTheme.of(context).bodyMedium.override(
-                        fontFamily: 'Urbanist',
+                        font: GoogleFonts.urbanist(
+                          fontWeight: FontWeight.bold,
+                          fontStyle:
+                              FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+                        ),
                         fontSize: 24.0,
                         letterSpacing: 0.07,
                         fontWeight: FontWeight.bold,
-                        useGoogleFonts:
-                            GoogleFonts.asMap().containsKey('Urbanist'),
+                        fontStyle:
+                            FlutterFlowTheme.of(context).bodyMedium.fontStyle,
                         lineHeight: 1.4,
                       ),
                 ),
@@ -101,9 +111,9 @@ class _ApbarWidgetState extends State<ApbarWidget> {
                           fontSize: 14.0,
                           letterSpacing: 0.07,
                           fontWeight: FontWeight.w600,
-                          useGoogleFonts: GoogleFonts.asMap().containsKey(
-                              FlutterFlowTheme.of(context).bodyMediumFamily),
                           lineHeight: 1.4,
+                          useGoogleFonts:
+                              !FlutterFlowTheme.of(context).bodyMediumIsCustom,
                         ),
                   ),
                 ),

@@ -1,11 +1,14 @@
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
+import 'dart:ui';
 import '/index.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'becomeplusmember_model.dart';
 export 'becomeplusmember_model.dart';
 
@@ -126,11 +129,10 @@ class _BecomeplusmemberWidgetState extends State<BecomeplusmemberWidget> {
                                           fontSize: 16.0,
                                           letterSpacing: 0.07,
                                           fontWeight: FontWeight.bold,
-                                          useGoogleFonts: GoogleFonts.asMap()
-                                              .containsKey(
-                                                  FlutterFlowTheme.of(context)
-                                                      .bodyMediumFamily),
                                           lineHeight: 1.4,
+                                          useGoogleFonts:
+                                              !FlutterFlowTheme.of(context)
+                                                  .bodyMediumIsCustom,
                                         ),
                                   ),
                                 ],
@@ -140,7 +142,11 @@ class _BecomeplusmemberWidgetState extends State<BecomeplusmemberWidget> {
                         ),
                         FFButtonWidget(
                           onPressed: () async {
+                            logFirebaseEvent(
+                                'BECOMEPLUSMEMBER_Detailspayment_ON_TAP');
+                            logFirebaseEvent('Detailspayment_haptic_feedback');
                             HapticFeedback.selectionClick();
+                            logFirebaseEvent('Detailspayment_navigate_to');
 
                             context.pushNamed(SubscriptionPageWidget.routeName);
                           },
@@ -163,10 +169,9 @@ class _BecomeplusmemberWidgetState extends State<BecomeplusmemberWidget> {
                                   color: FlutterFlowTheme.of(context).primary,
                                   fontSize: 14.0,
                                   letterSpacing: 0.07,
-                                  useGoogleFonts: GoogleFonts.asMap()
-                                      .containsKey(FlutterFlowTheme.of(context)
-                                          .titleSmallFamily),
                                   lineHeight: 1.4,
+                                  useGoogleFonts: !FlutterFlowTheme.of(context)
+                                      .titleSmallIsCustom,
                                 ),
                             elevation: 0.0,
                             borderSide: BorderSide(

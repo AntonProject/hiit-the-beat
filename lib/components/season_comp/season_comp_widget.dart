@@ -1,13 +1,19 @@
 import '/auth/firebase_auth/auth_util.dart';
 import '/backend/backend.dart';
 import '/components/dialogs/guest_dialog/guest_dialog_widget.dart';
+import '/components/dialogs/payment_dialog/payment_dialog_widget.dart';
+import '/components/dialogs/payment_dialog_start/payment_dialog_start_widget.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
+import '/flutter_flow/flutter_flow_widgets.dart';
+import 'dart:ui';
 import '/index.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'season_comp_model.dart';
 export 'season_comp_model.dart';
 
@@ -55,7 +61,7 @@ class _SeasonCompWidgetState extends State<SeasonCompWidget> {
       future: queryWorkoutsRecordCount(
         queryBuilder: (workoutsRecord) => workoutsRecord.where(
           'season_id',
-          isEqualTo: widget.season?.reference.id,
+          isEqualTo: widget!.season?.reference.id,
         ),
       ),
       builder: (context, snapshot) {
@@ -80,33 +86,71 @@ class _SeasonCompWidgetState extends State<SeasonCompWidget> {
           hoverColor: Colors.transparent,
           highlightColor: Colors.transparent,
           onTap: () async {
+            logFirebaseEvent('SEASON_Container_ogdf2y0x_ON_TAP');
+            logFirebaseEvent('Container_haptic_feedback');
             HapticFeedback.mediumImpact();
-            if (currentUserEmail != '') {
-              context.pushNamed(
-                SeasonPageWidget.routeName,
-                queryParameters: {
-                  'season': serializeParam(
-                    widget.season,
-                    ParamType.Document,
-                  ),
-                  'workoutCount': serializeParam(
-                    containerCount,
-                    ParamType.int,
-                  ),
-                  'seasonIndex': serializeParam(
-                    valueOrDefault<int>(
-                      widget.index,
-                      0,
+            if (currentUserEmail != null && currentUserEmail != '') {
+              if (widget!.season!.free) {
+                logFirebaseEvent('Container_navigate_to');
+
+                context.pushNamed(
+                  SeasonPageWidget.routeName,
+                  queryParameters: {
+                    'season': serializeParam(
+                      widget!.season,
+                      ParamType.Document,
                     ),
-                    ParamType.int,
-                  ),
-                }.withoutNulls,
-                extra: <String, dynamic>{
-                  'season': widget.season,
-                },
-              );
+                    'workoutCount': serializeParam(
+                      containerCount,
+                      ParamType.int,
+                    ),
+                    'seasonIndex': serializeParam(
+                      valueOrDefault<int>(
+                        widget!.index,
+                        0,
+                      ),
+                      ParamType.int,
+                    ),
+                  }.withoutNulls,
+                  extra: <String, dynamic>{
+                    'season': widget!.season,
+                  },
+                );
+              } else {
+                if (valueOrDefault<bool>(
+                        currentUserDocument?.plusmember, false) ==
+                    false) {
+                  logFirebaseEvent('Container_bottom_sheet');
+                  showModalBottomSheet(
+                    isScrollControlled: true,
+                    backgroundColor: Colors.transparent,
+                    context: context,
+                    builder: (context) {
+                      return Padding(
+                        padding: MediaQuery.viewInsetsOf(context),
+                        child: PaymentDialogWidget(),
+                      );
+                    },
+                  ).then((value) => safeSetState(() {}));
+                } else {
+                  logFirebaseEvent('Container_bottom_sheet');
+                  showModalBottomSheet(
+                    isScrollControlled: true,
+                    backgroundColor: Colors.transparent,
+                    context: context,
+                    builder: (context) {
+                      return Padding(
+                        padding: MediaQuery.viewInsetsOf(context),
+                        child: PaymentDialogStartWidget(),
+                      );
+                    },
+                  ).then((value) => safeSetState(() {}));
+                }
+              }
             } else {
+              logFirebaseEvent('Container_haptic_feedback');
               HapticFeedback.vibrate();
+              logFirebaseEvent('Container_bottom_sheet');
               showModalBottomSheet(
                 isScrollControlled: true,
                 backgroundColor: Colors.transparent,
@@ -155,13 +199,14 @@ class _SeasonCompWidgetState extends State<SeasonCompWidget> {
                                   text: valueOrDefault<String>(
                                     FFLocalizations.of(context).getVariableText(
                                       enText: valueOrDefault<String>(
-                                        widget.season?.titleEn,
+                                        widget!.season?.titleEn,
                                         '-',
                                       ),
                                       deText: valueOrDefault<String>(
-                                        widget.season?.titleDe,
+                                        widget!.season?.titleDe,
                                         '-',
                                       ),
+                                      jaText: widget!.season?.titleJa,
                                     ),
                                     '-',
                                   ),
@@ -172,11 +217,10 @@ class _SeasonCompWidgetState extends State<SeasonCompWidget> {
                                             .bodyMediumFamily,
                                         letterSpacing: 0.07,
                                         fontWeight: FontWeight.w600,
-                                        useGoogleFonts: GoogleFonts.asMap()
-                                            .containsKey(
-                                                FlutterFlowTheme.of(context)
-                                                    .bodyMediumFamily),
                                         lineHeight: 1.4,
+                                        useGoogleFonts:
+                                            !FlutterFlowTheme.of(context)
+                                                .bodyMediumIsCustom,
                                       ),
                                 )
                               ],
@@ -186,10 +230,9 @@ class _SeasonCompWidgetState extends State<SeasonCompWidget> {
                                     fontFamily: FlutterFlowTheme.of(context)
                                         .bodyMediumFamily,
                                     letterSpacing: 0.0,
-                                    useGoogleFonts: GoogleFonts.asMap()
-                                        .containsKey(
-                                            FlutterFlowTheme.of(context)
-                                                .bodyMediumFamily),
+                                    useGoogleFonts:
+                                        !FlutterFlowTheme.of(context)
+                                            .bodyMediumIsCustom,
                                   ),
                             ),
                             maxLines: 1,
@@ -223,11 +266,10 @@ class _SeasonCompWidgetState extends State<SeasonCompWidget> {
                                           fontSize: 12.0,
                                           letterSpacing: 0.07,
                                           fontWeight: FontWeight.normal,
-                                          useGoogleFonts: GoogleFonts.asMap()
-                                              .containsKey(
-                                                  FlutterFlowTheme.of(context)
-                                                      .bodyMediumFamily),
                                           lineHeight: 1.4,
+                                          useGoogleFonts:
+                                              !FlutterFlowTheme.of(context)
+                                                  .bodyMediumIsCustom,
                                         ),
                                   ),
                                   TextSpan(
@@ -245,19 +287,17 @@ class _SeasonCompWidgetState extends State<SeasonCompWidget> {
                                           fontSize: 12.0,
                                           letterSpacing: 0.07,
                                           fontWeight: FontWeight.normal,
-                                          useGoogleFonts: GoogleFonts.asMap()
-                                              .containsKey(
-                                                  FlutterFlowTheme.of(context)
-                                                      .bodyMediumFamily),
                                           lineHeight: 1.4,
+                                          useGoogleFonts:
+                                              !FlutterFlowTheme.of(context)
+                                                  .bodyMediumIsCustom,
                                         ),
                                   ),
                                   TextSpan(
                                     text: FFLocalizations.of(context).getText(
                                       'bcbfylss' /*  ~  */,
                                     ),
-                                    style: GoogleFonts.getFont(
-                                      'Urbanist',
+                                    style: GoogleFonts.urbanist(
                                       color: FlutterFlowTheme.of(context).gray,
                                       fontWeight: FontWeight.normal,
                                       fontSize: 12.0,
@@ -268,13 +308,13 @@ class _SeasonCompWidgetState extends State<SeasonCompWidget> {
                                     text: valueOrDefault<String>(
                                       FFLocalizations.of(context)
                                           .getVariableText(
-                                        enText: widget.season?.duration,
-                                        deText: widget.season?.durationDe,
+                                        enText: widget!.season?.duration,
+                                        deText: widget!.season?.durationDe,
+                                        jaText: widget!.season?.durationJa,
                                       ),
                                       '-',
                                     ),
-                                    style: GoogleFonts.getFont(
-                                      'Urbanist',
+                                    style: GoogleFonts.urbanist(
                                       color: FlutterFlowTheme.of(context).gray,
                                       fontWeight: FontWeight.normal,
                                       fontSize: 12.0,
@@ -288,10 +328,9 @@ class _SeasonCompWidgetState extends State<SeasonCompWidget> {
                                       fontFamily: FlutterFlowTheme.of(context)
                                           .bodyMediumFamily,
                                       letterSpacing: 0.0,
-                                      useGoogleFonts: GoogleFonts.asMap()
-                                          .containsKey(
-                                              FlutterFlowTheme.of(context)
-                                                  .bodyMediumFamily),
+                                      useGoogleFonts:
+                                          !FlutterFlowTheme.of(context)
+                                              .bodyMediumIsCustom,
                                     ),
                               ),
                               maxLines: 1,

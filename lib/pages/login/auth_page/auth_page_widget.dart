@@ -1,18 +1,24 @@
 import '/auth/firebase_auth/auth_util.dart';
+import '/backend/backend.dart';
 import '/flutter_flow/flutter_flow_animations.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
 import 'dart:async';
+import 'dart:math';
+import 'dart:ui';
 import '/custom_code/actions/index.dart' as actions;
 import '/index.dart';
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'auth_page_model.dart';
 export 'auth_page_model.dart';
 
@@ -39,19 +45,52 @@ class _AuthPageWidgetState extends State<AuthPageWidget>
     super.initState();
     _model = createModel(context, () => AuthPageModel());
 
+    logFirebaseEvent('screen_view', parameters: {'screen_name': 'AuthPage'});
     // On page load action.
     SchedulerBinding.instance.addPostFrameCallback((_) async {
+      logFirebaseEvent('AUTH_PAGE_PAGE_AuthPage_ON_INIT_STATE');
+      logFirebaseEvent('AuthPage_custom_action');
       unawaited(
         () async {
           await actions.lockLandscapeMode();
         }(),
       );
+      logFirebaseEvent('AuthPage_custom_action');
+      unawaited(
+        () async {
+          await actions.setStatusBarColor();
+        }(),
+      );
+      if (FFLocalizations.of(context).languageCode == 'de') {
+        logFirebaseEvent('AuthPage_set_app_language');
+        setAppLanguage(context, 'de');
+        logFirebaseEvent('AuthPage_backend_call');
+        unawaited(
+          () async {}(),
+        );
+        logFirebaseEvent('AuthPage_update_app_state');
+        FFAppState().seasonFilter = 'de';
+        FFAppState().update(() {});
+      } else {
+        logFirebaseEvent('AuthPage_set_app_language');
+        setAppLanguage(context, 'en');
+        logFirebaseEvent('AuthPage_backend_call');
+        unawaited(
+          () async {}(),
+        );
+        logFirebaseEvent('AuthPage_update_app_state');
+        FFAppState().seasonFilter = 'en';
+        FFAppState().update(() {});
+      }
+
       if (!kDebugMode) {
         if (isWeb) {
+          logFirebaseEvent('AuthPage_navigate_to');
+
           context.goNamed(
             AdminAuthWidget.routeName,
             extra: <String, dynamic>{
-              kTransitionInfoKey: TransitionInfo(
+              '__transition_info__': TransitionInfo(
                 hasTransition: true,
                 transitionType: PageTransitionType.fade,
                 duration: Duration(milliseconds: 0),
@@ -122,6 +161,8 @@ class _AuthPageWidgetState extends State<AuthPageWidget>
 
   @override
   Widget build(BuildContext context) {
+    context.watch<FFAppState>();
+
     return GestureDetector(
       onTap: () {
         FocusScope.of(context).unfocus();
@@ -152,7 +193,7 @@ class _AuthPageWidgetState extends State<AuthPageWidget>
                     image: DecorationImage(
                       fit: BoxFit.none,
                       image: Image.asset(
-                        'assets/images/Logo_white_1.png',
+                        'assets/images/newLogo.png',
                       ).image,
                     ),
                   ),
@@ -189,10 +230,9 @@ class _AuthPageWidgetState extends State<AuthPageWidget>
                               fontSize: 24.0,
                               letterSpacing: 0.07,
                               fontWeight: FontWeight.bold,
-                              useGoogleFonts: GoogleFonts.asMap().containsKey(
-                                  FlutterFlowTheme.of(context)
-                                      .bodyMediumFamily),
                               lineHeight: 1.3,
+                              useGoogleFonts: !FlutterFlowTheme.of(context)
+                                  .bodyMediumIsCustom,
                             ),
                       ),
                       AutoSizeText(
@@ -207,10 +247,9 @@ class _AuthPageWidgetState extends State<AuthPageWidget>
                               fontSize: 14.0,
                               letterSpacing: 0.07,
                               fontWeight: FontWeight.w600,
-                              useGoogleFonts: GoogleFonts.asMap().containsKey(
-                                  FlutterFlowTheme.of(context)
-                                      .bodyMediumFamily),
                               lineHeight: 1.4,
+                              useGoogleFonts: !FlutterFlowTheme.of(context)
+                                  .bodyMediumIsCustom,
                             ),
                       ),
                       Padding(
@@ -218,7 +257,10 @@ class _AuthPageWidgetState extends State<AuthPageWidget>
                             EdgeInsetsDirectional.fromSTEB(0.0, 16.0, 0.0, 0.0),
                         child: FFButtonWidget(
                           onPressed: () async {
+                            logFirebaseEvent('AUTH_PAGE_PAGE_LetsGo_ON_TAP');
+                            logFirebaseEvent('LetsGo_haptic_feedback');
                             HapticFeedback.selectionClick();
+                            logFirebaseEvent('LetsGo_navigate_to');
 
                             context.pushNamed(LoginPageWidget.routeName);
                           },
@@ -241,10 +283,9 @@ class _AuthPageWidgetState extends State<AuthPageWidget>
                                   color: FlutterFlowTheme.of(context).primary,
                                   fontSize: 14.0,
                                   letterSpacing: 0.07,
-                                  useGoogleFonts: GoogleFonts.asMap()
-                                      .containsKey(FlutterFlowTheme.of(context)
-                                          .titleSmallFamily),
                                   lineHeight: 1.4,
+                                  useGoogleFonts: !FlutterFlowTheme.of(context)
+                                      .titleSmallIsCustom,
                                 ),
                             elevation: 0.0,
                             borderSide: BorderSide(
@@ -255,22 +296,59 @@ class _AuthPageWidgetState extends State<AuthPageWidget>
                           ),
                         ),
                       ),
-                      if (false)
+                      if (responsiveVisibility(
+                        context: context,
+                        phone: false,
+                        tablet: false,
+                        tabletLandscape: false,
+                        desktop: false,
+                      ))
                         Padding(
                           padding: EdgeInsetsDirectional.fromSTEB(
                               0.0, 8.0, 0.0, 0.0),
                           child: FFButtonWidget(
                             onPressed: () async {
+                              logFirebaseEvent(
+                                  'AUTH_PAGE_PAGE_Continueasaguest_ON_TAP');
+                              logFirebaseEvent(
+                                  'Continueasaguest_haptic_feedback');
                               HapticFeedback.selectionClick();
+                              logFirebaseEvent('Continueasaguest_auth');
                               GoRouter.of(context).prepareAuthEvent();
                               final user =
                                   await authManager.signInAnonymously(context);
                               if (user == null) {
                                 return;
                               }
+                              logFirebaseEvent('Continueasaguest_backend_call');
+
+                              var progressRecordReference =
+                                  ProgressRecord.collection.doc();
+                              await progressRecordReference
+                                  .set(createProgressRecordData(
+                                user: currentUserReference,
+                              ));
+                              _model.progress =
+                                  ProgressRecord.getDocumentFromData(
+                                      createProgressRecordData(
+                                        user: currentUserReference,
+                                      ),
+                                      progressRecordReference);
+                              logFirebaseEvent('Continueasaguest_backend_call');
+                              unawaited(
+                                () async {
+                                  await currentUserReference!
+                                      .update(createUsersRecordData(
+                                    currentLevel: 1,
+                                    progress: _model.progress?.reference,
+                                  ));
+                                }(),
+                              );
 
                               context.goNamedAuth(
                                   StartPageWidget.routeName, context.mounted);
+
+                              safeSetState(() {});
                             },
                             text: FFLocalizations.of(context).getText(
                               '2om38dqf' /* Continue as a guest */,
@@ -293,11 +371,10 @@ class _AuthPageWidgetState extends State<AuthPageWidget>
                                         .primaryText,
                                     fontSize: 14.0,
                                     letterSpacing: 0.07,
-                                    useGoogleFonts: GoogleFonts.asMap()
-                                        .containsKey(
-                                            FlutterFlowTheme.of(context)
-                                                .titleSmallFamily),
                                     lineHeight: 1.4,
+                                    useGoogleFonts:
+                                        !FlutterFlowTheme.of(context)
+                                            .titleSmallIsCustom,
                                   ),
                               elevation: 0.0,
                               borderSide: BorderSide(

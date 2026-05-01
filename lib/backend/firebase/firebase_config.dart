@@ -10,7 +10,8 @@ Future initFirebase() async {
             projectId: "breakletics-9245d",
             storageBucket: "breakletics-9245d.appspot.com",
             messagingSenderId: "667560922120",
-            appId: "1:667560922120:web:fbad381e26f76b5c5d95bd"));
+            appId: "1:667560922120:web:fbad381e26f76b5c5d95bd",
+            measurementId: "G-G88PM5M4C4"));
   } else {
     await Firebase.initializeApp();
   }

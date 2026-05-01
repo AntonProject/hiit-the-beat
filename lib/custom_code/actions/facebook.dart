@@ -12,17 +12,29 @@ import 'package:flutter/material.dart';
 // DO NOT REMOVE OR MODIFY THE CODE ABOVE!
 
 import 'package:facebook_app_events/facebook_app_events.dart';
+import 'dart:io' show Platform;
+import 'package:firebase_analytics/firebase_analytics.dart';
 
 Future facebook() async {
-  // Инициализация Facebook SDK для отслеживания установок приложения
-  final facebookAppEvents = FacebookAppEvents();
+  try {
+    final facebookAppEvents = FacebookAppEvents();
 
-  // Включаем автоматическое логирование событий
-  await facebookAppEvents.setAutoLogAppEventsEnabled(true);
+    await facebookAppEvents.setAutoLogAppEventsEnabled(true);
 
-  // Включаем отслеживание для рекламы (важно для iOS 14+)
-  await facebookAppEvents.setAdvertiserTracking(enabled: true);
+    await facebookAppEvents.setAdvertiserTracking(enabled: true);
 
-  // Активируем приложение (отслеживание установок)
-  await facebookAppEvents.logEvent(name: 'breakletics');
+    await facebookAppEvents.logEvent(
+      name: 'fb_mobile_activate_app',
+      parameters: {
+        'app_version': '1.0.0',
+        'platform': Platform.isIOS ? 'iOS' : 'Android',
+      },
+    );
+
+    await facebookAppEvents.logEvent(name: 'breakletics');
+
+    print('Facebook SDK successfully initialized');
+  } catch (e) {
+    print('Error initializing Facebook SDK: $e');
+  }
 }

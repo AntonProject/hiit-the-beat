@@ -2,6 +2,7 @@ import '/auth/firebase_auth/auth_util.dart';
 import '/backend/api_requests/api_calls.dart';
 import '/backend/backend.dart';
 import '/backend/firebase_storage/storage.dart';
+import '/backend/schema/structs/index.dart';
 import '/components/dialogs/delete_acc_dialog/delete_acc_dialog_widget.dart';
 import '/components/dialogs/select_goal_dialog/select_goal_dialog_widget.dart';
 import '/flutter_flow/flutter_flow_icon_button.dart';
@@ -13,11 +14,14 @@ import 'dart:async';
 import 'dart:ui';
 import '/custom_code/actions/index.dart' as actions;
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:easy_debounce/easy_debounce.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'profile_edit_page_model.dart';
@@ -43,26 +47,43 @@ class _ProfileEditPageWidgetState extends State<ProfileEditPageWidget> {
     super.initState();
     _model = createModel(context, () => ProfileEditPageModel());
 
+    logFirebaseEvent('screen_view',
+        parameters: {'screen_name': 'ProfileEditPage'});
     // On page load action.
     SchedulerBinding.instance.addPostFrameCallback((_) async {
-      unawaited(
-        () async {
-          await actions.lockLandscapeMode();
-        }(),
-      );
+      logFirebaseEvent('PROFILE_EDIT_ProfileEditPage_ON_INIT_STA');
+      logFirebaseEvent('ProfileEditPage_update_page_state');
       _model.photo = currentUserPhoto;
       _model.genderEn = valueOrDefault<String>(
-        _model.genderEn,
+        valueOrDefault(currentUserDocument?.genderEn, ''),
         'Male',
       );
       _model.genderDe = valueOrDefault<String>(
         valueOrDefault(currentUserDocument?.genderDe, ''),
         'Männlich',
       );
+      _model.genderJa = valueOrDefault(currentUserDocument?.genderJa, '');
+      _model.goalDe = valueOrDefault(currentUserDocument?.goalDe, '');
+      _model.goalEn = valueOrDefault(currentUserDocument?.goalEn, '');
+      _model.goalJa = valueOrDefault(currentUserDocument?.goalJa, '');
       safeSetState(() {});
-      FFAppState().goalEn = valueOrDefault(currentUserDocument?.goalEn, '');
-      FFAppState().goalDe = valueOrDefault(currentUserDocument?.goalDe, '');
-      safeSetState(() {});
+      if (currentUserDocument?.dateOfBirth != null) {
+        logFirebaseEvent('ProfileEditPage_update_page_state');
+        _model.date = currentUserDocument?.dateOfBirth;
+        safeSetState(() {});
+      }
+      logFirebaseEvent('ProfileEditPage_custom_action');
+      unawaited(
+        () async {
+          await actions.lockLandscapeMode();
+        }(),
+      );
+      logFirebaseEvent('ProfileEditPage_custom_action');
+      unawaited(
+        () async {
+          await actions.setStatusBarColor();
+        }(),
+      );
     });
 
     _model.nameTextController ??=
@@ -124,6 +145,8 @@ class _ProfileEditPageWidgetState extends State<ProfileEditPageWidget> {
                       size: 24.0,
                     ),
                     onPressed: () async {
+                      logFirebaseEvent('PROFILE_EDIT_arrowLeft24_ICN_ON_TAP');
+                      logFirebaseEvent('IconButton_navigate_back');
                       context.safePop();
                     },
                   ),
@@ -136,12 +159,12 @@ class _ProfileEditPageWidgetState extends State<ProfileEditPageWidget> {
                               FlutterFlowTheme.of(context).bodyMediumFamily,
                           letterSpacing: 0.07,
                           fontWeight: FontWeight.w600,
-                          useGoogleFonts: GoogleFonts.asMap().containsKey(
-                              FlutterFlowTheme.of(context).bodyMediumFamily),
                           lineHeight: 1.4,
+                          useGoogleFonts:
+                              !FlutterFlowTheme.of(context).bodyMediumIsCustom,
                         ),
                   ),
-                  if (currentUserEmail != '')
+                  if (currentUserEmail != null && currentUserEmail != '')
                     FlutterFlowIconButton(
                       borderColor: FlutterFlowTheme.of(context).middleGray,
                       borderRadius: 12.0,
@@ -154,7 +177,10 @@ class _ProfileEditPageWidgetState extends State<ProfileEditPageWidget> {
                         size: 24.0,
                       ),
                       onPressed: () async {
+                        logFirebaseEvent('PROFILE_EDIT_trash24_ICN_ON_TAP');
+                        logFirebaseEvent('IconButton_haptic_feedback');
                         HapticFeedback.selectionClick();
+                        logFirebaseEvent('IconButton_bottom_sheet');
                         showModalBottomSheet(
                           isScrollControlled: true,
                           backgroundColor: Colors.transparent,
@@ -187,7 +213,7 @@ class _ProfileEditPageWidgetState extends State<ProfileEditPageWidget> {
                           height: 128.0,
                           decoration: BoxDecoration(
                             color: valueOrDefault<Color>(
-                              currentUserPhoto == ''
+                              currentUserPhoto == null || currentUserPhoto == ''
                                   ? FlutterFlowTheme.of(context).middleGray
                                   : FlutterFlowTheme.of(context).primary,
                               FlutterFlowTheme.of(context).middleGray,
@@ -225,7 +251,13 @@ class _ProfileEditPageWidgetState extends State<ProfileEditPageWidget> {
                             EdgeInsetsDirectional.fromSTEB(0.0, 12.0, 0.0, 0.0),
                         child: FFButtonWidget(
                           onPressed: () async {
+                            logFirebaseEvent(
+                                'PROFILE_EDIT_SetOrChangePhoto_ON_TAP');
+                            logFirebaseEvent(
+                                'SetOrChangePhoto_haptic_feedback');
                             HapticFeedback.mediumImpact();
+                            logFirebaseEvent(
+                                'SetOrChangePhoto_upload_media_to_firebas');
                             final selectedMedia =
                                 await selectMediaWithSourceBottomSheet(
                               context: context,
@@ -237,7 +269,8 @@ class _ProfileEditPageWidgetState extends State<ProfileEditPageWidget> {
                             if (selectedMedia != null &&
                                 selectedMedia.every((m) => validateFileFormat(
                                     m.storagePath, context))) {
-                              safeSetState(() => _model.isDataUploading = true);
+                              safeSetState(() =>
+                                  _model.isDataUploading_uploadDataXz31 = true);
                               var selectedUploadedFiles = <FFUploadedFile>[];
 
                               var downloadUrls = <String>[];
@@ -249,6 +282,7 @@ class _ProfileEditPageWidgetState extends State<ProfileEditPageWidget> {
                                           height: m.dimensions?.height,
                                           width: m.dimensions?.width,
                                           blurHash: m.blurHash,
+                                          originalFilename: m.originalFilename,
                                         ))
                                     .toList();
 
@@ -262,15 +296,16 @@ class _ProfileEditPageWidgetState extends State<ProfileEditPageWidget> {
                                     .map((u) => u!)
                                     .toList();
                               } finally {
-                                _model.isDataUploading = false;
+                                _model.isDataUploading_uploadDataXz31 = false;
                               }
                               if (selectedUploadedFiles.length ==
                                       selectedMedia.length &&
                                   downloadUrls.length == selectedMedia.length) {
                                 safeSetState(() {
-                                  _model.uploadedLocalFile =
+                                  _model.uploadedLocalFile_uploadDataXz31 =
                                       selectedUploadedFiles.first;
-                                  _model.uploadedFileUrl = downloadUrls.first;
+                                  _model.uploadedFileUrl_uploadDataXz31 =
+                                      downloadUrls.first;
                                 });
                               } else {
                                 safeSetState(() {});
@@ -278,9 +313,15 @@ class _ProfileEditPageWidgetState extends State<ProfileEditPageWidget> {
                               }
                             }
 
-                            if ((_model.uploadedFileUrl != '') &&
-                                !_model.isDataUploading) {
-                              _model.photo = _model.uploadedFileUrl;
+                            if ((_model.uploadedFileUrl_uploadDataXz31 !=
+                                        null &&
+                                    _model.uploadedFileUrl_uploadDataXz31 !=
+                                        '') &&
+                                !_model.isDataUploading_uploadDataXz31) {
+                              logFirebaseEvent(
+                                  'SetOrChangePhoto_update_page_state');
+                              _model.photo =
+                                  _model.uploadedFileUrl_uploadDataXz31;
                               _model.photoCheck = false;
                               safeSetState(() {});
                             }
@@ -291,6 +332,7 @@ class _ProfileEditPageWidgetState extends State<ProfileEditPageWidget> {
                                     FFLocalizations.of(context).getVariableText(
                                       enText: 'Set photo',
                                       deText: 'Foto hinzufügen',
+                                      jaText: '写真を設定する',
                                     ),
                                     'Set photo',
                                   )
@@ -298,6 +340,7 @@ class _ProfileEditPageWidgetState extends State<ProfileEditPageWidget> {
                                     FFLocalizations.of(context).getVariableText(
                                       enText: 'Change photo',
                                       deText: 'Foto hinzufügen',
+                                      jaText: '写真を変更',
                                     ),
                                     'Change photo',
                                   ),
@@ -320,10 +363,9 @@ class _ProfileEditPageWidgetState extends State<ProfileEditPageWidget> {
                                       FlutterFlowTheme.of(context).primaryText,
                                   fontSize: 14.0,
                                   letterSpacing: 0.07,
-                                  useGoogleFonts: GoogleFonts.asMap()
-                                      .containsKey(FlutterFlowTheme.of(context)
-                                          .titleSmallFamily),
                                   lineHeight: 1.4,
+                                  useGoogleFonts: !FlutterFlowTheme.of(context)
+                                      .titleSmallIsCustom,
                                 ),
                             elevation: 0.0,
                             borderSide: BorderSide(
@@ -357,10 +399,9 @@ class _ProfileEditPageWidgetState extends State<ProfileEditPageWidget> {
                                 fontSize: 10.0,
                                 letterSpacing: 0.07,
                                 fontWeight: FontWeight.w600,
-                                useGoogleFonts: GoogleFonts.asMap().containsKey(
-                                    FlutterFlowTheme.of(context)
-                                        .bodyMediumFamily),
                                 lineHeight: 1.2,
+                                useGoogleFonts: !FlutterFlowTheme.of(context)
+                                    .bodyMediumIsCustom,
                               ),
                         ),
                       ),
@@ -381,10 +422,9 @@ class _ProfileEditPageWidgetState extends State<ProfileEditPageWidget> {
                                   fontSize: 12.0,
                                   letterSpacing: 0.0,
                                   fontWeight: FontWeight.w500,
-                                  useGoogleFonts: GoogleFonts.asMap()
-                                      .containsKey(FlutterFlowTheme.of(context)
-                                          .bodyMediumFamily),
                                   lineHeight: 1.3,
+                                  useGoogleFonts: !FlutterFlowTheme.of(context)
+                                      .bodyMediumIsCustom,
                                 ),
                           ),
                         ),
@@ -423,11 +463,10 @@ class _ProfileEditPageWidgetState extends State<ProfileEditPageWidget> {
                                               FlutterFlowTheme.of(context).gray,
                                           letterSpacing: 0.07,
                                           fontWeight: FontWeight.w600,
-                                          useGoogleFonts: GoogleFonts.asMap()
-                                              .containsKey(
-                                                  FlutterFlowTheme.of(context)
-                                                      .bodyMediumFamily),
                                           lineHeight: 1.4,
+                                          useGoogleFonts:
+                                              !FlutterFlowTheme.of(context)
+                                                  .bodyMediumIsCustom,
                                         ),
                                     enabledBorder: OutlineInputBorder(
                                       borderSide: BorderSide(
@@ -475,11 +514,10 @@ class _ProfileEditPageWidgetState extends State<ProfileEditPageWidget> {
                                             .bodyMediumFamily,
                                         letterSpacing: 0.07,
                                         fontWeight: FontWeight.w600,
-                                        useGoogleFonts: GoogleFonts.asMap()
-                                            .containsKey(
-                                                FlutterFlowTheme.of(context)
-                                                    .bodyMediumFamily),
                                         lineHeight: 1.4,
+                                        useGoogleFonts:
+                                            !FlutterFlowTheme.of(context)
+                                                .bodyMediumIsCustom,
                                       ),
                                   maxLength: 50,
                                   maxLengthEnforcement:
@@ -493,6 +531,17 @@ class _ProfileEditPageWidgetState extends State<ProfileEditPageWidget> {
                                       FlutterFlowTheme.of(context).primaryText,
                                   validator: _model.nameTextControllerValidator
                                       .asValidator(context),
+                                  inputFormatters: [
+                                    if (!isAndroid && !isiOS)
+                                      TextInputFormatter.withFunction(
+                                          (oldValue, newValue) {
+                                        return TextEditingValue(
+                                          selection: newValue.selection,
+                                          text: newValue.text.toCapitalization(
+                                              TextCapitalization.words),
+                                        );
+                                      }),
+                                  ],
                                 ),
                               ),
                             ),
@@ -516,10 +565,9 @@ class _ProfileEditPageWidgetState extends State<ProfileEditPageWidget> {
                                   fontSize: 12.0,
                                   letterSpacing: 0.0,
                                   fontWeight: FontWeight.w500,
-                                  useGoogleFonts: GoogleFonts.asMap()
-                                      .containsKey(FlutterFlowTheme.of(context)
-                                          .bodyMediumFamily),
                                   lineHeight: 1.3,
+                                  useGoogleFonts: !FlutterFlowTheme.of(context)
+                                      .bodyMediumIsCustom,
                                 ),
                           ),
                         ),
@@ -554,11 +602,10 @@ class _ProfileEditPageWidgetState extends State<ProfileEditPageWidget> {
                                             FlutterFlowTheme.of(context).gray,
                                         letterSpacing: 0.07,
                                         fontWeight: FontWeight.w600,
-                                        useGoogleFonts: GoogleFonts.asMap()
-                                            .containsKey(
-                                                FlutterFlowTheme.of(context)
-                                                    .bodyMediumFamily),
                                         lineHeight: 1.4,
+                                        useGoogleFonts:
+                                            !FlutterFlowTheme.of(context)
+                                                .bodyMediumIsCustom,
                                       ),
                                   enabledBorder: OutlineInputBorder(
                                     borderSide: BorderSide(
@@ -604,11 +651,10 @@ class _ProfileEditPageWidgetState extends State<ProfileEditPageWidget> {
                                           .bodyMediumFamily,
                                       letterSpacing: 0.07,
                                       fontWeight: FontWeight.w600,
-                                      useGoogleFonts: GoogleFonts.asMap()
-                                          .containsKey(
-                                              FlutterFlowTheme.of(context)
-                                                  .bodyMediumFamily),
                                       lineHeight: 1.4,
+                                      useGoogleFonts:
+                                          !FlutterFlowTheme.of(context)
+                                              .bodyMediumIsCustom,
                                     ),
                                 maxLength: 50,
                                 maxLengthEnforcement: MaxLengthEnforcement.none,
@@ -621,6 +667,17 @@ class _ProfileEditPageWidgetState extends State<ProfileEditPageWidget> {
                                     FlutterFlowTheme.of(context).primaryText,
                                 validator: _model.surnameTextControllerValidator
                                     .asValidator(context),
+                                inputFormatters: [
+                                  if (!isAndroid && !isiOS)
+                                    TextInputFormatter.withFunction(
+                                        (oldValue, newValue) {
+                                      return TextEditingValue(
+                                        selection: newValue.selection,
+                                        text: newValue.text.toCapitalization(
+                                            TextCapitalization.words),
+                                      );
+                                    }),
+                                ],
                               ),
                             ),
                           ),
@@ -640,25 +697,36 @@ class _ProfileEditPageWidgetState extends State<ProfileEditPageWidget> {
                                   (genderStatesIndex) {
                                 final genderStatesItem =
                                     genderStates[genderStatesIndex];
-                                return Row(
-                                  mainAxisSize: MainAxisSize.max,
-                                  children: [
-                                    FlutterFlowIconButton(
-                                      borderColor: FlutterFlowTheme.of(context)
-                                          .middleGray,
-                                      borderRadius: 60.0,
-                                      borderWidth: 1.0,
-                                      buttonSize: 28.0,
-                                      fillColor: FlutterFlowTheme.of(context)
-                                          .middleGray,
-                                      icon: Icon(
+                                return InkWell(
+                                  splashColor: Colors.transparent,
+                                  focusColor: Colors.transparent,
+                                  hoverColor: Colors.transparent,
+                                  highlightColor: Colors.transparent,
+                                  onTap: () async {
+                                    logFirebaseEvent(
+                                        'PROFILE_EDIT_Row_gggxsy7m_ON_TAP');
+                                    logFirebaseEvent('Row_haptic_feedback');
+                                    HapticFeedback.mediumImpact();
+                                    logFirebaseEvent('Row_update_page_state');
+                                    _model.genderEn = genderStatesItem.titleEn;
+                                    _model.genderDe = genderStatesItem.titleDe;
+                                    _model.genderJa = genderStatesItem.titleJa;
+                                    safeSetState(() {});
+                                  },
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.max,
+                                    children: [
+                                      Icon(
                                         Icons.circle_sharp,
                                         color: valueOrDefault<Color>(
                                           (_model.genderEn ==
                                                       genderStatesItem
-                                                          .titleEn) ||
+                                                          .titleEn) &&
                                                   (_model.genderDe ==
-                                                      genderStatesItem.titleDe)
+                                                      genderStatesItem
+                                                          .titleDe) &&
+                                                  (_model.genderJa ==
+                                                      genderStatesItem.titleJa)
                                               ? FlutterFlowTheme.of(context)
                                                   .secondary
                                               : FlutterFlowTheme.of(context)
@@ -666,41 +734,33 @@ class _ProfileEditPageWidgetState extends State<ProfileEditPageWidget> {
                                           FlutterFlowTheme.of(context)
                                               .middleGray,
                                         ),
-                                        size: 12.0,
+                                        size: 28.0,
                                       ),
-                                      onPressed: () async {
-                                        HapticFeedback.mediumImpact();
-                                        _model.genderEn =
-                                            genderStatesItem.titleEn;
-                                        _model.genderDe =
-                                            genderStatesItem.titleDe;
-                                        safeSetState(() {});
-                                      },
-                                    ),
-                                    Text(
-                                      valueOrDefault<String>(
-                                        FFLocalizations.of(context)
-                                            .getVariableText(
-                                          enText: genderStatesItem.titleEn,
-                                          deText: genderStatesItem.titleDe,
-                                        ),
-                                        'Male',
-                                      ),
-                                      style: FlutterFlowTheme.of(context)
-                                          .bodyMedium
-                                          .override(
-                                            fontFamily:
-                                                FlutterFlowTheme.of(context)
-                                                    .bodyMediumFamily,
-                                            letterSpacing: 0.07,
-                                            useGoogleFonts: GoogleFonts.asMap()
-                                                .containsKey(
-                                                    FlutterFlowTheme.of(context)
-                                                        .bodyMediumFamily),
-                                            lineHeight: 1.4,
+                                      Text(
+                                        valueOrDefault<String>(
+                                          FFLocalizations.of(context)
+                                              .getVariableText(
+                                            enText: genderStatesItem.titleEn,
+                                            deText: genderStatesItem.titleDe,
+                                            jaText: genderStatesItem.titleJa,
                                           ),
-                                    ),
-                                  ].divide(SizedBox(width: 8.0)),
+                                          'Male',
+                                        ),
+                                        style: FlutterFlowTheme.of(context)
+                                            .bodyMedium
+                                            .override(
+                                              fontFamily:
+                                                  FlutterFlowTheme.of(context)
+                                                      .bodyMediumFamily,
+                                              letterSpacing: 0.07,
+                                              lineHeight: 1.4,
+                                              useGoogleFonts:
+                                                  !FlutterFlowTheme.of(context)
+                                                      .bodyMediumIsCustom,
+                                            ),
+                                      ),
+                                    ].divide(SizedBox(width: 8.0)),
+                                  ),
                                 );
                               }).divide(SizedBox(width: 24.0)),
                             );
@@ -724,10 +784,9 @@ class _ProfileEditPageWidgetState extends State<ProfileEditPageWidget> {
                                   fontSize: 12.0,
                                   letterSpacing: 0.0,
                                   fontWeight: FontWeight.w500,
-                                  useGoogleFonts: GoogleFonts.asMap()
-                                      .containsKey(FlutterFlowTheme.of(context)
-                                          .bodyMediumFamily),
                                   lineHeight: 1.3,
+                                  useGoogleFonts: !FlutterFlowTheme.of(context)
+                                      .bodyMediumIsCustom,
                                 ),
                           ),
                         ),
@@ -741,7 +800,11 @@ class _ProfileEditPageWidgetState extends State<ProfileEditPageWidget> {
                           hoverColor: Colors.transparent,
                           highlightColor: Colors.transparent,
                           onTap: () async {
+                            logFirebaseEvent(
+                                'PROFILE_EDIT_Container_jxk3rus6_ON_TAP');
+                            logFirebaseEvent('Container_haptic_feedback');
                             HapticFeedback.mediumImpact();
+                            logFirebaseEvent('Container_bottom_sheet');
                             showModalBottomSheet(
                               isScrollControlled: true,
                               backgroundColor: Colors.transparent,
@@ -755,7 +818,18 @@ class _ProfileEditPageWidgetState extends State<ProfileEditPageWidget> {
                                   },
                                   child: Padding(
                                     padding: MediaQuery.viewInsetsOf(context),
-                                    child: SelectGoalDialogWidget(),
+                                    child: SelectGoalDialogWidget(
+                                      goalDe: _model.goalDe,
+                                      goalEn: _model.goalEn,
+                                      goalJa: _model.goalJa,
+                                      update: (de, en, ja) async {
+                                        logFirebaseEvent('_update_page_state');
+                                        _model.goalDe = de;
+                                        _model.goalEn = en;
+                                        _model.goalJa = ja;
+                                        safeSetState(() {});
+                                      },
+                                    ),
                                   ),
                                 );
                               },
@@ -788,14 +862,18 @@ class _ProfileEditPageWidgetState extends State<ProfileEditPageWidget> {
                                     Expanded(
                                       child: Text(
                                         valueOrDefault<String>(
-                                          (FFAppState().goalEn !=
-                                                          '') ||
-                                                  (FFAppState().goalDe != '')
+                                          (_model.goalDe != null &&
+                                                      _model.goalDe != '') &&
+                                                  (_model.goalEn != null &&
+                                                      _model.goalEn != '') &&
+                                                  (_model.goalJa != null &&
+                                                      _model.goalJa != '')
                                               ? valueOrDefault<String>(
                                                   FFLocalizations.of(context)
                                                       .getVariableText(
-                                                    enText: FFAppState().goalEn,
-                                                    deText: FFAppState().goalDe,
+                                                    enText: _model.goalEn,
+                                                    deText: _model.goalDe,
+                                                    jaText: _model.goalJa,
                                                   ),
                                                   'Male',
                                                 )
@@ -810,13 +888,10 @@ class _ProfileEditPageWidgetState extends State<ProfileEditPageWidget> {
                                                       .bodyMediumFamily,
                                               letterSpacing: 0.07,
                                               fontWeight: FontWeight.w600,
-                                              useGoogleFonts: GoogleFonts
-                                                      .asMap()
-                                                  .containsKey(
-                                                      FlutterFlowTheme.of(
-                                                              context)
-                                                          .bodyMediumFamily),
                                               lineHeight: 1.4,
+                                              useGoogleFonts:
+                                                  !FlutterFlowTheme.of(context)
+                                                      .bodyMediumIsCustom,
                                             ),
                                       ),
                                     ),
@@ -850,10 +925,9 @@ class _ProfileEditPageWidgetState extends State<ProfileEditPageWidget> {
                                   fontSize: 12.0,
                                   letterSpacing: 0.0,
                                   fontWeight: FontWeight.w500,
-                                  useGoogleFonts: GoogleFonts.asMap()
-                                      .containsKey(FlutterFlowTheme.of(context)
-                                          .bodyMediumFamily),
                                   lineHeight: 1.3,
+                                  useGoogleFonts: !FlutterFlowTheme.of(context)
+                                      .bodyMediumIsCustom,
                                 ),
                           ),
                         ),
@@ -867,7 +941,11 @@ class _ProfileEditPageWidgetState extends State<ProfileEditPageWidget> {
                           hoverColor: Colors.transparent,
                           highlightColor: Colors.transparent,
                           onTap: () async {
+                            logFirebaseEvent(
+                                'PROFILE_EDIT_Container_f138evl4_ON_TAP');
+                            logFirebaseEvent('Container_haptic_feedback');
                             HapticFeedback.mediumImpact();
+                            logFirebaseEvent('Container_date_time_picker');
                             await showModalBottomSheet<bool>(
                                 context: context,
                                 builder: (context) {
@@ -889,8 +967,12 @@ class _ProfileEditPageWidgetState extends State<ProfileEditPageWidget> {
                                       child: CupertinoDatePicker(
                                         mode: CupertinoDatePickerMode.date,
                                         minimumDate: DateTime(1900),
-                                        initialDateTime: getCurrentTimestamp,
-                                        maximumDate: getCurrentTimestamp,
+                                        initialDateTime: ((_model.date != null
+                                                ? _model.date
+                                                : getCurrentTimestamp) ??
+                                            DateTime.now()),
+                                        maximumDate: (getCurrentTimestamp ??
+                                            DateTime(2050)),
                                         use24hFormat: false,
                                         onDateTimeChanged: (newDateTime) =>
                                             safeSetState(() {
@@ -900,6 +982,9 @@ class _ProfileEditPageWidgetState extends State<ProfileEditPageWidget> {
                                     ),
                                   );
                                 });
+                            logFirebaseEvent('Container_update_page_state');
+                            _model.date = _model.datePicked;
+                            safeSetState(() {});
                           },
                           child: Material(
                             color: Colors.transparent,
@@ -926,52 +1011,45 @@ class _ProfileEditPageWidgetState extends State<ProfileEditPageWidget> {
                                   mainAxisSize: MainAxisSize.max,
                                   children: [
                                     Expanded(
-                                      child: AuthUserStreamWidget(
-                                        builder: (context) => Text(
-                                          valueOrDefault<String>(
-                                            () {
-                                              if (_model.datePicked != null) {
-                                                return dateTimeFormat(
-                                                  "dd.MM.yyyy",
-                                                  _model.datePicked,
-                                                  locale: FFLocalizations.of(
-                                                          context)
-                                                      .languageCode,
-                                                );
-                                              } else if (currentUserDocument
-                                                      ?.dateOfBirth !=
-                                                  null) {
-                                                return dateTimeFormat(
-                                                  "dd.MM.yyyy",
-                                                  currentUserDocument
-                                                      ?.dateOfBirth,
-                                                  locale: FFLocalizations.of(
-                                                          context)
-                                                      .languageCode,
-                                                );
-                                              } else {
-                                                return 'Select date of birth';
-                                              }
-                                            }(),
-                                            'Select date of birth',
-                                          ),
-                                          style: FlutterFlowTheme.of(context)
-                                              .bodyMedium
-                                              .override(
-                                                fontFamily:
-                                                    FlutterFlowTheme.of(context)
-                                                        .bodyMediumFamily,
-                                                letterSpacing: 0.07,
-                                                fontWeight: FontWeight.w600,
-                                                useGoogleFonts: GoogleFonts
-                                                        .asMap()
-                                                    .containsKey(
-                                                        FlutterFlowTheme.of(
-                                                                context)
-                                                            .bodyMediumFamily),
-                                                lineHeight: 1.4,
-                                              ),
+                                      child: Text(
+                                        valueOrDefault<String>(
+                                          _model.date != null
+                                              ? valueOrDefault<String>(
+                                                  dateTimeFormat(
+                                                    "dd.MM.yyyy",
+                                                    _model.date,
+                                                    locale: FFLocalizations.of(
+                                                            context)
+                                                        .languageCode,
+                                                  ),
+                                                  'Select date of birth',
+                                                )
+                                              : valueOrDefault<String>(
+                                                  FFLocalizations.of(context)
+                                                      .getVariableText(
+                                                    enText:
+                                                        'Select date of birth',
+                                                    deText:
+                                                        'Geburtsdatum auswählen',
+                                                    jaText: '生年月日を選択',
+                                                  ),
+                                                  'Select date of birth',
+                                                ),
+                                          'Select date of birth',
                                         ),
+                                        style: FlutterFlowTheme.of(context)
+                                            .bodyMedium
+                                            .override(
+                                              fontFamily:
+                                                  FlutterFlowTheme.of(context)
+                                                      .bodyMediumFamily,
+                                              letterSpacing: 0.07,
+                                              fontWeight: FontWeight.w600,
+                                              lineHeight: 1.4,
+                                              useGoogleFonts:
+                                                  !FlutterFlowTheme.of(context)
+                                                      .bodyMediumIsCustom,
+                                            ),
                                       ),
                                     ),
                                     Icon(
@@ -1004,10 +1082,9 @@ class _ProfileEditPageWidgetState extends State<ProfileEditPageWidget> {
                                   fontSize: 12.0,
                                   letterSpacing: 0.0,
                                   fontWeight: FontWeight.w500,
-                                  useGoogleFonts: GoogleFonts.asMap()
-                                      .containsKey(FlutterFlowTheme.of(context)
-                                          .bodyMediumFamily),
                                   lineHeight: 1.3,
+                                  useGoogleFonts: !FlutterFlowTheme.of(context)
+                                      .bodyMediumIsCustom,
                                 ),
                           ),
                         ),
@@ -1042,11 +1119,10 @@ class _ProfileEditPageWidgetState extends State<ProfileEditPageWidget> {
                                             FlutterFlowTheme.of(context).gray,
                                         letterSpacing: 0.07,
                                         fontWeight: FontWeight.w600,
-                                        useGoogleFonts: GoogleFonts.asMap()
-                                            .containsKey(
-                                                FlutterFlowTheme.of(context)
-                                                    .bodyMediumFamily),
                                         lineHeight: 1.4,
+                                        useGoogleFonts:
+                                            !FlutterFlowTheme.of(context)
+                                                .bodyMediumIsCustom,
                                       ),
                                   enabledBorder: OutlineInputBorder(
                                     borderSide: BorderSide(
@@ -1092,11 +1168,10 @@ class _ProfileEditPageWidgetState extends State<ProfileEditPageWidget> {
                                           .bodyMediumFamily,
                                       letterSpacing: 0.07,
                                       fontWeight: FontWeight.w600,
-                                      useGoogleFonts: GoogleFonts.asMap()
-                                          .containsKey(
-                                              FlutterFlowTheme.of(context)
-                                                  .bodyMediumFamily),
                                       lineHeight: 1.4,
+                                      useGoogleFonts:
+                                          !FlutterFlowTheme.of(context)
+                                              .bodyMediumIsCustom,
                                     ),
                                 maxLength: 50,
                                 maxLengthEnforcement: MaxLengthEnforcement.none,
@@ -1113,6 +1188,17 @@ class _ProfileEditPageWidgetState extends State<ProfileEditPageWidget> {
                                 validator: _model
                                     .weightkgTextControllerValidator
                                     .asValidator(context),
+                                inputFormatters: [
+                                  if (!isAndroid && !isiOS)
+                                    TextInputFormatter.withFunction(
+                                        (oldValue, newValue) {
+                                      return TextEditingValue(
+                                        selection: newValue.selection,
+                                        text: newValue.text.toCapitalization(
+                                            TextCapitalization.none),
+                                      );
+                                    }),
+                                ],
                               ),
                             ),
                           ),
@@ -1135,10 +1221,9 @@ class _ProfileEditPageWidgetState extends State<ProfileEditPageWidget> {
                                   fontSize: 12.0,
                                   letterSpacing: 0.0,
                                   fontWeight: FontWeight.w500,
-                                  useGoogleFonts: GoogleFonts.asMap()
-                                      .containsKey(FlutterFlowTheme.of(context)
-                                          .bodyMediumFamily),
                                   lineHeight: 1.3,
+                                  useGoogleFonts: !FlutterFlowTheme.of(context)
+                                      .bodyMediumIsCustom,
                                 ),
                           ),
                         ),
@@ -1173,11 +1258,10 @@ class _ProfileEditPageWidgetState extends State<ProfileEditPageWidget> {
                                             FlutterFlowTheme.of(context).gray,
                                         letterSpacing: 0.07,
                                         fontWeight: FontWeight.w600,
-                                        useGoogleFonts: GoogleFonts.asMap()
-                                            .containsKey(
-                                                FlutterFlowTheme.of(context)
-                                                    .bodyMediumFamily),
                                         lineHeight: 1.4,
+                                        useGoogleFonts:
+                                            !FlutterFlowTheme.of(context)
+                                                .bodyMediumIsCustom,
                                       ),
                                   enabledBorder: OutlineInputBorder(
                                     borderSide: BorderSide(
@@ -1223,11 +1307,10 @@ class _ProfileEditPageWidgetState extends State<ProfileEditPageWidget> {
                                           .bodyMediumFamily,
                                       letterSpacing: 0.07,
                                       fontWeight: FontWeight.w600,
-                                      useGoogleFonts: GoogleFonts.asMap()
-                                          .containsKey(
-                                              FlutterFlowTheme.of(context)
-                                                  .bodyMediumFamily),
                                       lineHeight: 1.4,
+                                      useGoogleFonts:
+                                          !FlutterFlowTheme.of(context)
+                                              .bodyMediumIsCustom,
                                     ),
                                 maxLength: 50,
                                 maxLengthEnforcement: MaxLengthEnforcement.none,
@@ -1244,6 +1327,17 @@ class _ProfileEditPageWidgetState extends State<ProfileEditPageWidget> {
                                 validator: _model
                                     .heightcmTextControllerValidator
                                     .asValidator(context),
+                                inputFormatters: [
+                                  if (!isAndroid && !isiOS)
+                                    TextInputFormatter.withFunction(
+                                        (oldValue, newValue) {
+                                      return TextEditingValue(
+                                        selection: newValue.selection,
+                                        text: newValue.text.toCapitalization(
+                                            TextCapitalization.none),
+                                      );
+                                    }),
+                                ],
                               ),
                             ),
                           ),
@@ -1254,49 +1348,104 @@ class _ProfileEditPageWidgetState extends State<ProfileEditPageWidget> {
                             EdgeInsetsDirectional.fromSTEB(0.0, 24.0, 0.0, 0.0),
                         child: FFButtonWidget(
                           onPressed: () async {
+                            logFirebaseEvent('PROFILE_EDIT_Savechanges_ON_TAP');
+                            logFirebaseEvent('Savechanges_haptic_feedback');
                             HapticFeedback.selectionClick();
+                            logFirebaseEvent('Savechanges_validate_form');
+                            if (_model.formKey.currentState == null ||
+                                !_model.formKey.currentState!.validate()) {
+                              return;
+                            }
+                            logFirebaseEvent('Savechanges_backend_call');
+
+                            await currentUserReference!
+                                .update(createUsersRecordData(
+                              displayName: _model.nameTextController.text,
+                              weight: valueOrDefault<int>(
+                                int.tryParse(
+                                    _model.weightkgTextController.text),
+                                0,
+                              ),
+                              height: valueOrDefault<int>(
+                                int.tryParse(
+                                    _model.heightcmTextController.text),
+                                0,
+                              ),
+                              surname: _model.surnameTextController.text,
+                              goalDe: valueOrDefault<String>(
+                                _model.goalDe,
+                                'Fitter werden',
+                              ),
+                              goalEn: valueOrDefault<String>(
+                                _model.goalEn,
+                                'Get more fit',
+                              ),
+                              genderEn: valueOrDefault<String>(
+                                _model.genderEn,
+                                'Male',
+                              ),
+                              genderDe: valueOrDefault<String>(
+                                _model.genderDe,
+                                'Männlich',
+                              ),
+                              genderJa: _model.genderJa,
+                              goalJa: _model.goalJa,
+                            ));
                             await Future.wait([
                               Future(() async {
-                                if (_model.formKey.currentState == null ||
-                                    !_model.formKey.currentState!.validate()) {
-                                  return;
+                                if (_model.date != null) {
+                                  logFirebaseEvent('Savechanges_backend_call');
+                                  unawaited(
+                                    () async {
+                                      await currentUserReference!
+                                          .update(createUsersRecordData(
+                                        dateOfBirth: _model.date,
+                                      ));
+                                    }(),
+                                  );
                                 }
                               }),
                               Future(() async {
                                 if (_model.photo == null ||
                                     _model.photo == '') {
-                                  _model.photoCheck = true;
-                                  safeSetState(() {});
-                                  return;
+                                  logFirebaseEvent('Savechanges_backend_call');
+                                  unawaited(
+                                    () async {
+                                      await currentUserReference!.update({
+                                        ...mapToFirestore(
+                                          {
+                                            'photo_url': FieldValue.delete(),
+                                          },
+                                        ),
+                                      });
+                                    }(),
+                                  );
                                 } else {
-                                  _model.photoCheck = false;
-                                  safeSetState(() {});
+                                  logFirebaseEvent('Savechanges_backend_call');
+                                  unawaited(
+                                    () async {
+                                      await currentUserReference!
+                                          .update(createUsersRecordData(
+                                        photoUrl: _model.photo,
+                                      ));
+                                    }(),
+                                  );
                                 }
                               }),
                             ]);
-
-                            await currentUserReference!
-                                .update(createUsersRecordData(
-                              displayName: _model.nameTextController.text,
-                              photoUrl: _model.photo,
-                              dateOfBirth: _model.datePicked != null
-                                  ? _model.datePicked
-                                  : currentUserDocument?.dateOfBirth,
-                              weight: int.tryParse(
-                                  _model.weightkgTextController.text),
-                              height: int.tryParse(
-                                  _model.heightcmTextController.text),
-                              surname: _model.surnameTextController.text,
-                              goalDe: '',
-                              goalEn: '',
-                              genderEn: '',
-                              genderDe: '',
-                            ));
+                            logFirebaseEvent('Savechanges_navigate_back');
+                            context.safePop();
                             if (valueOrDefault(
                                         currentUserDocument
                                             ?.activeCampgainContactId,
                                         '') !=
+                                    null &&
+                                valueOrDefault(
+                                        currentUserDocument
+                                            ?.activeCampgainContactId,
+                                        '') !=
                                     '') {
+                              logFirebaseEvent('Savechanges_backend_call');
                               await ActivecampaignGroup.updateContactCall.call(
                                 id: valueOrDefault(
                                     currentUserDocument
@@ -1307,10 +1456,6 @@ class _ProfileEditPageWidgetState extends State<ProfileEditPageWidget> {
                                 surname: _model.surnameTextController.text,
                               );
                             }
-                            FFAppState().goalEn = 'Get more fit';
-                            FFAppState().goalDe = 'Fitter werden';
-                            safeSetState(() {});
-                            context.safePop();
                           },
                           text: FFLocalizations.of(context).getText(
                             '78w933u7' /* Save changes */,
@@ -1333,10 +1478,9 @@ class _ProfileEditPageWidgetState extends State<ProfileEditPageWidget> {
                                       FlutterFlowTheme.of(context).primaryText,
                                   fontSize: 14.0,
                                   letterSpacing: 0.07,
-                                  useGoogleFonts: GoogleFonts.asMap()
-                                      .containsKey(FlutterFlowTheme.of(context)
-                                          .titleSmallFamily),
                                   lineHeight: 1.4,
+                                  useGoogleFonts: !FlutterFlowTheme.of(context)
+                                      .titleSmallIsCustom,
                                 ),
                             elevation: 0.0,
                             borderSide: BorderSide(

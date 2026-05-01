@@ -1,15 +1,21 @@
 import '/admin/admin_components/admin_nav_bar/admin_nav_bar_widget.dart';
 import '/admin/admin_components/admin_seasons_dialog/admin_seasons_dialog_widget.dart';
 import '/backend/backend.dart';
+import '/backend/schema/structs/index.dart';
 import '/components/empty_list/empty_list_widget.dart';
 import '/flutter_flow/flutter_flow_data_table.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
+import 'dart:async';
+import 'dart:ui';
+import '/custom_code/actions/index.dart' as actions;
 import '/flutter_flow/custom_functions.dart' as functions;
 import '/index.dart';
 import 'package:aligned_dialog/aligned_dialog.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -36,6 +42,21 @@ class _AdminSeasonsWidgetState extends State<AdminSeasonsWidget> {
   void initState() {
     super.initState();
     _model = createModel(context, () => AdminSeasonsModel());
+
+    logFirebaseEvent('screen_view',
+        parameters: {'screen_name': 'AdminSeasons'});
+    // On page load action.
+    SchedulerBinding.instance.addPostFrameCallback((_) async {
+      logFirebaseEvent('ADMIN_SEASONS_AdminSeasons_ON_INIT_STATE');
+      logFirebaseEvent('AdminSeasons_set_dark_mode_settings');
+      setDarkModeSetting(context, ThemeMode.dark);
+      logFirebaseEvent('AdminSeasons_custom_action');
+      unawaited(
+        () async {
+          await actions.setStatusBarColor();
+        }(),
+      );
+    });
 
     WidgetsBinding.instance.addPostFrameCallback((_) => safeSetState(() {}));
   }
@@ -65,7 +86,9 @@ class _AdminSeasonsWidgetState extends State<AdminSeasonsWidget> {
             wrapWithModel(
               model: _model.adminNavBarModel,
               updateCallback: () => safeSetState(() {}),
-              child: AdminNavBarWidget(),
+              child: AdminNavBarWidget(
+                pageNum: 2,
+              ),
             ),
             Expanded(
               child: Padding(
@@ -91,18 +114,21 @@ class _AdminSeasonsWidgetState extends State<AdminSeasonsWidget> {
                                   fontSize: 24.0,
                                   letterSpacing: 0.0,
                                   fontWeight: FontWeight.w500,
-                                  useGoogleFonts: GoogleFonts.asMap()
-                                      .containsKey(FlutterFlowTheme.of(context)
-                                          .bodyMediumFamily),
+                                  useGoogleFonts: !FlutterFlowTheme.of(context)
+                                      .bodyMediumIsCustom,
                                 ),
                           ),
                         ),
                         FFButtonWidget(
                           onPressed: () async {
+                            logFirebaseEvent(
+                                'ADMIN_SEASONS_PAGE_Newseason_ON_TAP');
+                            logFirebaseEvent('Newseason_navigate_to');
+
                             context.pushNamed(
                               AdminAddSeasonWidget.routeName,
                               extra: <String, dynamic>{
-                                kTransitionInfoKey: TransitionInfo(
+                                '__transition_info__': TransitionInfo(
                                   hasTransition: true,
                                   transitionType: PageTransitionType.fade,
                                   duration: Duration(milliseconds: 0),
@@ -129,10 +155,9 @@ class _AdminSeasonsWidgetState extends State<AdminSeasonsWidget> {
                                   fontSize: 12.0,
                                   letterSpacing: 0.07,
                                   fontWeight: FontWeight.normal,
-                                  useGoogleFonts: GoogleFonts.asMap()
-                                      .containsKey(FlutterFlowTheme.of(context)
-                                          .titleSmallFamily),
                                   lineHeight: 1.4,
+                                  useGoogleFonts: !FlutterFlowTheme.of(context)
+                                      .titleSmallIsCustom,
                                 ),
                             elevation: 0.0,
                             borderSide: BorderSide(
@@ -157,7 +182,12 @@ class _AdminSeasonsWidgetState extends State<AdminSeasonsWidget> {
                               final levelsItem = levels[levelsIndex];
                               return FFButtonWidget(
                                 onPressed: () async {
+                                  logFirebaseEvent(
+                                      'ADMIN_SEASONS_PAGE_Beginner_ON_TAP');
+                                  logFirebaseEvent('Beginner_haptic_feedback');
                                   HapticFeedback.selectionClick();
+                                  logFirebaseEvent(
+                                      'Beginner_update_page_state');
                                   _model.tab = levelsItem.number;
                                   safeSetState(() {});
                                 },
@@ -165,6 +195,7 @@ class _AdminSeasonsWidgetState extends State<AdminSeasonsWidget> {
                                   FFLocalizations.of(context).getVariableText(
                                     enText: levelsItem.titleEn,
                                     deText: levelsItem.titleDe,
+                                    jaText: levelsItem.titleJa,
                                   ),
                                   'Beginner',
                                 ),
@@ -204,11 +235,10 @@ class _AdminSeasonsWidgetState extends State<AdminSeasonsWidget> {
                                         ),
                                         fontSize: 14.0,
                                         letterSpacing: 0.07,
-                                        useGoogleFonts: GoogleFonts.asMap()
-                                            .containsKey(
-                                                FlutterFlowTheme.of(context)
-                                                    .titleSmallFamily),
                                         lineHeight: 1.4,
+                                        useGoogleFonts:
+                                            !FlutterFlowTheme.of(context)
+                                                .titleSmallIsCustom,
                                       ),
                                   elevation: 0.0,
                                   borderSide: BorderSide(
@@ -238,243 +268,228 @@ class _AdminSeasonsWidgetState extends State<AdminSeasonsWidget> {
                       ),
                     ),
                     Expanded(
-                      child: Stack(
-                        children: [
-                          Align(
-                            alignment: AlignmentDirectional(1.0, 1.0),
-                            child: Container(
-                              width: 450.0,
-                              height: 50.0,
-                              decoration: BoxDecoration(
-                                color: FlutterFlowTheme.of(context).alternate,
-                              ),
-                            ),
+                      child: FutureBuilder<List<SeasonsRecord>>(
+                        future: FFAppState().seasons(
+                          uniqueQueryKey: valueOrDefault<String>(
+                            FFAppState().refreshDate?.toString(),
+                            '0',
                           ),
-                          FutureBuilder<List<SeasonsRecord>>(
-                            future: querySeasonsRecordOnce(
-                              queryBuilder: (seasonsRecord) =>
-                                  seasonsRecord.orderBy('number'),
-                            ),
-                            builder: (context, snapshot) {
-                              // Customize what your widget looks like when it's loading.
-                              if (!snapshot.hasData) {
-                                return Center(
-                                  child: SizedBox(
-                                    width: 20.0,
-                                    height: 20.0,
-                                    child: SpinKitRipple(
-                                      color: FlutterFlowTheme.of(context).green,
-                                      size: 20.0,
+                          requestFn: () => querySeasonsRecordOnce(
+                            queryBuilder: (seasonsRecord) =>
+                                seasonsRecord.orderBy('number'),
+                          ),
+                        ),
+                        builder: (context, snapshot) {
+                          // Customize what your widget looks like when it's loading.
+                          if (!snapshot.hasData) {
+                            return Center(
+                              child: SizedBox(
+                                width: 20.0,
+                                height: 20.0,
+                                child: SpinKitRipple(
+                                  color: FlutterFlowTheme.of(context).green,
+                                  size: 20.0,
+                                ),
+                              ),
+                            );
+                          }
+                          List<SeasonsRecord> containerSeasonsRecordList =
+                              snapshot.data!;
+
+                          return Container(
+                            decoration: BoxDecoration(),
+                            child: Builder(
+                              builder: (context) {
+                                final seasons = containerSeasonsRecordList
+                                    .where((e) => e.level == _model.tab)
+                                    .toList();
+                                if (seasons.isEmpty) {
+                                  return EmptyListWidget();
+                                }
+
+                                return FlutterFlowDataTable<SeasonsRecord>(
+                                  controller:
+                                      _model.paginatedDataTableController,
+                                  data: seasons,
+                                  columnsBuilder: (onSortChanged) => [
+                                    DataColumn2(
+                                      label: DefaultTextStyle.merge(
+                                        softWrap: true,
+                                        child: Container(),
+                                      ),
+                                      fixedWidth: 100.0,
                                     ),
-                                  ),
-                                );
-                              }
-                              List<SeasonsRecord> containerSeasonsRecordList =
-                                  snapshot.data!;
-
-                              return Container(
-                                decoration: BoxDecoration(),
-                                child: Builder(
-                                  builder: (context) {
-                                    final seasons = containerSeasonsRecordList
-                                        .where((e) => e.level == _model.tab)
-                                        .toList();
-                                    if (seasons.isEmpty) {
-                                      return EmptyListWidget();
-                                    }
-
-                                    return FlutterFlowDataTable<SeasonsRecord>(
-                                      controller:
-                                          _model.paginatedDataTableController,
-                                      data: seasons,
-                                      columnsBuilder: (onSortChanged) => [
-                                        DataColumn2(
-                                          label: DefaultTextStyle.merge(
-                                            softWrap: true,
-                                            child: Container(),
+                                    DataColumn2(
+                                      label: DefaultTextStyle.merge(
+                                        softWrap: true,
+                                        child: Container(),
+                                      ),
+                                      fixedWidth: 100.0,
+                                    ),
+                                    DataColumn2(
+                                      label: DefaultTextStyle.merge(
+                                        softWrap: true,
+                                        child: Container(),
+                                      ),
+                                      fixedWidth: 150.0,
+                                    ),
+                                    DataColumn2(
+                                      label: DefaultTextStyle.merge(
+                                        softWrap: true,
+                                        child: Container(),
+                                      ),
+                                    ),
+                                    DataColumn2(
+                                      label: DefaultTextStyle.merge(
+                                        softWrap: true,
+                                        child: Text(
+                                          FFLocalizations.of(context).getText(
+                                            'svfbnltw' /*   */,
                                           ),
-                                          fixedWidth: 100.0,
-                                        ),
-                                        DataColumn2(
-                                          label: DefaultTextStyle.merge(
-                                            softWrap: true,
-                                            child: Container(),
-                                          ),
-                                          fixedWidth: 100.0,
-                                        ),
-                                        DataColumn2(
-                                          label: DefaultTextStyle.merge(
-                                            softWrap: true,
-                                            child: Container(),
-                                          ),
-                                          fixedWidth: 150.0,
-                                        ),
-                                        DataColumn2(
-                                          label: DefaultTextStyle.merge(
-                                            softWrap: true,
-                                            child: Container(),
-                                          ),
-                                        ),
-                                        DataColumn2(
-                                          label: DefaultTextStyle.merge(
-                                            softWrap: true,
-                                            child: Text(
-                                              FFLocalizations.of(context)
-                                                  .getText(
-                                                'svfbnltw' /*   */,
+                                          style: FlutterFlowTheme.of(context)
+                                              .labelLarge
+                                              .override(
+                                                fontFamily:
+                                                    FlutterFlowTheme.of(context)
+                                                        .labelLargeFamily,
+                                                letterSpacing: 0.0,
+                                                useGoogleFonts:
+                                                    !FlutterFlowTheme.of(
+                                                            context)
+                                                        .labelLargeIsCustom,
                                               ),
-                                              style:
-                                                  FlutterFlowTheme.of(context)
-                                                      .labelLarge
-                                                      .override(
-                                                        fontFamily:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .labelLargeFamily,
-                                                        letterSpacing: 0.0,
-                                                        useGoogleFonts: GoogleFonts
-                                                                .asMap()
-                                                            .containsKey(
+                                        ),
+                                      ),
+                                      fixedWidth: 50.0,
+                                    ),
+                                  ],
+                                  dataRowBuilder: (seasonsItem, seasonsIndex,
+                                          selected, onSelectChanged) =>
+                                      DataRow(
+                                    color: MaterialStateProperty.all(
+                                      seasonsIndex % 2 == 0
+                                          ? FlutterFlowTheme.of(context)
+                                              .secondaryBackground
+                                          : FlutterFlowTheme.of(context)
+                                              .secondaryBackground,
+                                    ),
+                                    cells: [
+                                      Align(
+                                        alignment:
+                                            AlignmentDirectional(-1.0, 0.0),
+                                        child: InkWell(
+                                          splashColor: Colors.transparent,
+                                          focusColor: Colors.transparent,
+                                          hoverColor: Colors.transparent,
+                                          highlightColor: Colors.transparent,
+                                          onTap: () async {
+                                            logFirebaseEvent(
+                                                'ADMIN_SEASONS_RichText_wlare30f_ON_TAP');
+                                            logFirebaseEvent(
+                                                'RichText_navigate_to');
+
+                                            context.pushNamed(
+                                              AdminWorkoutsWidget.routeName,
+                                              queryParameters: {
+                                                'season': serializeParam(
+                                                  seasonsItem,
+                                                  ParamType.Document,
+                                                ),
+                                              }.withoutNulls,
+                                              extra: <String, dynamic>{
+                                                'season': seasonsItem,
+                                                '__transition_info__':
+                                                    TransitionInfo(
+                                                  hasTransition: true,
+                                                  transitionType:
+                                                      PageTransitionType.fade,
+                                                  duration:
+                                                      Duration(milliseconds: 0),
+                                                ),
+                                              },
+                                            );
+                                          },
+                                          child: RichText(
+                                            textScaler: MediaQuery.of(context)
+                                                .textScaler,
+                                            text: TextSpan(
+                                              children: [
+                                                TextSpan(
+                                                  text: valueOrDefault<String>(
+                                                    formatNumber(
+                                                      seasonsItem.number,
+                                                      formatType:
+                                                          FormatType.custom,
+                                                      format: '0. ',
+                                                      locale: '',
+                                                    ),
+                                                    '1. ',
+                                                  ),
+                                                  style:
+                                                      FlutterFlowTheme.of(
+                                                              context)
+                                                          .bodyMedium
+                                                          .override(
+                                                            fontFamily:
                                                                 FlutterFlowTheme.of(
                                                                         context)
-                                                                    .labelLargeFamily),
-                                                      ),
-                                            ),
-                                          ),
-                                          fixedWidth: 50.0,
-                                        ),
-                                      ],
-                                      dataRowBuilder: (seasonsItem,
-                                              seasonsIndex,
-                                              selected,
-                                              onSelectChanged) =>
-                                          DataRow(
-                                        color: WidgetStateProperty.all(
-                                          seasonsIndex % 2 == 0
-                                              ? FlutterFlowTheme.of(context)
-                                                  .secondaryBackground
-                                              : FlutterFlowTheme.of(context)
-                                                  .secondaryBackground,
-                                        ),
-                                        cells: [
-                                          Align(
-                                            alignment:
-                                                AlignmentDirectional(-1.0, 0.0),
-                                            child: InkWell(
-                                              splashColor: Colors.transparent,
-                                              focusColor: Colors.transparent,
-                                              hoverColor: Colors.transparent,
-                                              highlightColor:
-                                                  Colors.transparent,
-                                              onTap: () async {
-                                                context.pushNamed(
-                                                  AdminWorkoutsWidget.routeName,
-                                                  queryParameters: {
-                                                    'season': serializeParam(
-                                                      seasonsItem,
-                                                      ParamType.Document,
-                                                    ),
-                                                  }.withoutNulls,
-                                                  extra: <String, dynamic>{
-                                                    'season': seasonsItem,
-                                                    kTransitionInfoKey:
-                                                        TransitionInfo(
-                                                      hasTransition: true,
-                                                      transitionType:
-                                                          PageTransitionType
-                                                              .fade,
-                                                      duration: Duration(
-                                                          milliseconds: 0),
-                                                    ),
-                                                  },
-                                                );
-                                              },
-                                              child: RichText(
-                                                textScaler:
-                                                    MediaQuery.of(context)
-                                                        .textScaler,
-                                                text: TextSpan(
-                                                  children: [
-                                                    TextSpan(
-                                                      text: valueOrDefault<
-                                                          String>(
-                                                        formatNumber(
-                                                          seasonsItem.number,
-                                                          formatType:
-                                                              FormatType.custom,
-                                                          format: '0. ',
-                                                          locale: '',
-                                                        ),
-                                                        '1. ',
-                                                      ),
-                                                      style:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .bodyMedium
-                                                              .override(
-                                                                fontFamily: FlutterFlowTheme.of(
-                                                                        context)
                                                                     .bodyMediumFamily,
-                                                                fontSize: 16.0,
-                                                                letterSpacing:
-                                                                    0.07,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w500,
-                                                                useGoogleFonts: GoogleFonts
-                                                                        .asMap()
-                                                                    .containsKey(
-                                                                        FlutterFlowTheme.of(context)
-                                                                            .bodyMediumFamily),
-                                                                lineHeight: 1.4,
-                                                              ),
-                                                    ),
-                                                    TextSpan(
-                                                      text: valueOrDefault<
+                                                            fontSize: 16.0,
+                                                            letterSpacing: 0.07,
+                                                            fontWeight:
+                                                                FontWeight.w500,
+                                                            lineHeight: 1.4,
+                                                            useGoogleFonts:
+                                                                !FlutterFlowTheme.of(
+                                                                        context)
+                                                                    .bodyMediumIsCustom,
+                                                          ),
+                                                ),
+                                                TextSpan(
+                                                  text: valueOrDefault<String>(
+                                                    FFLocalizations.of(context)
+                                                        .getVariableText(
+                                                      enText: valueOrDefault<
                                                           String>(
-                                                        FFLocalizations.of(
-                                                                context)
-                                                            .getVariableText(
-                                                          enText:
-                                                              valueOrDefault<
-                                                                  String>(
-                                                            seasonsItem.titleEn,
-                                                            '-',
-                                                          ),
-                                                          deText:
-                                                              valueOrDefault<
-                                                                  String>(
-                                                            seasonsItem.titleDe,
-                                                            '-',
-                                                          ),
-                                                        ),
+                                                        seasonsItem.titleEn,
                                                         '-',
                                                       ),
-                                                      style:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .bodyMedium
-                                                              .override(
-                                                                fontFamily: FlutterFlowTheme.of(
+                                                      deText: valueOrDefault<
+                                                          String>(
+                                                        seasonsItem.titleDe,
+                                                        '-',
+                                                      ),
+                                                      jaText: valueOrDefault<
+                                                          String>(
+                                                        seasonsItem.titleJa,
+                                                        '-',
+                                                      ),
+                                                    ),
+                                                    '-',
+                                                  ),
+                                                  style:
+                                                      FlutterFlowTheme.of(
+                                                              context)
+                                                          .bodyMedium
+                                                          .override(
+                                                            fontFamily:
+                                                                FlutterFlowTheme.of(
                                                                         context)
                                                                     .bodyMediumFamily,
-                                                                fontSize: 16.0,
-                                                                letterSpacing:
-                                                                    0.07,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w500,
-                                                                useGoogleFonts: GoogleFonts
-                                                                        .asMap()
-                                                                    .containsKey(
-                                                                        FlutterFlowTheme.of(context)
-                                                                            .bodyMediumFamily),
-                                                                lineHeight: 1.4,
-                                                              ),
-                                                    )
-                                                  ],
-                                                  style: FlutterFlowTheme.of(
-                                                          context)
+                                                            fontSize: 16.0,
+                                                            letterSpacing: 0.07,
+                                                            fontWeight:
+                                                                FontWeight.w500,
+                                                            lineHeight: 1.4,
+                                                            useGoogleFonts:
+                                                                !FlutterFlowTheme.of(
+                                                                        context)
+                                                                    .bodyMediumIsCustom,
+                                                          ),
+                                                )
+                                              ],
+                                              style:
+                                                  FlutterFlowTheme.of(context)
                                                       .bodyMedium
                                                       .override(
                                                         fontFamily:
@@ -482,691 +497,781 @@ class _AdminSeasonsWidgetState extends State<AdminSeasonsWidget> {
                                                                     context)
                                                                 .bodyMediumFamily,
                                                         letterSpacing: 0.0,
-                                                        useGoogleFonts: GoogleFonts
-                                                                .asMap()
-                                                            .containsKey(
-                                                                FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .bodyMediumFamily),
+                                                        useGoogleFonts:
+                                                            !FlutterFlowTheme
+                                                                    .of(context)
+                                                                .bodyMediumIsCustom,
                                                       ),
-                                                ),
-                                              ),
                                             ),
                                           ),
-                                          Row(
+                                        ),
+                                      ),
+                                      Row(
+                                        mainAxisSize: MainAxisSize.max,
+                                        children: [
+                                          Column(
                                             mainAxisSize: MainAxisSize.max,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
                                             children: [
-                                              Column(
-                                                mainAxisSize: MainAxisSize.max,
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.center,
-                                                children: [
-                                                  InkWell(
-                                                    splashColor:
-                                                        Colors.transparent,
-                                                    focusColor:
-                                                        Colors.transparent,
-                                                    hoverColor:
-                                                        Colors.transparent,
-                                                    highlightColor:
-                                                        Colors.transparent,
-                                                    onTap: () async {
-                                                      context.pushNamed(
-                                                        AdminWorkoutsWidget
-                                                            .routeName,
-                                                        queryParameters: {
-                                                          'season':
-                                                              serializeParam(
-                                                            seasonsItem,
-                                                            ParamType.Document,
-                                                          ),
-                                                        }.withoutNulls,
-                                                        extra: <String,
-                                                            dynamic>{
-                                                          'season': seasonsItem,
-                                                          kTransitionInfoKey:
-                                                              TransitionInfo(
-                                                            hasTransition: true,
-                                                            transitionType:
-                                                                PageTransitionType
-                                                                    .fade,
-                                                            duration: Duration(
-                                                                milliseconds:
-                                                                    0),
-                                                          ),
-                                                        },
-                                                      );
+                                              InkWell(
+                                                splashColor: Colors.transparent,
+                                                focusColor: Colors.transparent,
+                                                hoverColor: Colors.transparent,
+                                                highlightColor:
+                                                    Colors.transparent,
+                                                onTap: () async {
+                                                  logFirebaseEvent(
+                                                      'ADMIN_SEASONS_Container_1or0es6w_ON_TAP');
+                                                  logFirebaseEvent(
+                                                      'Container_navigate_to');
+
+                                                  context.pushNamed(
+                                                    AdminWorkoutsWidget
+                                                        .routeName,
+                                                    queryParameters: {
+                                                      'season': serializeParam(
+                                                        seasonsItem,
+                                                        ParamType.Document,
+                                                      ),
+                                                    }.withoutNulls,
+                                                    extra: <String, dynamic>{
+                                                      'season': seasonsItem,
+                                                      '__transition_info__':
+                                                          TransitionInfo(
+                                                        hasTransition: true,
+                                                        transitionType:
+                                                            PageTransitionType
+                                                                .fade,
+                                                        duration: Duration(
+                                                            milliseconds: 0),
+                                                      ),
                                                     },
-                                                    child: Container(
-                                                      decoration: BoxDecoration(
-                                                        color:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .middleGray,
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(8.0),
-                                                      ),
-                                                      child: Row(
-                                                        mainAxisSize:
-                                                            MainAxisSize.max,
-                                                        children: [
-                                                          if (seasonsItem.en &&
-                                                              seasonsItem.de)
-                                                            Align(
-                                                              alignment:
-                                                                  AlignmentDirectional(
-                                                                      0.0, 0.0),
-                                                              child: Padding(
-                                                                padding:
-                                                                    EdgeInsets
-                                                                        .all(
-                                                                            8.0),
-                                                                child: Text(
-                                                                  FFLocalizations.of(
-                                                                          context)
-                                                                      .getText(
-                                                                    '3hh3whgq' /* EN | DE */,
-                                                                  ),
-                                                                  style: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .bodyMedium
-                                                                      .override(
-                                                                        fontFamily:
-                                                                            FlutterFlowTheme.of(context).bodyMediumFamily,
-                                                                        fontSize:
-                                                                            12.0,
-                                                                        letterSpacing:
-                                                                            0.07,
-                                                                        fontWeight:
-                                                                            FontWeight.w500,
-                                                                        useGoogleFonts:
-                                                                            GoogleFonts.asMap().containsKey(FlutterFlowTheme.of(context).bodyMediumFamily),
-                                                                        lineHeight:
-                                                                            1.4,
-                                                                      ),
-                                                                ),
-                                                              ),
-                                                            ),
-                                                          if (seasonsItem.en &&
-                                                              !seasonsItem.de)
-                                                            Align(
-                                                              alignment:
-                                                                  AlignmentDirectional(
-                                                                      0.0, 0.0),
-                                                              child: Padding(
-                                                                padding:
-                                                                    EdgeInsets
-                                                                        .all(
-                                                                            8.0),
-                                                                child: Text(
-                                                                  FFLocalizations.of(
-                                                                          context)
-                                                                      .getText(
-                                                                    'a9lixe3f' /* EN */,
-                                                                  ),
-                                                                  style: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .bodyMedium
-                                                                      .override(
-                                                                        fontFamily:
-                                                                            FlutterFlowTheme.of(context).bodyMediumFamily,
-                                                                        fontSize:
-                                                                            12.0,
-                                                                        letterSpacing:
-                                                                            0.07,
-                                                                        fontWeight:
-                                                                            FontWeight.w500,
-                                                                        useGoogleFonts:
-                                                                            GoogleFonts.asMap().containsKey(FlutterFlowTheme.of(context).bodyMediumFamily),
-                                                                        lineHeight:
-                                                                            1.4,
-                                                                      ),
-                                                                ),
-                                                              ),
-                                                            ),
-                                                          if (!seasonsItem.en &&
-                                                              seasonsItem.de)
-                                                            Align(
-                                                              alignment:
-                                                                  AlignmentDirectional(
-                                                                      0.0, 0.0),
-                                                              child: Padding(
-                                                                padding:
-                                                                    EdgeInsets
-                                                                        .all(
-                                                                            8.0),
-                                                                child: Text(
-                                                                  FFLocalizations.of(
-                                                                          context)
-                                                                      .getText(
-                                                                    'qgcmpmal' /* DE */,
-                                                                  ),
-                                                                  style: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .bodyMedium
-                                                                      .override(
-                                                                        fontFamily:
-                                                                            FlutterFlowTheme.of(context).bodyMediumFamily,
-                                                                        fontSize:
-                                                                            12.0,
-                                                                        letterSpacing:
-                                                                            0.07,
-                                                                        fontWeight:
-                                                                            FontWeight.w500,
-                                                                        useGoogleFonts:
-                                                                            GoogleFonts.asMap().containsKey(FlutterFlowTheme.of(context).bodyMediumFamily),
-                                                                        lineHeight:
-                                                                            1.4,
-                                                                      ),
-                                                                ),
-                                                              ),
-                                                            ),
-                                                        ],
-                                                      ),
-                                                    ),
+                                                  );
+                                                },
+                                                child: Container(
+                                                  decoration: BoxDecoration(
+                                                    color: FlutterFlowTheme.of(
+                                                            context)
+                                                        .middleGray,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            8.0),
                                                   ),
-                                                ],
+                                                  child: Row(
+                                                    mainAxisSize:
+                                                        MainAxisSize.max,
+                                                    children: [
+                                                      if (seasonsItem.en &&
+                                                          seasonsItem.de &&
+                                                          seasonsItem.ja)
+                                                        Align(
+                                                          alignment:
+                                                              AlignmentDirectional(
+                                                                  0.0, 0.0),
+                                                          child: Padding(
+                                                            padding:
+                                                                EdgeInsets.all(
+                                                                    8.0),
+                                                            child: Text(
+                                                              FFLocalizations.of(
+                                                                      context)
+                                                                  .getText(
+                                                                '3hh3whgq' /* EN | DE | JA */,
+                                                              ),
+                                                              style: FlutterFlowTheme
+                                                                      .of(context)
+                                                                  .bodyMedium
+                                                                  .override(
+                                                                    fontFamily:
+                                                                        FlutterFlowTheme.of(context)
+                                                                            .bodyMediumFamily,
+                                                                    fontSize:
+                                                                        12.0,
+                                                                    letterSpacing:
+                                                                        0.07,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w500,
+                                                                    lineHeight:
+                                                                        1.4,
+                                                                    useGoogleFonts:
+                                                                        !FlutterFlowTheme.of(context)
+                                                                            .bodyMediumIsCustom,
+                                                                  ),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      if (seasonsItem.de &&
+                                                          seasonsItem.ja)
+                                                        Align(
+                                                          alignment:
+                                                              AlignmentDirectional(
+                                                                  0.0, 0.0),
+                                                          child: Padding(
+                                                            padding:
+                                                                EdgeInsets.all(
+                                                                    8.0),
+                                                            child: Text(
+                                                              FFLocalizations.of(
+                                                                      context)
+                                                                  .getText(
+                                                                'm70gaz01' /* DE | JA */,
+                                                              ),
+                                                              style: FlutterFlowTheme
+                                                                      .of(context)
+                                                                  .bodyMedium
+                                                                  .override(
+                                                                    fontFamily:
+                                                                        FlutterFlowTheme.of(context)
+                                                                            .bodyMediumFamily,
+                                                                    fontSize:
+                                                                        12.0,
+                                                                    letterSpacing:
+                                                                        0.07,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w500,
+                                                                    lineHeight:
+                                                                        1.4,
+                                                                    useGoogleFonts:
+                                                                        !FlutterFlowTheme.of(context)
+                                                                            .bodyMediumIsCustom,
+                                                                  ),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      if (seasonsItem.en &&
+                                                          seasonsItem.ja)
+                                                        Align(
+                                                          alignment:
+                                                              AlignmentDirectional(
+                                                                  0.0, 0.0),
+                                                          child: Padding(
+                                                            padding:
+                                                                EdgeInsets.all(
+                                                                    8.0),
+                                                            child: Text(
+                                                              FFLocalizations.of(
+                                                                      context)
+                                                                  .getText(
+                                                                'o9jhutuh' /* EN  | JA */,
+                                                              ),
+                                                              style: FlutterFlowTheme
+                                                                      .of(context)
+                                                                  .bodyMedium
+                                                                  .override(
+                                                                    fontFamily:
+                                                                        FlutterFlowTheme.of(context)
+                                                                            .bodyMediumFamily,
+                                                                    fontSize:
+                                                                        12.0,
+                                                                    letterSpacing:
+                                                                        0.07,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w500,
+                                                                    lineHeight:
+                                                                        1.4,
+                                                                    useGoogleFonts:
+                                                                        !FlutterFlowTheme.of(context)
+                                                                            .bodyMediumIsCustom,
+                                                                  ),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      if (seasonsItem.en &&
+                                                          !seasonsItem.de &&
+                                                          !seasonsItem.ja)
+                                                        Align(
+                                                          alignment:
+                                                              AlignmentDirectional(
+                                                                  0.0, 0.0),
+                                                          child: Padding(
+                                                            padding:
+                                                                EdgeInsets.all(
+                                                                    8.0),
+                                                            child: Text(
+                                                              FFLocalizations.of(
+                                                                      context)
+                                                                  .getText(
+                                                                'a9lixe3f' /* EN */,
+                                                              ),
+                                                              style: FlutterFlowTheme
+                                                                      .of(context)
+                                                                  .bodyMedium
+                                                                  .override(
+                                                                    fontFamily:
+                                                                        FlutterFlowTheme.of(context)
+                                                                            .bodyMediumFamily,
+                                                                    fontSize:
+                                                                        12.0,
+                                                                    letterSpacing:
+                                                                        0.07,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w500,
+                                                                    lineHeight:
+                                                                        1.4,
+                                                                    useGoogleFonts:
+                                                                        !FlutterFlowTheme.of(context)
+                                                                            .bodyMediumIsCustom,
+                                                                  ),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      if (!seasonsItem.en &&
+                                                          seasonsItem.de &&
+                                                          !seasonsItem.ja)
+                                                        Align(
+                                                          alignment:
+                                                              AlignmentDirectional(
+                                                                  0.0, 0.0),
+                                                          child: Padding(
+                                                            padding:
+                                                                EdgeInsets.all(
+                                                                    8.0),
+                                                            child: Text(
+                                                              FFLocalizations.of(
+                                                                      context)
+                                                                  .getText(
+                                                                'qgcmpmal' /* DE */,
+                                                              ),
+                                                              style: FlutterFlowTheme
+                                                                      .of(context)
+                                                                  .bodyMedium
+                                                                  .override(
+                                                                    fontFamily:
+                                                                        FlutterFlowTheme.of(context)
+                                                                            .bodyMediumFamily,
+                                                                    fontSize:
+                                                                        12.0,
+                                                                    letterSpacing:
+                                                                        0.07,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w500,
+                                                                    lineHeight:
+                                                                        1.4,
+                                                                    useGoogleFonts:
+                                                                        !FlutterFlowTheme.of(context)
+                                                                            .bodyMediumIsCustom,
+                                                                  ),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      if (!seasonsItem.en &&
+                                                          !seasonsItem.de &&
+                                                          seasonsItem.ja)
+                                                        Align(
+                                                          alignment:
+                                                              AlignmentDirectional(
+                                                                  0.0, 0.0),
+                                                          child: Padding(
+                                                            padding:
+                                                                EdgeInsets.all(
+                                                                    8.0),
+                                                            child: Text(
+                                                              FFLocalizations.of(
+                                                                      context)
+                                                                  .getText(
+                                                                'mkyg9u4r' /* JA */,
+                                                              ),
+                                                              style: FlutterFlowTheme
+                                                                      .of(context)
+                                                                  .bodyMedium
+                                                                  .override(
+                                                                    fontFamily:
+                                                                        FlutterFlowTheme.of(context)
+                                                                            .bodyMediumFamily,
+                                                                    fontSize:
+                                                                        12.0,
+                                                                    letterSpacing:
+                                                                        0.07,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w500,
+                                                                    lineHeight:
+                                                                        1.4,
+                                                                    useGoogleFonts:
+                                                                        !FlutterFlowTheme.of(context)
+                                                                            .bodyMediumIsCustom,
+                                                                  ),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                    ],
+                                                  ),
+                                                ),
                                               ),
                                             ],
                                           ),
-                                          FutureBuilder<int>(
-                                            future: queryWorkoutsRecordCount(
-                                              queryBuilder: (workoutsRecord) =>
-                                                  workoutsRecord.where(
-                                                'season_id',
-                                                isEqualTo:
-                                                    seasonsItem.reference.id,
+                                        ],
+                                      ),
+                                      FutureBuilder<int>(
+                                        future: queryWorkoutsRecordCount(
+                                          queryBuilder: (workoutsRecord) =>
+                                              workoutsRecord.where(
+                                            'season_id',
+                                            isEqualTo: seasonsItem.reference.id,
+                                          ),
+                                        ),
+                                        builder: (context, snapshot) {
+                                          // Customize what your widget looks like when it's loading.
+                                          if (!snapshot.hasData) {
+                                            return Center(
+                                              child: SizedBox(
+                                                width: 14.0,
+                                                height: 14.0,
+                                                child:
+                                                    CircularProgressIndicator(
+                                                  valueColor:
+                                                      AlwaysStoppedAnimation<
+                                                          Color>(
+                                                    Colors.transparent,
+                                                  ),
+                                                ),
+                                              ),
+                                            );
+                                          }
+                                          int richTextCount = snapshot.data!;
+
+                                          return InkWell(
+                                            splashColor: Colors.transparent,
+                                            focusColor: Colors.transparent,
+                                            hoverColor: Colors.transparent,
+                                            highlightColor: Colors.transparent,
+                                            onTap: () async {
+                                              logFirebaseEvent(
+                                                  'ADMIN_SEASONS_RichText_ya90vkwc_ON_TAP');
+                                              logFirebaseEvent(
+                                                  'RichText_navigate_to');
+
+                                              context.pushNamed(
+                                                AdminWorkoutsWidget.routeName,
+                                                queryParameters: {
+                                                  'season': serializeParam(
+                                                    seasonsItem,
+                                                    ParamType.Document,
+                                                  ),
+                                                }.withoutNulls,
+                                                extra: <String, dynamic>{
+                                                  'season': seasonsItem,
+                                                  '__transition_info__':
+                                                      TransitionInfo(
+                                                    hasTransition: true,
+                                                    transitionType:
+                                                        PageTransitionType.fade,
+                                                    duration: Duration(
+                                                        milliseconds: 0),
+                                                  ),
+                                                },
+                                              );
+                                            },
+                                            child: RichText(
+                                              textScaler: MediaQuery.of(context)
+                                                  .textScaler,
+                                              text: TextSpan(
+                                                children: [
+                                                  TextSpan(
+                                                    text:
+                                                        valueOrDefault<String>(
+                                                      formatNumber(
+                                                        richTextCount,
+                                                        formatType:
+                                                            FormatType.custom,
+                                                        format: '0 ',
+                                                        locale: '',
+                                                      ),
+                                                      '0 ',
+                                                    ),
+                                                    style: FlutterFlowTheme.of(
+                                                            context)
+                                                        .bodyMedium
+                                                        .override(
+                                                          fontFamily:
+                                                              FlutterFlowTheme.of(
+                                                                      context)
+                                                                  .bodyMediumFamily,
+                                                          color: FlutterFlowTheme
+                                                                  .of(context)
+                                                              .gray,
+                                                          fontSize: 12.0,
+                                                          letterSpacing: 0.07,
+                                                          fontWeight:
+                                                              FontWeight.normal,
+                                                          lineHeight: 1.4,
+                                                          useGoogleFonts:
+                                                              !FlutterFlowTheme
+                                                                      .of(context)
+                                                                  .bodyMediumIsCustom,
+                                                        ),
+                                                  ),
+                                                  TextSpan(
+                                                    text: FFLocalizations.of(
+                                                            context)
+                                                        .getText(
+                                                      'uq0p7izl' /* workouts */,
+                                                    ),
+                                                    style: FlutterFlowTheme.of(
+                                                            context)
+                                                        .bodyMedium
+                                                        .override(
+                                                          fontFamily:
+                                                              FlutterFlowTheme.of(
+                                                                      context)
+                                                                  .bodyMediumFamily,
+                                                          color: FlutterFlowTheme
+                                                                  .of(context)
+                                                              .gray,
+                                                          fontSize: 12.0,
+                                                          letterSpacing: 0.07,
+                                                          fontWeight:
+                                                              FontWeight.normal,
+                                                          lineHeight: 1.4,
+                                                          useGoogleFonts:
+                                                              !FlutterFlowTheme
+                                                                      .of(context)
+                                                                  .bodyMediumIsCustom,
+                                                        ),
+                                                  ),
+                                                  TextSpan(
+                                                    text: FFLocalizations.of(
+                                                            context)
+                                                        .getText(
+                                                      'y0oz02a2' /*  ~  */,
+                                                    ),
+                                                    style: GoogleFonts.urbanist(
+                                                      color:
+                                                          FlutterFlowTheme.of(
+                                                                  context)
+                                                              .gray,
+                                                      fontWeight:
+                                                          FontWeight.normal,
+                                                      fontSize: 12.0,
+                                                      height: 1.4,
+                                                    ),
+                                                  ),
+                                                  TextSpan(
+                                                    text:
+                                                        valueOrDefault<String>(
+                                                      FFLocalizations.of(
+                                                              context)
+                                                          .getVariableText(
+                                                        enText: seasonsItem
+                                                            .duration,
+                                                        deText: seasonsItem
+                                                            .durationDe,
+                                                        jaText: seasonsItem
+                                                            .durationJa,
+                                                      ),
+                                                      '-',
+                                                    ),
+                                                    style: GoogleFonts.urbanist(
+                                                      color:
+                                                          FlutterFlowTheme.of(
+                                                                  context)
+                                                              .gray,
+                                                      fontWeight:
+                                                          FontWeight.normal,
+                                                      fontSize: 12.0,
+                                                      height: 1.4,
+                                                    ),
+                                                  )
+                                                ],
+                                                style: FlutterFlowTheme.of(
+                                                        context)
+                                                    .bodyMedium
+                                                    .override(
+                                                      fontFamily:
+                                                          FlutterFlowTheme.of(
+                                                                  context)
+                                                              .bodyMediumFamily,
+                                                      color:
+                                                          FlutterFlowTheme.of(
+                                                                  context)
+                                                              .gray,
+                                                      fontSize: 12.0,
+                                                      letterSpacing: 0.0,
+                                                      useGoogleFonts:
+                                                          !FlutterFlowTheme.of(
+                                                                  context)
+                                                              .bodyMediumIsCustom,
+                                                    ),
                                               ),
                                             ),
-                                            builder: (context, snapshot) {
-                                              // Customize what your widget looks like when it's loading.
-                                              if (!snapshot.hasData) {
-                                                return Center(
-                                                  child: SizedBox(
-                                                    width: 14.0,
-                                                    height: 14.0,
-                                                    child:
-                                                        CircularProgressIndicator(
-                                                      valueColor:
-                                                          AlwaysStoppedAnimation<
-                                                              Color>(
-                                                        Colors.transparent,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                );
-                                              }
-                                              int richTextCount =
-                                                  snapshot.data!;
-
-                                              return InkWell(
-                                                splashColor: Colors.transparent,
-                                                focusColor: Colors.transparent,
-                                                hoverColor: Colors.transparent,
-                                                highlightColor:
+                                          );
+                                        },
+                                      ),
+                                      FutureBuilder<List<ProgressRecord>>(
+                                        future: queryProgressRecordOnce(),
+                                        builder: (context, snapshot) {
+                                          // Customize what your widget looks like when it's loading.
+                                          if (!snapshot.hasData) {
+                                            return Center(
+                                              child: SizedBox(
+                                                width: 14.0,
+                                                height: 14.0,
+                                                child:
+                                                    CircularProgressIndicator(
+                                                  valueColor:
+                                                      AlwaysStoppedAnimation<
+                                                          Color>(
                                                     Colors.transparent,
-                                                onTap: () async {
-                                                  context.pushNamed(
-                                                    AdminWorkoutsWidget
-                                                        .routeName,
-                                                    queryParameters: {
-                                                      'season': serializeParam(
-                                                        seasonsItem,
-                                                        ParamType.Document,
-                                                      ),
-                                                    }.withoutNulls,
-                                                    extra: <String, dynamic>{
-                                                      'season': seasonsItem,
-                                                      kTransitionInfoKey:
-                                                          TransitionInfo(
-                                                        hasTransition: true,
-                                                        transitionType:
-                                                            PageTransitionType
-                                                                .fade,
-                                                        duration: Duration(
-                                                            milliseconds: 0),
-                                                      ),
-                                                    },
-                                                  );
+                                                  ),
+                                                ),
+                                              ),
+                                            );
+                                          }
+                                          List<ProgressRecord>
+                                              richTextProgressRecordList =
+                                              snapshot.data!;
+
+                                          return InkWell(
+                                            splashColor: Colors.transparent,
+                                            focusColor: Colors.transparent,
+                                            hoverColor: Colors.transparent,
+                                            highlightColor: Colors.transparent,
+                                            onTap: () async {
+                                              logFirebaseEvent(
+                                                  'ADMIN_SEASONS_RichText_rsmnfg7h_ON_TAP');
+                                              logFirebaseEvent(
+                                                  'RichText_navigate_to');
+
+                                              context.pushNamed(
+                                                AdminWorkoutsWidget.routeName,
+                                                queryParameters: {
+                                                  'season': serializeParam(
+                                                    seasonsItem,
+                                                    ParamType.Document,
+                                                  ),
+                                                }.withoutNulls,
+                                                extra: <String, dynamic>{
+                                                  'season': seasonsItem,
+                                                  '__transition_info__':
+                                                      TransitionInfo(
+                                                    hasTransition: true,
+                                                    transitionType:
+                                                        PageTransitionType.fade,
+                                                    duration: Duration(
+                                                        milliseconds: 0),
+                                                  ),
                                                 },
-                                                child: RichText(
-                                                  textScaler:
-                                                      MediaQuery.of(context)
-                                                          .textScaler,
-                                                  text: TextSpan(
-                                                    children: [
-                                                      TextSpan(
-                                                        text: valueOrDefault<
-                                                            String>(
-                                                          formatNumber(
-                                                            richTextCount,
-                                                            formatType:
-                                                                FormatType
-                                                                    .custom,
-                                                            format: '0 ',
-                                                            locale: '',
-                                                          ),
-                                                          '0 ',
-                                                        ),
-                                                        style:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .bodyMedium
-                                                                .override(
-                                                                  fontFamily: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .bodyMediumFamily,
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .gray,
-                                                                  fontSize:
-                                                                      12.0,
-                                                                  letterSpacing:
-                                                                      0.07,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .normal,
-                                                                  useGoogleFonts: GoogleFonts
-                                                                          .asMap()
-                                                                      .containsKey(
-                                                                          FlutterFlowTheme.of(context)
-                                                                              .bodyMediumFamily),
-                                                                  lineHeight:
-                                                                      1.4,
-                                                                ),
+                                              );
+                                            },
+                                            child: RichText(
+                                              textScaler: MediaQuery.of(context)
+                                                  .textScaler,
+                                              text: TextSpan(
+                                                children: [
+                                                  TextSpan(
+                                                    text:
+                                                        valueOrDefault<String>(
+                                                      formatNumber(
+                                                        functions.userSeasonPassed(
+                                                            richTextProgressRecordList
+                                                                .toList(),
+                                                            seasonsItem
+                                                                .reference.id),
+                                                        formatType:
+                                                            FormatType.custom,
+                                                        format: '0 ',
+                                                        locale: '',
                                                       ),
-                                                      TextSpan(
-                                                        text:
-                                                            FFLocalizations.of(
-                                                                    context)
-                                                                .getText(
-                                                          'uq0p7izl' /* workouts */,
-                                                        ),
-                                                        style:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .bodyMedium
-                                                                .override(
-                                                                  fontFamily: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .bodyMediumFamily,
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .gray,
-                                                                  fontSize:
-                                                                      12.0,
-                                                                  letterSpacing:
-                                                                      0.07,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .normal,
-                                                                  useGoogleFonts: GoogleFonts
-                                                                          .asMap()
-                                                                      .containsKey(
-                                                                          FlutterFlowTheme.of(context)
-                                                                              .bodyMediumFamily),
-                                                                  lineHeight:
-                                                                      1.4,
-                                                                ),
-                                                      ),
-                                                      TextSpan(
-                                                        text:
-                                                            FFLocalizations.of(
-                                                                    context)
-                                                                .getText(
-                                                          'y0oz02a2' /*  ~  */,
-                                                        ),
-                                                        style:
-                                                            GoogleFonts.getFont(
-                                                          'Urbanist',
+                                                      '0 ',
+                                                    ),
+                                                    style: FlutterFlowTheme.of(
+                                                            context)
+                                                        .bodyMedium
+                                                        .override(
+                                                          fontFamily:
+                                                              FlutterFlowTheme.of(
+                                                                      context)
+                                                                  .bodyMediumFamily,
                                                           color: FlutterFlowTheme
                                                                   .of(context)
                                                               .gray,
+                                                          fontSize: 12.0,
+                                                          letterSpacing: 0.07,
                                                           fontWeight:
                                                               FontWeight.normal,
-                                                          fontSize: 12.0,
-                                                          height: 1.4,
+                                                          lineHeight: 1.4,
+                                                          useGoogleFonts:
+                                                              !FlutterFlowTheme
+                                                                      .of(context)
+                                                                  .bodyMediumIsCustom,
                                                         ),
-                                                      ),
-                                                      TextSpan(
-                                                        text: valueOrDefault<
-                                                            String>(
-                                                          FFLocalizations.of(
+                                                  ),
+                                                  TextSpan(
+                                                    text: FFLocalizations.of(
+                                                            context)
+                                                        .getText(
+                                                      'gm62aabq' /* people passed */,
+                                                    ),
+                                                    style: FlutterFlowTheme.of(
+                                                            context)
+                                                        .bodyMedium
+                                                        .override(
+                                                          fontFamily:
+                                                              FlutterFlowTheme.of(
+                                                                      context)
+                                                                  .bodyMediumFamily,
+                                                          color: FlutterFlowTheme
+                                                                  .of(context)
+                                                              .gray,
+                                                          fontSize: 12.0,
+                                                          letterSpacing: 0.07,
+                                                          fontWeight:
+                                                              FontWeight.normal,
+                                                          lineHeight: 1.4,
+                                                          useGoogleFonts:
+                                                              !FlutterFlowTheme
+                                                                      .of(context)
+                                                                  .bodyMediumIsCustom,
+                                                        ),
+                                                  )
+                                                ],
+                                                style: FlutterFlowTheme.of(
+                                                        context)
+                                                    .bodyMedium
+                                                    .override(
+                                                      fontFamily:
+                                                          FlutterFlowTheme.of(
                                                                   context)
-                                                              .getVariableText(
-                                                            enText: seasonsItem
-                                                                .duration,
-                                                            deText: seasonsItem
-                                                                .durationDe,
-                                                          ),
-                                                          '-',
-                                                        ),
-                                                        style:
-                                                            GoogleFonts.getFont(
-                                                          'Urbanist',
-                                                          color: FlutterFlowTheme
-                                                                  .of(context)
+                                                              .bodyMediumFamily,
+                                                      color:
+                                                          FlutterFlowTheme.of(
+                                                                  context)
                                                               .gray,
-                                                          fontWeight:
-                                                              FontWeight.normal,
-                                                          fontSize: 12.0,
-                                                          height: 1.4,
-                                                        ),
-                                                      )
-                                                    ],
-                                                    style: FlutterFlowTheme.of(
-                                                            context)
-                                                        .bodyMedium
-                                                        .override(
-                                                          fontFamily:
-                                                              FlutterFlowTheme.of(
-                                                                      context)
-                                                                  .bodyMediumFamily,
-                                                          color: FlutterFlowTheme
-                                                                  .of(context)
-                                                              .gray,
-                                                          fontSize: 12.0,
-                                                          letterSpacing: 0.0,
-                                                          useGoogleFonts: GoogleFonts
-                                                                  .asMap()
-                                                              .containsKey(
-                                                                  FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .bodyMediumFamily),
-                                                        ),
-                                                  ),
-                                                ),
-                                              );
-                                            },
-                                          ),
-                                          FutureBuilder<List<ProgressRecord>>(
-                                            future: queryProgressRecordOnce(),
-                                            builder: (context, snapshot) {
-                                              // Customize what your widget looks like when it's loading.
-                                              if (!snapshot.hasData) {
-                                                return Center(
-                                                  child: SizedBox(
-                                                    width: 14.0,
-                                                    height: 14.0,
+                                                      fontSize: 12.0,
+                                                      letterSpacing: 0.0,
+                                                      useGoogleFonts:
+                                                          !FlutterFlowTheme.of(
+                                                                  context)
+                                                              .bodyMediumIsCustom,
+                                                    ),
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                      Builder(
+                                        builder: (context) => InkWell(
+                                          splashColor: Colors.transparent,
+                                          focusColor: Colors.transparent,
+                                          hoverColor: Colors.transparent,
+                                          highlightColor: Colors.transparent,
+                                          onTap: () async {
+                                            logFirebaseEvent(
+                                                'ADMIN_SEASONS_Container_mlatn00l_ON_TAP');
+                                            logFirebaseEvent(
+                                                'Container_alert_dialog');
+                                            showAlignedDialog(
+                                              context: context,
+                                              isGlobal: false,
+                                              avoidOverflow: false,
+                                              targetAnchor:
+                                                  AlignmentDirectional(
+                                                          1.0, -1.0)
+                                                      .resolve(
+                                                          Directionality.of(
+                                                              context)),
+                                              followerAnchor:
+                                                  AlignmentDirectional(
+                                                          1.0, -1.0)
+                                                      .resolve(
+                                                          Directionality.of(
+                                                              context)),
+                                              builder: (dialogContext) {
+                                                return Material(
+                                                  color: Colors.transparent,
+                                                  child: GestureDetector(
+                                                    onTap: () {
+                                                      FocusScope.of(
+                                                              dialogContext)
+                                                          .unfocus();
+                                                      FocusManager
+                                                          .instance.primaryFocus
+                                                          ?.unfocus();
+                                                    },
                                                     child:
-                                                        CircularProgressIndicator(
-                                                      valueColor:
-                                                          AlwaysStoppedAnimation<
-                                                              Color>(
-                                                        Colors.transparent,
-                                                      ),
+                                                        AdminSeasonsDialogWidget(
+                                                      season: seasonsItem,
                                                     ),
                                                   ),
-                                                );
-                                              }
-                                              List<ProgressRecord>
-                                                  richTextProgressRecordList =
-                                                  snapshot.data!;
-
-                                              return InkWell(
-                                                splashColor: Colors.transparent,
-                                                focusColor: Colors.transparent,
-                                                hoverColor: Colors.transparent,
-                                                highlightColor:
-                                                    Colors.transparent,
-                                                onTap: () async {
-                                                  context.pushNamed(
-                                                    AdminWorkoutsWidget
-                                                        .routeName,
-                                                    queryParameters: {
-                                                      'season': serializeParam(
-                                                        seasonsItem,
-                                                        ParamType.Document,
-                                                      ),
-                                                    }.withoutNulls,
-                                                    extra: <String, dynamic>{
-                                                      'season': seasonsItem,
-                                                      kTransitionInfoKey:
-                                                          TransitionInfo(
-                                                        hasTransition: true,
-                                                        transitionType:
-                                                            PageTransitionType
-                                                                .fade,
-                                                        duration: Duration(
-                                                            milliseconds: 0),
-                                                      ),
-                                                    },
-                                                  );
-                                                },
-                                                child: RichText(
-                                                  textScaler:
-                                                      MediaQuery.of(context)
-                                                          .textScaler,
-                                                  text: TextSpan(
-                                                    children: [
-                                                      TextSpan(
-                                                        text: valueOrDefault<
-                                                            String>(
-                                                          formatNumber(
-                                                            functions.userSeasonPassed(
-                                                                richTextProgressRecordList
-                                                                    .toList(),
-                                                                seasonsItem
-                                                                    .reference
-                                                                    .id),
-                                                            formatType:
-                                                                FormatType
-                                                                    .custom,
-                                                            format: '0 ',
-                                                            locale: '',
-                                                          ),
-                                                          '0 ',
-                                                        ),
-                                                        style:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .bodyMedium
-                                                                .override(
-                                                                  fontFamily: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .bodyMediumFamily,
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .gray,
-                                                                  fontSize:
-                                                                      12.0,
-                                                                  letterSpacing:
-                                                                      0.07,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .normal,
-                                                                  useGoogleFonts: GoogleFonts
-                                                                          .asMap()
-                                                                      .containsKey(
-                                                                          FlutterFlowTheme.of(context)
-                                                                              .bodyMediumFamily),
-                                                                  lineHeight:
-                                                                      1.4,
-                                                                ),
-                                                      ),
-                                                      TextSpan(
-                                                        text:
-                                                            FFLocalizations.of(
-                                                                    context)
-                                                                .getText(
-                                                          'gm62aabq' /* people passed */,
-                                                        ),
-                                                        style:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .bodyMedium
-                                                                .override(
-                                                                  fontFamily: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .bodyMediumFamily,
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .gray,
-                                                                  fontSize:
-                                                                      12.0,
-                                                                  letterSpacing:
-                                                                      0.07,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .normal,
-                                                                  useGoogleFonts: GoogleFonts
-                                                                          .asMap()
-                                                                      .containsKey(
-                                                                          FlutterFlowTheme.of(context)
-                                                                              .bodyMediumFamily),
-                                                                  lineHeight:
-                                                                      1.4,
-                                                                ),
-                                                      )
-                                                    ],
-                                                    style: FlutterFlowTheme.of(
-                                                            context)
-                                                        .bodyMedium
-                                                        .override(
-                                                          fontFamily:
-                                                              FlutterFlowTheme.of(
-                                                                      context)
-                                                                  .bodyMediumFamily,
-                                                          color: FlutterFlowTheme
-                                                                  .of(context)
-                                                              .gray,
-                                                          fontSize: 12.0,
-                                                          letterSpacing: 0.0,
-                                                          useGoogleFonts: GoogleFonts
-                                                                  .asMap()
-                                                              .containsKey(
-                                                                  FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .bodyMediumFamily),
-                                                        ),
-                                                  ),
-                                                ),
-                                              );
-                                            },
-                                          ),
-                                          Builder(
-                                            builder: (context) => InkWell(
-                                              splashColor: Colors.transparent,
-                                              focusColor: Colors.transparent,
-                                              hoverColor: Colors.transparent,
-                                              highlightColor:
-                                                  Colors.transparent,
-                                              onTap: () async {
-                                                showAlignedDialog(
-                                                  context: context,
-                                                  isGlobal: false,
-                                                  avoidOverflow: false,
-                                                  targetAnchor:
-                                                      AlignmentDirectional(
-                                                              1.0, -1.0)
-                                                          .resolve(
-                                                              Directionality.of(
-                                                                  context)),
-                                                  followerAnchor:
-                                                      AlignmentDirectional(
-                                                              1.0, -1.0)
-                                                          .resolve(
-                                                              Directionality.of(
-                                                                  context)),
-                                                  builder: (dialogContext) {
-                                                    return Material(
-                                                      color: Colors.transparent,
-                                                      child: GestureDetector(
-                                                        onTap: () {
-                                                          FocusScope.of(
-                                                                  dialogContext)
-                                                              .unfocus();
-                                                          FocusManager.instance
-                                                              .primaryFocus
-                                                              ?.unfocus();
-                                                        },
-                                                        child:
-                                                            AdminSeasonsDialogWidget(
-                                                          season: seasonsItem,
-                                                        ),
-                                                      ),
-                                                    );
-                                                  },
                                                 );
                                               },
-                                              child: Container(
-                                                width: 40.0,
-                                                height: 40.0,
-                                                decoration: BoxDecoration(),
-                                                child: Row(
-                                                  mainAxisSize:
-                                                      MainAxisSize.max,
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.center,
-                                                  children: [
-                                                    Container(
-                                                      width: 4.0,
-                                                      height: 4.0,
-                                                      decoration: BoxDecoration(
-                                                        color:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .primaryText,
-                                                        shape: BoxShape.circle,
-                                                      ),
-                                                    ),
-                                                    Container(
-                                                      width: 4.0,
-                                                      height: 4.0,
-                                                      decoration: BoxDecoration(
-                                                        color:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .primaryText,
-                                                        shape: BoxShape.circle,
-                                                      ),
-                                                    ),
-                                                    Container(
-                                                      width: 4.0,
-                                                      height: 4.0,
-                                                      decoration: BoxDecoration(
-                                                        color:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .primaryText,
-                                                        shape: BoxShape.circle,
-                                                      ),
-                                                    ),
-                                                  ].divide(
-                                                      SizedBox(width: 4.0)),
+                                            );
+                                          },
+                                          child: Container(
+                                            width: 40.0,
+                                            height: 40.0,
+                                            decoration: BoxDecoration(),
+                                            child: Row(
+                                              mainAxisSize: MainAxisSize.max,
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                Container(
+                                                  width: 4.0,
+                                                  height: 4.0,
+                                                  decoration: BoxDecoration(
+                                                    color: FlutterFlowTheme.of(
+                                                            context)
+                                                        .primaryText,
+                                                    shape: BoxShape.circle,
+                                                  ),
                                                 ),
-                                              ),
+                                                Container(
+                                                  width: 4.0,
+                                                  height: 4.0,
+                                                  decoration: BoxDecoration(
+                                                    color: FlutterFlowTheme.of(
+                                                            context)
+                                                        .primaryText,
+                                                    shape: BoxShape.circle,
+                                                  ),
+                                                ),
+                                                Container(
+                                                  width: 4.0,
+                                                  height: 4.0,
+                                                  decoration: BoxDecoration(
+                                                    color: FlutterFlowTheme.of(
+                                                            context)
+                                                        .primaryText,
+                                                    shape: BoxShape.circle,
+                                                  ),
+                                                ),
+                                              ].divide(SizedBox(width: 4.0)),
                                             ),
                                           ),
-                                        ].map((c) => DataCell(c)).toList(),
+                                        ),
                                       ),
-                                      emptyBuilder: () => EmptyListWidget(),
-                                      paginated: true,
-                                      selectable: false,
-                                      hidePaginator: false,
-                                      showFirstLastButtons: false,
-                                      headingRowHeight: 0.0,
-                                      dataRowHeight: 64.0,
-                                      columnSpacing: 20.0,
-                                      headingRowColor:
-                                          FlutterFlowTheme.of(context)
-                                              .primaryBackground,
-                                      borderRadius: BorderRadius.circular(12.0),
-                                      addHorizontalDivider: true,
-                                      addTopAndBottomDivider: false,
-                                      hideDefaultHorizontalDivider: true,
-                                      horizontalDividerColor:
-                                          FlutterFlowTheme.of(context).primary,
-                                      horizontalDividerThickness: 8.0,
-                                      addVerticalDivider: false,
-                                    );
-                                  },
-                                ),
-                              );
-                            },
-                          ),
-                        ],
+                                    ].map((c) => DataCell(c)).toList(),
+                                  ),
+                                  emptyBuilder: () => EmptyListWidget(),
+                                  paginated: true,
+                                  selectable: false,
+                                  hidePaginator: false,
+                                  showFirstLastButtons: false,
+                                  headingRowHeight: 0.0,
+                                  dataRowHeight: 64.0,
+                                  columnSpacing: 20.0,
+                                  headingRowColor: FlutterFlowTheme.of(context)
+                                      .primaryBackground,
+                                  borderRadius: BorderRadius.circular(12.0),
+                                  addHorizontalDivider: true,
+                                  addTopAndBottomDivider: false,
+                                  hideDefaultHorizontalDivider: true,
+                                  horizontalDividerColor:
+                                      FlutterFlowTheme.of(context).primary,
+                                  horizontalDividerThickness: 8.0,
+                                  addVerticalDivider: false,
+                                );
+                              },
+                            ),
+                          );
+                        },
                       ),
                     ),
                   ].divide(SizedBox(height: 28.0)),

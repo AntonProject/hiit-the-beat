@@ -4,13 +4,16 @@ import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
 import 'dart:async';
+import 'dart:ui';
 import '/custom_code/actions/index.dart' as actions;
 import '/index.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'password_change_page_model.dart';
 export 'password_change_page_model.dart';
 
@@ -42,11 +45,21 @@ class _PasswordChangePageWidgetState extends State<PasswordChangePageWidget> {
     super.initState();
     _model = createModel(context, () => PasswordChangePageModel());
 
+    logFirebaseEvent('screen_view',
+        parameters: {'screen_name': 'PasswordChangePage'});
     // On page load action.
     SchedulerBinding.instance.addPostFrameCallback((_) async {
+      logFirebaseEvent('PASSWORD_CHANGE_PasswordChangePage_ON_IN');
+      logFirebaseEvent('PasswordChangePage_custom_action');
       unawaited(
         () async {
           await actions.lockLandscapeMode();
+        }(),
+      );
+      logFirebaseEvent('PasswordChangePage_custom_action');
+      unawaited(
+        () async {
+          await actions.setStatusBarColor();
         }(),
       );
     });
@@ -102,6 +115,8 @@ class _PasswordChangePageWidgetState extends State<PasswordChangePageWidget> {
                     size: 24.0,
                   ),
                   onPressed: () async {
+                    logFirebaseEvent('PASSWORD_CHANGE_arrowLeft24_ICN_ON_TAP');
+                    logFirebaseEvent('IconButton_navigate_back');
                     context.safePop();
                   },
                 ),
@@ -123,10 +138,9 @@ class _PasswordChangePageWidgetState extends State<PasswordChangePageWidget> {
                               fontSize: 24.0,
                               letterSpacing: 0.0,
                               fontWeight: FontWeight.bold,
-                              useGoogleFonts: GoogleFonts.asMap().containsKey(
-                                  FlutterFlowTheme.of(context)
-                                      .bodyMediumFamily),
                               lineHeight: 1.3,
+                              useGoogleFonts: !FlutterFlowTheme.of(context)
+                                  .bodyMediumIsCustom,
                             ),
                       ),
                       Padding(
@@ -134,7 +148,7 @@ class _PasswordChangePageWidgetState extends State<PasswordChangePageWidget> {
                             EdgeInsetsDirectional.fromSTEB(0.0, 12.0, 0.0, 0.0),
                         child: Text(
                           valueOrDefault<String>(
-                            widget.email,
+                            widget!.email,
                             'example@gmail.com',
                           ),
                           style: FlutterFlowTheme.of(context)
@@ -145,10 +159,9 @@ class _PasswordChangePageWidgetState extends State<PasswordChangePageWidget> {
                                 color: FlutterFlowTheme.of(context).secondary,
                                 letterSpacing: 0.07,
                                 fontWeight: FontWeight.w600,
-                                useGoogleFonts: GoogleFonts.asMap().containsKey(
-                                    FlutterFlowTheme.of(context)
-                                        .bodyMediumFamily),
                                 lineHeight: 1.4,
+                                useGoogleFonts: !FlutterFlowTheme.of(context)
+                                    .bodyMediumIsCustom,
                               ),
                         ),
                       ),
@@ -161,8 +174,11 @@ class _PasswordChangePageWidgetState extends State<PasswordChangePageWidget> {
                   : _isKeyboardVisible))
                 FFButtonWidget(
                   onPressed: () async {
+                    logFirebaseEvent('PASSWORD_CHANGE_Sendlink_ON_TAP');
+                    logFirebaseEvent('Sendlink_haptic_feedback');
                     HapticFeedback.selectionClick();
-                    if (widget.email!.isEmpty) {
+                    logFirebaseEvent('Sendlink_auth');
+                    if (widget!.email!.isEmpty) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text(
@@ -175,15 +191,16 @@ class _PasswordChangePageWidgetState extends State<PasswordChangePageWidget> {
                       return;
                     }
                     await authManager.resetPassword(
-                      email: widget.email!,
+                      email: widget!.email!,
                       context: context,
                     );
+                    logFirebaseEvent('Sendlink_navigate_to');
 
                     context.pushNamed(
                       PasswordChangePage2Widget.routeName,
                       queryParameters: {
                         'email': serializeParam(
-                          widget.email,
+                          widget!.email,
                           ParamType.String,
                         ),
                       }.withoutNulls,
@@ -206,9 +223,9 @@ class _PasswordChangePageWidgetState extends State<PasswordChangePageWidget> {
                           color: FlutterFlowTheme.of(context).primary,
                           fontSize: 14.0,
                           letterSpacing: 0.07,
-                          useGoogleFonts: GoogleFonts.asMap().containsKey(
-                              FlutterFlowTheme.of(context).titleSmallFamily),
                           lineHeight: 1.4,
+                          useGoogleFonts:
+                              !FlutterFlowTheme.of(context).titleSmallIsCustom,
                         ),
                     elevation: 0.0,
                     borderSide: BorderSide(

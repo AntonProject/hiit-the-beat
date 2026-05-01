@@ -1,10 +1,16 @@
+import '/auth/firebase_auth/auth_util.dart';
 import '/components/navbar_active_button/navbar_active_button_widget.dart';
 import '/components/navbar_inactive_button/navbar_inactive_button_widget.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
+import '/flutter_flow/flutter_flow_widgets.dart';
+import 'dart:ui';
 import '/index.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'navbar_model.dart';
 export 'navbar_model.dart';
 
@@ -62,7 +68,7 @@ class _NavbarWidgetState extends State<NavbarWidget> {
             children: [
               Builder(
                 builder: (context) {
-                  if (widget.pageNumber == 1) {
+                  if (widget!.pageNumber == 1) {
                     return wrapWithModel(
                       model: _model.homeActiveButtonModel,
                       updateCallback: () => safeSetState(() {}),
@@ -86,12 +92,17 @@ class _NavbarWidgetState extends State<NavbarWidget> {
                           size: 20.0,
                         ),
                         action: () async {
+                          logFirebaseEvent(
+                              'NAVBAR_COMP_homeInactiveButton_CALLBACK');
+                          logFirebaseEvent(
+                              'homeInactiveButton_haptic_feedback');
                           HapticFeedback.mediumImpact();
+                          logFirebaseEvent('homeInactiveButton_navigate_to');
 
                           context.goNamed(
                             HomePageWidget.routeName,
                             extra: <String, dynamic>{
-                              kTransitionInfoKey: TransitionInfo(
+                              '__transition_info__': TransitionInfo(
                                 hasTransition: true,
                                 transitionType: PageTransitionType.fade,
                                 duration: Duration(milliseconds: 0),
@@ -106,7 +117,7 @@ class _NavbarWidgetState extends State<NavbarWidget> {
               ),
               Builder(
                 builder: (context) {
-                  if (widget.pageNumber == 2) {
+                  if (widget!.pageNumber == 2) {
                     return wrapWithModel(
                       model: _model.workoutActiveButtonModel,
                       updateCallback: () => safeSetState(() {}),
@@ -132,12 +143,27 @@ class _NavbarWidgetState extends State<NavbarWidget> {
                           size: 20.0,
                         ),
                         action: () async {
+                          logFirebaseEvent(
+                              'NAVBAR_workoutInactiveButton_CALLBACK');
+                          logFirebaseEvent(
+                              'workoutInactiveButton_haptic_feedback');
                           HapticFeedback.mediumImpact();
+                          logFirebaseEvent('workoutInactiveButton_navigate_to');
 
                           context.goNamed(
                             SeasonWorkoutPageWidget.routeName,
+                            queryParameters: {
+                              'level': serializeParam(
+                                valueOrDefault<int>(
+                                  valueOrDefault(
+                                      currentUserDocument?.currentLevel, 0),
+                                  1,
+                                ),
+                                ParamType.int,
+                              ),
+                            }.withoutNulls,
                             extra: <String, dynamic>{
-                              kTransitionInfoKey: TransitionInfo(
+                              '__transition_info__': TransitionInfo(
                                 hasTransition: true,
                                 transitionType: PageTransitionType.fade,
                                 duration: Duration(milliseconds: 0),
@@ -152,7 +178,7 @@ class _NavbarWidgetState extends State<NavbarWidget> {
               ),
               Builder(
                 builder: (context) {
-                  if (widget.pageNumber == 3) {
+                  if (widget!.pageNumber == 3) {
                     return wrapWithModel(
                       model: _model.addActiveButtonModel,
                       updateCallback: () => safeSetState(() {}),
@@ -178,12 +204,16 @@ class _NavbarWidgetState extends State<NavbarWidget> {
                           size: 20.0,
                         ),
                         action: () async {
+                          logFirebaseEvent(
+                              'NAVBAR_COMP_addInactiveButton_CALLBACK');
+                          logFirebaseEvent('addInactiveButton_haptic_feedback');
                           HapticFeedback.mediumImpact();
+                          logFirebaseEvent('addInactiveButton_navigate_to');
 
                           context.goNamed(
                             AdditionalsPageWidget.routeName,
                             extra: <String, dynamic>{
-                              kTransitionInfoKey: TransitionInfo(
+                              '__transition_info__': TransitionInfo(
                                 hasTransition: true,
                                 transitionType: PageTransitionType.fade,
                                 duration: Duration(milliseconds: 0),
@@ -198,7 +228,7 @@ class _NavbarWidgetState extends State<NavbarWidget> {
               ),
               Builder(
                 builder: (context) {
-                  if (widget.pageNumber == 4) {
+                  if (widget!.pageNumber == 4) {
                     return wrapWithModel(
                       model: _model.profileActiveButtonModel,
                       updateCallback: () => safeSetState(() {}),
@@ -224,12 +254,17 @@ class _NavbarWidgetState extends State<NavbarWidget> {
                           size: 20.0,
                         ),
                         action: () async {
+                          logFirebaseEvent(
+                              'NAVBAR_profileInactiveButton_CALLBACK');
+                          logFirebaseEvent(
+                              'profileInactiveButton_haptic_feedback');
                           HapticFeedback.mediumImpact();
+                          logFirebaseEvent('profileInactiveButton_navigate_to');
 
                           context.goNamed(
                             ProfilePageWidget.routeName,
                             extra: <String, dynamic>{
-                              kTransitionInfoKey: TransitionInfo(
+                              '__transition_info__': TransitionInfo(
                                 hasTransition: true,
                                 transitionType: PageTransitionType.fade,
                                 duration: Duration(milliseconds: 0),

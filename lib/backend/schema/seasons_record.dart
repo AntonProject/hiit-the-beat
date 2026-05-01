@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 
 import '/backend/schema/util/firestore_util.dart';
+import '/backend/schema/util/schema_util.dart';
+import '/backend/schema/enums/enums.dart';
 
 import 'index.dart';
 import '/flutter_flow/flutter_flow_util.dart';
@@ -19,11 +21,6 @@ class SeasonsRecord extends FirestoreRecord {
   DateTime? _createdAt;
   DateTime? get createdAt => _createdAt;
   bool hasCreatedAt() => _createdAt != null;
-
-  // "released_at" field.
-  DateTime? _releasedAt;
-  DateTime? get releasedAt => _releasedAt;
-  bool hasReleasedAt() => _releasedAt != null;
 
   // "en" field.
   bool? _en;
@@ -70,9 +67,28 @@ class SeasonsRecord extends FirestoreRecord {
   int get number => _number ?? 0;
   bool hasNumber() => _number != null;
 
+  // "ja" field.
+  bool? _ja;
+  bool get ja => _ja ?? false;
+  bool hasJa() => _ja != null;
+
+  // "title_ja" field.
+  String? _titleJa;
+  String get titleJa => _titleJa ?? '';
+  bool hasTitleJa() => _titleJa != null;
+
+  // "duration_ja" field.
+  String? _durationJa;
+  String get durationJa => _durationJa ?? '';
+  bool hasDurationJa() => _durationJa != null;
+
+  // "free" field.
+  bool? _free;
+  bool get free => _free ?? false;
+  bool hasFree() => _free != null;
+
   void _initializeFields() {
     _createdAt = snapshotData['created_at'] as DateTime?;
-    _releasedAt = snapshotData['released_at'] as DateTime?;
     _en = snapshotData['en'] as bool?;
     _de = snapshotData['de'] as bool?;
     _cover = snapshotData['cover'] as String?;
@@ -82,6 +98,10 @@ class SeasonsRecord extends FirestoreRecord {
     _titleEn = snapshotData['title_en'] as String?;
     _titleDe = snapshotData['title_de'] as String?;
     _number = castToType<int>(snapshotData['number']);
+    _ja = snapshotData['ja'] as bool?;
+    _titleJa = snapshotData['title_ja'] as String?;
+    _durationJa = snapshotData['duration_ja'] as String?;
+    _free = snapshotData['free'] as bool?;
   }
 
   static CollectionReference get collection =>
@@ -120,7 +140,6 @@ class SeasonsRecord extends FirestoreRecord {
 
 Map<String, dynamic> createSeasonsRecordData({
   DateTime? createdAt,
-  DateTime? releasedAt,
   bool? en,
   bool? de,
   String? cover,
@@ -130,11 +149,14 @@ Map<String, dynamic> createSeasonsRecordData({
   String? titleEn,
   String? titleDe,
   int? number,
+  bool? ja,
+  String? titleJa,
+  String? durationJa,
+  bool? free,
 }) {
   final firestoreData = mapToFirestore(
     <String, dynamic>{
       'created_at': createdAt,
-      'released_at': releasedAt,
       'en': en,
       'de': de,
       'cover': cover,
@@ -144,6 +166,10 @@ Map<String, dynamic> createSeasonsRecordData({
       'title_en': titleEn,
       'title_de': titleDe,
       'number': number,
+      'ja': ja,
+      'title_ja': titleJa,
+      'duration_ja': durationJa,
+      'free': free,
     }.withoutNulls,
   );
 
@@ -156,7 +182,6 @@ class SeasonsRecordDocumentEquality implements Equality<SeasonsRecord> {
   @override
   bool equals(SeasonsRecord? e1, SeasonsRecord? e2) {
     return e1?.createdAt == e2?.createdAt &&
-        e1?.releasedAt == e2?.releasedAt &&
         e1?.en == e2?.en &&
         e1?.de == e2?.de &&
         e1?.cover == e2?.cover &&
@@ -165,13 +190,16 @@ class SeasonsRecordDocumentEquality implements Equality<SeasonsRecord> {
         e1?.durationDe == e2?.durationDe &&
         e1?.titleEn == e2?.titleEn &&
         e1?.titleDe == e2?.titleDe &&
-        e1?.number == e2?.number;
+        e1?.number == e2?.number &&
+        e1?.ja == e2?.ja &&
+        e1?.titleJa == e2?.titleJa &&
+        e1?.durationJa == e2?.durationJa &&
+        e1?.free == e2?.free;
   }
 
   @override
   int hash(SeasonsRecord? e) => const ListEquality().hash([
         e?.createdAt,
-        e?.releasedAt,
         e?.en,
         e?.de,
         e?.cover,
@@ -180,7 +208,11 @@ class SeasonsRecordDocumentEquality implements Equality<SeasonsRecord> {
         e?.durationDe,
         e?.titleEn,
         e?.titleDe,
-        e?.number
+        e?.number,
+        e?.ja,
+        e?.titleJa,
+        e?.durationJa,
+        e?.free
       ]);
 
   @override

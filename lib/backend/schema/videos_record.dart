@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 
 import '/backend/schema/util/firestore_util.dart';
+import '/backend/schema/util/schema_util.dart';
+import '/backend/schema/enums/enums.dart';
 
 import 'index.dart';
 import '/flutter_flow/flutter_flow_util.dart';
@@ -60,6 +62,21 @@ class VideosRecord extends FirestoreRecord {
   String get coverDe => _coverDe ?? '';
   bool hasCoverDe() => _coverDe != null;
 
+  // "video_url_ja" field.
+  String? _videoUrlJa;
+  String get videoUrlJa => _videoUrlJa ?? '';
+  bool hasVideoUrlJa() => _videoUrlJa != null;
+
+  // "url_ja" field.
+  String? _urlJa;
+  String get urlJa => _urlJa ?? '';
+  bool hasUrlJa() => _urlJa != null;
+
+  // "cover_ja" field.
+  String? _coverJa;
+  String get coverJa => _coverJa ?? '';
+  bool hasCoverJa() => _coverJa != null;
+
   void _initializeFields() {
     _videoUrlEn = snapshotData['video_url_en'] as String?;
     _videoUrlDe = snapshotData['video_url_de'] as String?;
@@ -70,6 +87,9 @@ class VideosRecord extends FirestoreRecord {
     _urlEn = snapshotData['url_en'] as String?;
     _urlDe = snapshotData['url_de'] as String?;
     _coverDe = snapshotData['cover_de'] as String?;
+    _videoUrlJa = snapshotData['video_url_ja'] as String?;
+    _urlJa = snapshotData['url_ja'] as String?;
+    _coverJa = snapshotData['cover_ja'] as String?;
   }
 
   static CollectionReference get collection =>
@@ -115,6 +135,9 @@ Map<String, dynamic> createVideosRecordData({
   String? urlEn,
   String? urlDe,
   String? coverDe,
+  String? videoUrlJa,
+  String? urlJa,
+  String? coverJa,
 }) {
   final firestoreData = mapToFirestore(
     <String, dynamic>{
@@ -127,6 +150,9 @@ Map<String, dynamic> createVideosRecordData({
       'url_en': urlEn,
       'url_de': urlDe,
       'cover_de': coverDe,
+      'video_url_ja': videoUrlJa,
+      'url_ja': urlJa,
+      'cover_ja': coverJa,
     }.withoutNulls,
   );
 
@@ -146,7 +172,10 @@ class VideosRecordDocumentEquality implements Equality<VideosRecord> {
         e1?.views == e2?.views &&
         e1?.urlEn == e2?.urlEn &&
         e1?.urlDe == e2?.urlDe &&
-        e1?.coverDe == e2?.coverDe;
+        e1?.coverDe == e2?.coverDe &&
+        e1?.videoUrlJa == e2?.videoUrlJa &&
+        e1?.urlJa == e2?.urlJa &&
+        e1?.coverJa == e2?.coverJa;
   }
 
   @override
@@ -159,7 +188,10 @@ class VideosRecordDocumentEquality implements Equality<VideosRecord> {
         e?.views,
         e?.urlEn,
         e?.urlDe,
-        e?.coverDe
+        e?.coverDe,
+        e?.videoUrlJa,
+        e?.urlJa,
+        e?.coverJa
       ]);
 
   @override

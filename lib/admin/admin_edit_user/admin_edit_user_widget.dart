@@ -3,6 +3,7 @@ import '/admin/admin_components/admin_save_dialog/admin_save_dialog_widget.dart'
 import '/auth/firebase_auth/auth_util.dart';
 import '/backend/backend.dart';
 import '/backend/firebase_storage/storage.dart';
+import '/backend/schema/structs/index.dart';
 import '/components/dialogs/select_goal_dialog/select_goal_dialog_widget.dart';
 import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
@@ -11,15 +12,18 @@ import '/flutter_flow/flutter_flow_widgets.dart';
 import '/flutter_flow/upload_data.dart';
 import 'dart:async';
 import 'dart:ui';
-import '/actions/actions.dart' as action_blocks;
 import '/custom_code/actions/index.dart' as actions;
 import '/index.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:easy_debounce/easy_debounce.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'admin_edit_user_model.dart';
@@ -50,38 +54,49 @@ class _AdminEditUserWidgetState extends State<AdminEditUserWidget> {
     super.initState();
     _model = createModel(context, () => AdminEditUserModel());
 
+    logFirebaseEvent('screen_view',
+        parameters: {'screen_name': 'AdminEditUser'});
     // On page load action.
     SchedulerBinding.instance.addPostFrameCallback((_) async {
-      _model.genderEn = widget.user?.genderEn;
-      _model.photo = widget.user?.photoUrl;
-      _model.genderDe = widget.user?.genderDe;
-      _model.date = currentUserDocument?.expiredAt;
-      _model.initialStateOfSubscription = widget.user!.plusmember;
+      logFirebaseEvent('ADMIN_EDIT_USER_AdminEditUser_ON_INIT_ST');
+      logFirebaseEvent('AdminEditUser_update_page_state');
+      _model.genderEn = widget!.user?.genderEn;
+      _model.photo = widget!.user?.photoUrl;
+      _model.genderDe = widget!.user?.genderDe;
+      _model.date = widget!.user?.expiredAt;
+      _model.initialStateOfSubscription = widget!.user!.plusmember;
+      _model.genderJa = widget!.user?.genderJa;
+      _model.goalEn = widget!.user?.goalEn;
+      _model.goalDe = widget!.user?.goalDe;
+      _model.goalJa = widget!.user?.goalJa;
       safeSetState(() {});
-      FFAppState().goalEn = widget.user!.goalEn;
-      FFAppState().goalDe = widget.user!.goalDe;
-      safeSetState(() {});
+      logFirebaseEvent('AdminEditUser_custom_action');
+      unawaited(
+        () async {
+          await actions.setStatusBarColor();
+        }(),
+      );
     });
 
     _model.emailTextController ??=
-        TextEditingController(text: widget.user?.email);
+        TextEditingController(text: widget!.user?.email);
     _model.emailFocusNode ??= FocusNode();
 
-    _model.switchValue = widget.user!.plusmember;
+    _model.switchValue = widget!.user!.plusmember;
     _model.nameTextController ??=
-        TextEditingController(text: widget.user?.displayName);
+        TextEditingController(text: widget!.user?.displayName);
     _model.nameFocusNode ??= FocusNode();
 
     _model.surnameTextController ??=
-        TextEditingController(text: widget.user?.surname);
+        TextEditingController(text: widget!.user?.surname);
     _model.surnameFocusNode ??= FocusNode();
 
     _model.weightkgTextController ??=
-        TextEditingController(text: widget.user?.weight.toString());
+        TextEditingController(text: widget!.user?.weight?.toString());
     _model.weightkgFocusNode ??= FocusNode();
 
     _model.heightcmTextController ??=
-        TextEditingController(text: widget.user?.height.toString());
+        TextEditingController(text: widget!.user?.height?.toString());
     _model.heightcmFocusNode ??= FocusNode();
 
     WidgetsBinding.instance.addPostFrameCallback((_) => safeSetState(() {}));
@@ -112,7 +127,9 @@ class _AdminEditUserWidgetState extends State<AdminEditUserWidget> {
             wrapWithModel(
               model: _model.adminNavBarModel,
               updateCallback: () => safeSetState(() {}),
-              child: AdminNavBarWidget(),
+              child: AdminNavBarWidget(
+                pageNum: 1,
+              ),
             ),
             Expanded(
               child: Padding(
@@ -136,6 +153,9 @@ class _AdminEditUserWidgetState extends State<AdminEditUserWidget> {
                             size: 24.0,
                           ),
                           onPressed: () async {
+                            logFirebaseEvent(
+                                'ADMIN_EDIT_USER_arrowLeft24_ICN_ON_TAP');
+                            logFirebaseEvent('IconButton_bottom_sheet');
                             showModalBottomSheet(
                               isScrollControlled: true,
                               backgroundColor: Colors.transparent,
@@ -154,7 +174,9 @@ class _AdminEditUserWidgetState extends State<AdminEditUserWidget> {
                                     padding: MediaQuery.viewInsetsOf(context),
                                     child: AdminSaveDialogWidget(
                                       actionTrue: () async {
-                                        await widget.user!.reference
+                                        logFirebaseEvent('_backend_call');
+
+                                        await widget!.user!.reference
                                             .update(createUsersRecordData(
                                           displayName:
                                               _model.nameTextController.text,
@@ -170,25 +192,42 @@ class _AdminEditUserWidgetState extends State<AdminEditUserWidget> {
                                               .heightcmTextController.text),
                                           surname:
                                               _model.surnameTextController.text,
-                                          goalEn: FFAppState().goalEn,
-                                          goalDe: FFAppState().goalDe,
+                                          goalEn: _model.goalEn,
+                                          goalDe: _model.goalDe,
                                           genderEn: _model.genderEn,
                                           genderDe: _model.genderDe,
                                           plusmember: _model.switchValue,
                                           lifetime: _model.switchValue,
+                                          genderJa: _model.genderJa,
+                                          goalJa: _model.goalJa,
                                         ));
-                                        if ((_model.date != null) &&
-                                            _model.switchValue!) {
-                                          await widget.user!.reference
+                                        if (_model.date != null) {
+                                          logFirebaseEvent('_backend_call');
+
+                                          await widget!.user!.reference
                                               .update(createUsersRecordData(
                                             expiredAt: _model.date,
                                           ));
+                                        } else {
+                                          logFirebaseEvent('_backend_call');
+
+                                          await widget!.user!.reference.update({
+                                            ...mapToFirestore(
+                                              {
+                                                'expired_at':
+                                                    FieldValue.delete(),
+                                              },
+                                            ),
+                                          });
                                         }
 
+                                        logFirebaseEvent('_navigate_to');
+
                                         context.pushNamed(
                                           AdminUserManagementWidget.routeName,
                                           extra: <String, dynamic>{
-                                            kTransitionInfoKey: TransitionInfo(
+                                            '__transition_info__':
+                                                TransitionInfo(
                                               hasTransition: true,
                                               transitionType:
                                                   PageTransitionType.fade,
@@ -198,16 +237,23 @@ class _AdminEditUserWidgetState extends State<AdminEditUserWidget> {
                                           },
                                         );
 
+                                        logFirebaseEvent('_bottom_sheet');
                                         Navigator.pop(context);
-                                        FFAppState().goalEn = 'Get more fit';
-                                        FFAppState().goalDe = 'Fitter werden';
+                                        logFirebaseEvent('_update_app_state');
+                                        FFAppState().refreshDate =
+                                            getCurrentTimestamp;
                                         safeSetState(() {});
+                                        logFirebaseEvent('_clear_query_cache');
+                                        FFAppState().clearUsersCache();
                                       },
                                       actionFalse: () async {
+                                        logFirebaseEvent('_navigate_to');
+
                                         context.pushNamed(
                                           AdminUserManagementWidget.routeName,
                                           extra: <String, dynamic>{
-                                            kTransitionInfoKey: TransitionInfo(
+                                            '__transition_info__':
+                                                TransitionInfo(
                                               hasTransition: true,
                                               transitionType:
                                                   PageTransitionType.fade,
@@ -217,10 +263,8 @@ class _AdminEditUserWidgetState extends State<AdminEditUserWidget> {
                                           },
                                         );
 
+                                        logFirebaseEvent('_bottom_sheet');
                                         Navigator.pop(context);
-                                        FFAppState().goalEn = 'Get more fit';
-                                        FFAppState().goalDe = 'Fitter werden';
-                                        safeSetState(() {});
                                       },
                                     ),
                                   ),
@@ -242,15 +286,18 @@ class _AdminEditUserWidgetState extends State<AdminEditUserWidget> {
                                   fontSize: 24.0,
                                   letterSpacing: 0.0,
                                   fontWeight: FontWeight.w500,
-                                  useGoogleFonts: GoogleFonts.asMap()
-                                      .containsKey(FlutterFlowTheme.of(context)
-                                          .bodyMediumFamily),
+                                  useGoogleFonts: !FlutterFlowTheme.of(context)
+                                      .bodyMediumIsCustom,
                                 ),
                           ),
                         ),
                         FFButtonWidget(
                           onPressed: () async {
-                            await widget.user!.reference
+                            logFirebaseEvent(
+                                'ADMIN_EDIT_USER_PAGE_Save_ON_TAP');
+                            logFirebaseEvent('Save_backend_call');
+
+                            await widget!.user!.reference
                                 .update(createUsersRecordData(
                               displayName: _model.nameTextController.text,
                               photoUrl: _model.photo,
@@ -262,20 +309,26 @@ class _AdminEditUserWidgetState extends State<AdminEditUserWidget> {
                               height: int.tryParse(
                                   _model.heightcmTextController.text),
                               surname: _model.surnameTextController.text,
-                              goalEn: FFAppState().goalEn,
-                              goalDe: FFAppState().goalDe,
+                              goalEn: _model.goalEn,
+                              goalDe: _model.goalDe,
                               genderEn: _model.genderEn,
                               genderDe: _model.genderDe,
                               plusmember: _model.switchValue,
                               lifetime: _model.switchValue,
+                              genderJa: _model.genderJa,
+                              goalJa: _model.goalJa,
                             ));
-                            if ((_model.date != null) && _model.switchValue!) {
-                              await widget.user!.reference
+                            if (_model.date != null) {
+                              logFirebaseEvent('Save_backend_call');
+
+                              await widget!.user!.reference
                                   .update(createUsersRecordData(
                                 expiredAt: _model.date,
                               ));
                             } else {
-                              await widget.user!.reference.update({
+                              logFirebaseEvent('Save_backend_call');
+
+                              await widget!.user!.reference.update({
                                 ...mapToFirestore(
                                   {
                                     'expired_at': FieldValue.delete(),
@@ -284,23 +337,12 @@ class _AdminEditUserWidgetState extends State<AdminEditUserWidget> {
                               });
                             }
 
-                            if ((_model.initialStateOfSubscription == false) &&
-                                (_model.switchValue == true) &&
-                                (widget.user?.activeCampgainContactId !=
-                                        null &&
-                                    widget.user?.activeCampgainContactId !=
-                                        '')) {
-                              await action_blocks
-                                  .removeAllActiveCampaignSubscriptions(
-                                context,
-                                id: widget.user?.activeCampgainContactId,
-                              );
-                            }
+                            logFirebaseEvent('Save_navigate_to');
 
                             context.pushNamed(
                               AdminUserManagementWidget.routeName,
                               extra: <String, dynamic>{
-                                kTransitionInfoKey: TransitionInfo(
+                                '__transition_info__': TransitionInfo(
                                   hasTransition: true,
                                   transitionType: PageTransitionType.fade,
                                   duration: Duration(milliseconds: 0),
@@ -308,9 +350,11 @@ class _AdminEditUserWidgetState extends State<AdminEditUserWidget> {
                               },
                             );
 
-                            FFAppState().goalEn = 'Get more fit';
-                            FFAppState().goalDe = 'Fitter werden';
+                            logFirebaseEvent('Save_update_app_state');
+                            FFAppState().refreshDate = getCurrentTimestamp;
                             safeSetState(() {});
+                            logFirebaseEvent('Save_clear_query_cache');
+                            FFAppState().clearUsersCache();
                           },
                           text: FFLocalizations.of(context).getText(
                             'cw1eq8zs' /* Save changes */,
@@ -331,10 +375,9 @@ class _AdminEditUserWidgetState extends State<AdminEditUserWidget> {
                                   fontSize: 12.0,
                                   letterSpacing: 0.07,
                                   fontWeight: FontWeight.normal,
-                                  useGoogleFonts: GoogleFonts.asMap()
-                                      .containsKey(FlutterFlowTheme.of(context)
-                                          .titleSmallFamily),
                                   lineHeight: 1.4,
+                                  useGoogleFonts: !FlutterFlowTheme.of(context)
+                                      .titleSmallIsCustom,
                                 ),
                             elevation: 0.0,
                             borderSide: BorderSide(
@@ -399,7 +442,13 @@ class _AdminEditUserWidgetState extends State<AdminEditUserWidget> {
                                           0.0, 12.0, 0.0, 0.0),
                                       child: FFButtonWidget(
                                         onPressed: () async {
+                                          logFirebaseEvent(
+                                              'ADMIN_EDIT_USER_SetOrChangePhoto_ON_TAP');
+                                          logFirebaseEvent(
+                                              'SetOrChangePhoto_haptic_feedback');
                                           HapticFeedback.mediumImpact();
+                                          logFirebaseEvent(
+                                              'SetOrChangePhoto_upload_media_to_firebas');
                                           final selectedMedia =
                                               await selectMediaWithSourceBottomSheet(
                                             context: context,
@@ -413,8 +462,9 @@ class _AdminEditUserWidgetState extends State<AdminEditUserWidget> {
                                                   validateFileFormat(
                                                       m.storagePath,
                                                       context))) {
-                                            safeSetState(() =>
-                                                _model.isDataUploading = true);
+                                            safeSetState(() => _model
+                                                    .isDataUploading_uploadDataXz3 =
+                                                true);
                                             var selectedUploadedFiles =
                                                 <FFUploadedFile>[];
 
@@ -437,6 +487,8 @@ class _AdminEditUserWidgetState extends State<AdminEditUserWidget> {
                                                                     ?.width,
                                                                 blurHash:
                                                                     m.blurHash,
+                                                                originalFilename:
+                                                                    m.originalFilename,
                                                               ))
                                                       .toList();
 
@@ -450,16 +502,17 @@ class _AdminEditUserWidgetState extends State<AdminEditUserWidget> {
                                                   .map((u) => u!)
                                                   .toList();
                                             } finally {
-                                              _model.isDataUploading = false;
+                                              _model.isDataUploading_uploadDataXz3 =
+                                                  false;
                                             }
                                             if (selectedUploadedFiles.length ==
                                                     selectedMedia.length &&
                                                 downloadUrls.length ==
                                                     selectedMedia.length) {
                                               safeSetState(() {
-                                                _model.uploadedLocalFile =
+                                                _model.uploadedLocalFile_uploadDataXz3 =
                                                     selectedUploadedFiles.first;
-                                                _model.uploadedFileUrl =
+                                                _model.uploadedFileUrl_uploadDataXz3 =
                                                     downloadUrls.first;
                                               });
                                             } else {
@@ -468,11 +521,16 @@ class _AdminEditUserWidgetState extends State<AdminEditUserWidget> {
                                             }
                                           }
 
-                                          if ((_model.uploadedFileUrl !=
+                                          if ((_model.uploadedFileUrl_uploadDataXz3 !=
+                                                      null &&
+                                                  _model.uploadedFileUrl_uploadDataXz3 !=
                                                       '') &&
-                                              !_model.isDataUploading) {
-                                            _model.photo =
-                                                _model.uploadedFileUrl;
+                                              !_model
+                                                  .isDataUploading_uploadDataXz3) {
+                                            logFirebaseEvent(
+                                                'SetOrChangePhoto_update_page_state');
+                                            _model.photo = _model
+                                                .uploadedFileUrl_uploadDataXz3;
                                             safeSetState(() {});
                                           }
                                         },
@@ -506,13 +564,11 @@ class _AdminEditUserWidgetState extends State<AdminEditUserWidget> {
                                                         .primaryText,
                                                 fontSize: 14.0,
                                                 letterSpacing: 0.07,
-                                                useGoogleFonts: GoogleFonts
-                                                        .asMap()
-                                                    .containsKey(
-                                                        FlutterFlowTheme.of(
-                                                                context)
-                                                            .titleSmallFamily),
                                                 lineHeight: 1.4,
+                                                useGoogleFonts:
+                                                    !FlutterFlowTheme.of(
+                                                            context)
+                                                        .titleSmallIsCustom,
                                               ),
                                           elevation: 0.0,
                                           borderSide: BorderSide(
@@ -544,13 +600,10 @@ class _AdminEditUserWidgetState extends State<AdminEditUserWidget> {
                                               fontSize: 10.0,
                                               letterSpacing: 0.07,
                                               fontWeight: FontWeight.w600,
-                                              useGoogleFonts: GoogleFonts
-                                                      .asMap()
-                                                  .containsKey(
-                                                      FlutterFlowTheme.of(
-                                                              context)
-                                                          .bodyMediumFamily),
                                               lineHeight: 1.2,
+                                              useGoogleFonts:
+                                                  !FlutterFlowTheme.of(context)
+                                                      .bodyMediumIsCustom,
                                             ),
                                       ),
                                     ),
@@ -585,13 +638,11 @@ class _AdminEditUserWidgetState extends State<AdminEditUserWidget> {
                                                 fontSize: 12.0,
                                                 letterSpacing: 0.0,
                                                 fontWeight: FontWeight.w500,
-                                                useGoogleFonts: GoogleFonts
-                                                        .asMap()
-                                                    .containsKey(
-                                                        FlutterFlowTheme.of(
-                                                                context)
-                                                            .bodyMediumFamily),
                                                 lineHeight: 1.3,
+                                                useGoogleFonts:
+                                                    !FlutterFlowTheme.of(
+                                                            context)
+                                                        .bodyMediumIsCustom,
                                               ),
                                         ),
                                       ),
@@ -626,28 +677,27 @@ class _AdminEditUserWidgetState extends State<AdminEditUserWidget> {
                                               obscureText: false,
                                               decoration: InputDecoration(
                                                 isDense: true,
-                                                hintStyle:
-                                                    FlutterFlowTheme.of(context)
-                                                        .bodyMedium
-                                                        .override(
-                                                          fontFamily:
-                                                              FlutterFlowTheme.of(
-                                                                      context)
-                                                                  .bodyMediumFamily,
-                                                          color: FlutterFlowTheme
-                                                                  .of(context)
+                                                hintStyle: FlutterFlowTheme.of(
+                                                        context)
+                                                    .bodyMedium
+                                                    .override(
+                                                      fontFamily:
+                                                          FlutterFlowTheme.of(
+                                                                  context)
+                                                              .bodyMediumFamily,
+                                                      color:
+                                                          FlutterFlowTheme.of(
+                                                                  context)
                                                               .gray,
-                                                          letterSpacing: 0.07,
-                                                          fontWeight:
-                                                              FontWeight.w600,
-                                                          useGoogleFonts: GoogleFonts
-                                                                  .asMap()
-                                                              .containsKey(
-                                                                  FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .bodyMediumFamily),
-                                                          lineHeight: 1.4,
-                                                        ),
+                                                      letterSpacing: 0.07,
+                                                      fontWeight:
+                                                          FontWeight.w600,
+                                                      lineHeight: 1.4,
+                                                      useGoogleFonts:
+                                                          !FlutterFlowTheme.of(
+                                                                  context)
+                                                              .bodyMediumIsCustom,
+                                                    ),
                                                 enabledBorder:
                                                     OutlineInputBorder(
                                                   borderSide: BorderSide(
@@ -704,25 +754,22 @@ class _AdminEditUserWidgetState extends State<AdminEditUserWidget> {
                                                         .fromSTEB(16.0, 12.0,
                                                             16.0, 12.0),
                                               ),
-                                              style:
-                                                  FlutterFlowTheme.of(context)
-                                                      .bodyMedium
-                                                      .override(
-                                                        fontFamily:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .bodyMediumFamily,
-                                                        letterSpacing: 0.07,
-                                                        fontWeight:
-                                                            FontWeight.w600,
-                                                        useGoogleFonts: GoogleFonts
-                                                                .asMap()
-                                                            .containsKey(
-                                                                FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .bodyMediumFamily),
-                                                        lineHeight: 1.4,
-                                                      ),
+                                              style: FlutterFlowTheme.of(
+                                                      context)
+                                                  .bodyMedium
+                                                  .override(
+                                                    fontFamily:
+                                                        FlutterFlowTheme.of(
+                                                                context)
+                                                            .bodyMediumFamily,
+                                                    letterSpacing: 0.07,
+                                                    fontWeight: FontWeight.w600,
+                                                    lineHeight: 1.4,
+                                                    useGoogleFonts:
+                                                        !FlutterFlowTheme.of(
+                                                                context)
+                                                            .bodyMediumIsCustom,
+                                                  ),
                                               maxLength: 50,
                                               maxLengthEnforcement:
                                                   MaxLengthEnforcement.none,
@@ -737,6 +784,21 @@ class _AdminEditUserWidgetState extends State<AdminEditUserWidget> {
                                               validator: _model
                                                   .emailTextControllerValidator
                                                   .asValidator(context),
+                                              inputFormatters: [
+                                                if (!isAndroid && !isiOS)
+                                                  TextInputFormatter
+                                                      .withFunction(
+                                                          (oldValue, newValue) {
+                                                    return TextEditingValue(
+                                                      selection:
+                                                          newValue.selection,
+                                                      text: newValue.text
+                                                          .toCapitalization(
+                                                              TextCapitalization
+                                                                  .words),
+                                                    );
+                                                  }),
+                                              ],
                                             ),
                                           ),
                                         ),
@@ -762,19 +824,16 @@ class _AdminEditUserWidgetState extends State<AdminEditUserWidget> {
                                                       .bodyMediumFamily,
                                               letterSpacing: 0.0,
                                               fontWeight: FontWeight.w600,
-                                              useGoogleFonts: GoogleFonts
-                                                      .asMap()
-                                                  .containsKey(
-                                                      FlutterFlowTheme.of(
-                                                              context)
-                                                          .bodyMediumFamily),
+                                              useGoogleFonts:
+                                                  !FlutterFlowTheme.of(context)
+                                                      .bodyMediumIsCustom,
                                             ),
                                       ),
                                       Switch.adaptive(
                                         value: _model.switchValue!,
                                         onChanged: (newValue) async {
                                           safeSetState(() =>
-                                              _model.switchValue = newValue);
+                                              _model.switchValue = newValue!);
                                         },
                                         activeColor:
                                             FlutterFlowTheme.of(context)
@@ -793,7 +852,13 @@ class _AdminEditUserWidgetState extends State<AdminEditUserWidget> {
                                         hoverColor: Colors.transparent,
                                         highlightColor: Colors.transparent,
                                         onTap: () async {
+                                          logFirebaseEvent(
+                                              'ADMIN_EDIT_USER_Container_x063t744_ON_TA');
+                                          logFirebaseEvent(
+                                              'Container_haptic_feedback');
                                           HapticFeedback.mediumImpact();
+                                          logFirebaseEvent(
+                                              'Container_date_time_picker');
                                           final _datePicked1Date =
                                               await showDatePicker(
                                             context: context,
@@ -822,6 +887,8 @@ class _AdminEditUserWidgetState extends State<AdminEditUserWidget> {
                                                       : getCurrentTimestamp);
                                             });
                                           }
+                                          logFirebaseEvent(
+                                              'Container_update_page_state');
                                           _model.date = _model.datePicked1;
                                           safeSetState(() {});
                                         },
@@ -873,26 +940,23 @@ class _AdminEditUserWidgetState extends State<AdminEditUserWidget> {
                                                             : 'Select subscription end date',
                                                         'Select subscription end date',
                                                       ),
-                                                      style:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .bodyMedium
-                                                              .override(
-                                                                fontFamily: FlutterFlowTheme.of(
+                                                      style: FlutterFlowTheme
+                                                              .of(context)
+                                                          .bodyMedium
+                                                          .override(
+                                                            fontFamily:
+                                                                FlutterFlowTheme.of(
                                                                         context)
                                                                     .bodyMediumFamily,
-                                                                letterSpacing:
-                                                                    0.07,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w600,
-                                                                useGoogleFonts: GoogleFonts
-                                                                        .asMap()
-                                                                    .containsKey(
-                                                                        FlutterFlowTheme.of(context)
-                                                                            .bodyMediumFamily),
-                                                                lineHeight: 1.4,
-                                                              ),
+                                                            letterSpacing: 0.07,
+                                                            fontWeight:
+                                                                FontWeight.w600,
+                                                            lineHeight: 1.4,
+                                                            useGoogleFonts:
+                                                                !FlutterFlowTheme.of(
+                                                                        context)
+                                                                    .bodyMediumIsCustom,
+                                                          ),
                                                     ),
                                                   ),
                                                   Icon(
@@ -923,17 +987,25 @@ class _AdminEditUserWidgetState extends State<AdminEditUserWidget> {
                                             size: 24.0,
                                           ),
                                           onPressed: () async {
+                                            logFirebaseEvent(
+                                                'ADMIN_EDIT_USER_PAGE_close24_ICN_ON_TAP');
+                                            logFirebaseEvent(
+                                                'IconButton_update_page_state');
                                             _model.date = null;
                                             safeSetState(() {});
                                           },
                                         ),
                                       FFButtonWidget(
                                         onPressed: () async {
+                                          logFirebaseEvent(
+                                              'ADMIN_EDIT_USER_Restorepurchase_ON_TAP');
+                                          logFirebaseEvent(
+                                              'Restorepurchase_custom_action');
                                           unawaited(
                                             () async {
                                               await actions
                                                   .checkSubscriptionById(
-                                                widget.user!.uid,
+                                                widget!.user!.uid,
                                               );
                                             }(),
                                           );
@@ -963,13 +1035,11 @@ class _AdminEditUserWidgetState extends State<AdminEditUserWidget> {
                                                 fontWeight: FontWeight.normal,
                                                 decoration:
                                                     TextDecoration.underline,
-                                                useGoogleFonts: GoogleFonts
-                                                        .asMap()
-                                                    .containsKey(
-                                                        FlutterFlowTheme.of(
-                                                                context)
-                                                            .titleSmallFamily),
                                                 lineHeight: 1.4,
+                                                useGoogleFonts:
+                                                    !FlutterFlowTheme.of(
+                                                            context)
+                                                        .titleSmallIsCustom,
                                               ),
                                           elevation: 0.0,
                                           borderSide: BorderSide(
@@ -1011,13 +1081,11 @@ class _AdminEditUserWidgetState extends State<AdminEditUserWidget> {
                                                 fontSize: 12.0,
                                                 letterSpacing: 0.0,
                                                 fontWeight: FontWeight.w500,
-                                                useGoogleFonts: GoogleFonts
-                                                        .asMap()
-                                                    .containsKey(
-                                                        FlutterFlowTheme.of(
-                                                                context)
-                                                            .bodyMediumFamily),
                                                 lineHeight: 1.3,
+                                                useGoogleFonts:
+                                                    !FlutterFlowTheme.of(
+                                                            context)
+                                                        .bodyMediumIsCustom,
                                               ),
                                         ),
                                       ),
@@ -1051,28 +1119,27 @@ class _AdminEditUserWidgetState extends State<AdminEditUserWidget> {
                                               obscureText: false,
                                               decoration: InputDecoration(
                                                 isDense: true,
-                                                hintStyle:
-                                                    FlutterFlowTheme.of(context)
-                                                        .bodyMedium
-                                                        .override(
-                                                          fontFamily:
-                                                              FlutterFlowTheme.of(
-                                                                      context)
-                                                                  .bodyMediumFamily,
-                                                          color: FlutterFlowTheme
-                                                                  .of(context)
+                                                hintStyle: FlutterFlowTheme.of(
+                                                        context)
+                                                    .bodyMedium
+                                                    .override(
+                                                      fontFamily:
+                                                          FlutterFlowTheme.of(
+                                                                  context)
+                                                              .bodyMediumFamily,
+                                                      color:
+                                                          FlutterFlowTheme.of(
+                                                                  context)
                                                               .gray,
-                                                          letterSpacing: 0.07,
-                                                          fontWeight:
-                                                              FontWeight.w600,
-                                                          useGoogleFonts: GoogleFonts
-                                                                  .asMap()
-                                                              .containsKey(
-                                                                  FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .bodyMediumFamily),
-                                                          lineHeight: 1.4,
-                                                        ),
+                                                      letterSpacing: 0.07,
+                                                      fontWeight:
+                                                          FontWeight.w600,
+                                                      lineHeight: 1.4,
+                                                      useGoogleFonts:
+                                                          !FlutterFlowTheme.of(
+                                                                  context)
+                                                              .bodyMediumIsCustom,
+                                                    ),
                                                 enabledBorder:
                                                     OutlineInputBorder(
                                                   borderSide: BorderSide(
@@ -1129,25 +1196,22 @@ class _AdminEditUserWidgetState extends State<AdminEditUserWidget> {
                                                         .fromSTEB(16.0, 12.0,
                                                             16.0, 12.0),
                                               ),
-                                              style:
-                                                  FlutterFlowTheme.of(context)
-                                                      .bodyMedium
-                                                      .override(
-                                                        fontFamily:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .bodyMediumFamily,
-                                                        letterSpacing: 0.07,
-                                                        fontWeight:
-                                                            FontWeight.w600,
-                                                        useGoogleFonts: GoogleFonts
-                                                                .asMap()
-                                                            .containsKey(
-                                                                FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .bodyMediumFamily),
-                                                        lineHeight: 1.4,
-                                                      ),
+                                              style: FlutterFlowTheme.of(
+                                                      context)
+                                                  .bodyMedium
+                                                  .override(
+                                                    fontFamily:
+                                                        FlutterFlowTheme.of(
+                                                                context)
+                                                            .bodyMediumFamily,
+                                                    letterSpacing: 0.07,
+                                                    fontWeight: FontWeight.w600,
+                                                    lineHeight: 1.4,
+                                                    useGoogleFonts:
+                                                        !FlutterFlowTheme.of(
+                                                                context)
+                                                            .bodyMediumIsCustom,
+                                                  ),
                                               maxLength: 50,
                                               maxLengthEnforcement:
                                                   MaxLengthEnforcement.none,
@@ -1162,6 +1226,21 @@ class _AdminEditUserWidgetState extends State<AdminEditUserWidget> {
                                               validator: _model
                                                   .nameTextControllerValidator
                                                   .asValidator(context),
+                                              inputFormatters: [
+                                                if (!isAndroid && !isiOS)
+                                                  TextInputFormatter
+                                                      .withFunction(
+                                                          (oldValue, newValue) {
+                                                    return TextEditingValue(
+                                                      selection:
+                                                          newValue.selection,
+                                                      text: newValue.text
+                                                          .toCapitalization(
+                                                              TextCapitalization
+                                                                  .words),
+                                                    );
+                                                  }),
+                                              ],
                                             ),
                                           ),
                                         ),
@@ -1192,13 +1271,11 @@ class _AdminEditUserWidgetState extends State<AdminEditUserWidget> {
                                                 fontSize: 12.0,
                                                 letterSpacing: 0.0,
                                                 fontWeight: FontWeight.w500,
-                                                useGoogleFonts: GoogleFonts
-                                                        .asMap()
-                                                    .containsKey(
-                                                        FlutterFlowTheme.of(
-                                                                context)
-                                                            .bodyMediumFamily),
                                                 lineHeight: 1.3,
+                                                useGoogleFonts:
+                                                    !FlutterFlowTheme.of(
+                                                            context)
+                                                        .bodyMediumIsCustom,
                                               ),
                                         ),
                                       ),
@@ -1240,13 +1317,11 @@ class _AdminEditUserWidgetState extends State<AdminEditUserWidget> {
                                                         .gray,
                                                     letterSpacing: 0.07,
                                                     fontWeight: FontWeight.w600,
-                                                    useGoogleFonts: GoogleFonts
-                                                            .asMap()
-                                                        .containsKey(
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .bodyMediumFamily),
                                                     lineHeight: 1.4,
+                                                    useGoogleFonts:
+                                                        !FlutterFlowTheme.of(
+                                                                context)
+                                                            .bodyMediumIsCustom,
                                                   ),
                                               enabledBorder: OutlineInputBorder(
                                                 borderSide: BorderSide(
@@ -1307,13 +1382,11 @@ class _AdminEditUserWidgetState extends State<AdminEditUserWidget> {
                                                           .bodyMediumFamily,
                                                   letterSpacing: 0.07,
                                                   fontWeight: FontWeight.w600,
-                                                  useGoogleFonts: GoogleFonts
-                                                          .asMap()
-                                                      .containsKey(
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .bodyMediumFamily),
                                                   lineHeight: 1.4,
+                                                  useGoogleFonts:
+                                                      !FlutterFlowTheme.of(
+                                                              context)
+                                                          .bodyMediumIsCustom,
                                                 ),
                                             maxLength: 50,
                                             maxLengthEnforcement:
@@ -1329,6 +1402,20 @@ class _AdminEditUserWidgetState extends State<AdminEditUserWidget> {
                                             validator: _model
                                                 .surnameTextControllerValidator
                                                 .asValidator(context),
+                                            inputFormatters: [
+                                              if (!isAndroid && !isiOS)
+                                                TextInputFormatter.withFunction(
+                                                    (oldValue, newValue) {
+                                                  return TextEditingValue(
+                                                    selection:
+                                                        newValue.selection,
+                                                    text: newValue.text
+                                                        .toCapitalization(
+                                                            TextCapitalization
+                                                                .words),
+                                                  );
+                                                }),
+                                            ],
                                           ),
                                         ),
                                       ),
@@ -1363,13 +1450,11 @@ class _AdminEditUserWidgetState extends State<AdminEditUserWidget> {
                                                 fontSize: 12.0,
                                                 letterSpacing: 0.0,
                                                 fontWeight: FontWeight.w500,
-                                                useGoogleFonts: GoogleFonts
-                                                        .asMap()
-                                                    .containsKey(
-                                                        FlutterFlowTheme.of(
-                                                                context)
-                                                            .bodyMediumFamily),
                                                 lineHeight: 1.3,
+                                                useGoogleFonts:
+                                                    !FlutterFlowTheme.of(
+                                                            context)
+                                                        .bodyMediumIsCustom,
                                               ),
                                         ),
                                       ),
@@ -1383,7 +1468,13 @@ class _AdminEditUserWidgetState extends State<AdminEditUserWidget> {
                                         hoverColor: Colors.transparent,
                                         highlightColor: Colors.transparent,
                                         onTap: () async {
+                                          logFirebaseEvent(
+                                              'ADMIN_EDIT_USER_Container_79q1ybci_ON_TA');
+                                          logFirebaseEvent(
+                                              'Container_haptic_feedback');
                                           HapticFeedback.mediumImpact();
+                                          logFirebaseEvent(
+                                              'Container_bottom_sheet');
                                           showModalBottomSheet(
                                             isScrollControlled: true,
                                             backgroundColor: Colors.transparent,
@@ -1401,8 +1492,19 @@ class _AdminEditUserWidgetState extends State<AdminEditUserWidget> {
                                                   padding:
                                                       MediaQuery.viewInsetsOf(
                                                           context),
-                                                  child:
-                                                      SelectGoalDialogWidget(),
+                                                  child: SelectGoalDialogWidget(
+                                                    goalDe: _model.goalDe,
+                                                    goalEn: _model.goalEn,
+                                                    goalJa: _model.goalJa,
+                                                    update: (de, en, ja) async {
+                                                      logFirebaseEvent(
+                                                          '_update_page_state');
+                                                      _model.goalEn = en;
+                                                      _model.goalDe = de;
+                                                      _model.goalJa = ja;
+                                                      safeSetState(() {});
+                                                    },
+                                                  ),
                                                 ),
                                               );
                                             },
@@ -1442,45 +1544,48 @@ class _AdminEditUserWidgetState extends State<AdminEditUserWidget> {
                                                   Expanded(
                                                     child: Text(
                                                       valueOrDefault<String>(
-                                                        (FFAppState()
-                                                                            .goalEn !=
-                                                                        '') ||
-                                                                (FFAppState()
-                                                                            .goalDe !=
+                                                        (_model.goalEn !=
+                                                                        null &&
+                                                                    _model.goalEn !=
+                                                                        '') &&
+                                                                (_model.goalDe !=
+                                                                        null &&
+                                                                    _model.goalDe !=
+                                                                        '') &&
+                                                                (_model.goalJa !=
+                                                                        null &&
+                                                                    _model.goalJa !=
                                                                         '')
                                                             ? FFLocalizations
                                                                     .of(context)
                                                                 .getVariableText(
-                                                                enText:
-                                                                    FFAppState()
-                                                                        .goalEn,
-                                                                deText:
-                                                                    FFAppState()
-                                                                        .goalDe,
+                                                                enText: _model
+                                                                    .goalEn,
+                                                                deText: _model
+                                                                    .goalDe,
+                                                                jaText: _model
+                                                                    .goalJa,
                                                               )
                                                             : 'Select goal',
                                                         'Select goal',
                                                       ),
-                                                      style:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .bodyMedium
-                                                              .override(
-                                                                fontFamily: FlutterFlowTheme.of(
+                                                      style: FlutterFlowTheme
+                                                              .of(context)
+                                                          .bodyMedium
+                                                          .override(
+                                                            fontFamily:
+                                                                FlutterFlowTheme.of(
                                                                         context)
                                                                     .bodyMediumFamily,
-                                                                letterSpacing:
-                                                                    0.07,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w600,
-                                                                useGoogleFonts: GoogleFonts
-                                                                        .asMap()
-                                                                    .containsKey(
-                                                                        FlutterFlowTheme.of(context)
-                                                                            .bodyMediumFamily),
-                                                                lineHeight: 1.4,
-                                                              ),
+                                                            letterSpacing: 0.07,
+                                                            fontWeight:
+                                                                FontWeight.w600,
+                                                            lineHeight: 1.4,
+                                                            useGoogleFonts:
+                                                                !FlutterFlowTheme.of(
+                                                                        context)
+                                                                    .bodyMediumIsCustom,
+                                                          ),
                                                     ),
                                                   ),
                                                   Icon(
@@ -1522,13 +1627,11 @@ class _AdminEditUserWidgetState extends State<AdminEditUserWidget> {
                                                 fontSize: 12.0,
                                                 letterSpacing: 0.0,
                                                 fontWeight: FontWeight.w500,
-                                                useGoogleFonts: GoogleFonts
-                                                        .asMap()
-                                                    .containsKey(
-                                                        FlutterFlowTheme.of(
-                                                                context)
-                                                            .bodyMediumFamily),
                                                 lineHeight: 1.3,
+                                                useGoogleFonts:
+                                                    !FlutterFlowTheme.of(
+                                                            context)
+                                                        .bodyMediumIsCustom,
                                               ),
                                         ),
                                       ),
@@ -1542,7 +1645,13 @@ class _AdminEditUserWidgetState extends State<AdminEditUserWidget> {
                                         hoverColor: Colors.transparent,
                                         highlightColor: Colors.transparent,
                                         onTap: () async {
+                                          logFirebaseEvent(
+                                              'ADMIN_EDIT_USER_Container_k11y3nho_ON_TA');
+                                          logFirebaseEvent(
+                                              'Container_haptic_feedback');
                                           HapticFeedback.mediumImpact();
+                                          logFirebaseEvent(
+                                              'Container_date_time_picker');
                                           await showModalBottomSheet<bool>(
                                               context: context,
                                               builder: (context) {
@@ -1644,13 +1753,13 @@ class _AdminEditUserWidgetState extends State<AdminEditUserWidget> {
                                                                       .of(context)
                                                                   .languageCode,
                                                             );
-                                                          } else if (widget
+                                                          } else if (widget!
                                                                   .user
                                                                   ?.dateOfBirth !=
                                                               null) {
                                                             return dateTimeFormat(
                                                               "dd.MM.yyyy",
-                                                              widget.user
+                                                              widget!.user
                                                                   ?.dateOfBirth,
                                                               locale: FFLocalizations
                                                                       .of(context)
@@ -1662,26 +1771,23 @@ class _AdminEditUserWidgetState extends State<AdminEditUserWidget> {
                                                         }(),
                                                         'Select date of birth',
                                                       ),
-                                                      style:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .bodyMedium
-                                                              .override(
-                                                                fontFamily: FlutterFlowTheme.of(
+                                                      style: FlutterFlowTheme
+                                                              .of(context)
+                                                          .bodyMedium
+                                                          .override(
+                                                            fontFamily:
+                                                                FlutterFlowTheme.of(
                                                                         context)
                                                                     .bodyMediumFamily,
-                                                                letterSpacing:
-                                                                    0.07,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w600,
-                                                                useGoogleFonts: GoogleFonts
-                                                                        .asMap()
-                                                                    .containsKey(
-                                                                        FlutterFlowTheme.of(context)
-                                                                            .bodyMediumFamily),
-                                                                lineHeight: 1.4,
-                                                              ),
+                                                            letterSpacing: 0.07,
+                                                            fontWeight:
+                                                                FontWeight.w600,
+                                                            lineHeight: 1.4,
+                                                            useGoogleFonts:
+                                                                !FlutterFlowTheme.of(
+                                                                        context)
+                                                                    .bodyMediumIsCustom,
+                                                          ),
                                                     ),
                                                   ),
                                                   Icon(
@@ -1728,13 +1834,11 @@ class _AdminEditUserWidgetState extends State<AdminEditUserWidget> {
                                                 fontSize: 12.0,
                                                 letterSpacing: 0.0,
                                                 fontWeight: FontWeight.w500,
-                                                useGoogleFonts: GoogleFonts
-                                                        .asMap()
-                                                    .containsKey(
-                                                        FlutterFlowTheme.of(
-                                                                context)
-                                                            .bodyMediumFamily),
                                                 lineHeight: 1.3,
+                                                useGoogleFonts:
+                                                    !FlutterFlowTheme.of(
+                                                            context)
+                                                        .bodyMediumIsCustom,
                                               ),
                                         ),
                                       ),
@@ -1776,13 +1880,11 @@ class _AdminEditUserWidgetState extends State<AdminEditUserWidget> {
                                                         .gray,
                                                     letterSpacing: 0.07,
                                                     fontWeight: FontWeight.w600,
-                                                    useGoogleFonts: GoogleFonts
-                                                            .asMap()
-                                                        .containsKey(
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .bodyMediumFamily),
                                                     lineHeight: 1.4,
+                                                    useGoogleFonts:
+                                                        !FlutterFlowTheme.of(
+                                                                context)
+                                                            .bodyMediumIsCustom,
                                                   ),
                                               enabledBorder: OutlineInputBorder(
                                                 borderSide: BorderSide(
@@ -1843,13 +1945,11 @@ class _AdminEditUserWidgetState extends State<AdminEditUserWidget> {
                                                           .bodyMediumFamily,
                                                   letterSpacing: 0.07,
                                                   fontWeight: FontWeight.w600,
-                                                  useGoogleFonts: GoogleFonts
-                                                          .asMap()
-                                                      .containsKey(
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .bodyMediumFamily),
                                                   lineHeight: 1.4,
+                                                  useGoogleFonts:
+                                                      !FlutterFlowTheme.of(
+                                                              context)
+                                                          .bodyMediumIsCustom,
                                                 ),
                                             maxLength: 50,
                                             maxLengthEnforcement:
@@ -1868,6 +1968,20 @@ class _AdminEditUserWidgetState extends State<AdminEditUserWidget> {
                                             validator: _model
                                                 .weightkgTextControllerValidator
                                                 .asValidator(context),
+                                            inputFormatters: [
+                                              if (!isAndroid && !isiOS)
+                                                TextInputFormatter.withFunction(
+                                                    (oldValue, newValue) {
+                                                  return TextEditingValue(
+                                                    selection:
+                                                        newValue.selection,
+                                                    text: newValue.text
+                                                        .toCapitalization(
+                                                            TextCapitalization
+                                                                .none),
+                                                  );
+                                                }),
+                                            ],
                                           ),
                                         ),
                                       ),
@@ -1897,13 +2011,11 @@ class _AdminEditUserWidgetState extends State<AdminEditUserWidget> {
                                                 fontSize: 12.0,
                                                 letterSpacing: 0.0,
                                                 fontWeight: FontWeight.w500,
-                                                useGoogleFonts: GoogleFonts
-                                                        .asMap()
-                                                    .containsKey(
-                                                        FlutterFlowTheme.of(
-                                                                context)
-                                                            .bodyMediumFamily),
                                                 lineHeight: 1.3,
+                                                useGoogleFonts:
+                                                    !FlutterFlowTheme.of(
+                                                            context)
+                                                        .bodyMediumIsCustom,
                                               ),
                                         ),
                                       ),
@@ -1945,13 +2057,11 @@ class _AdminEditUserWidgetState extends State<AdminEditUserWidget> {
                                                         .gray,
                                                     letterSpacing: 0.07,
                                                     fontWeight: FontWeight.w600,
-                                                    useGoogleFonts: GoogleFonts
-                                                            .asMap()
-                                                        .containsKey(
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .bodyMediumFamily),
                                                     lineHeight: 1.4,
+                                                    useGoogleFonts:
+                                                        !FlutterFlowTheme.of(
+                                                                context)
+                                                            .bodyMediumIsCustom,
                                                   ),
                                               enabledBorder: OutlineInputBorder(
                                                 borderSide: BorderSide(
@@ -2012,13 +2122,11 @@ class _AdminEditUserWidgetState extends State<AdminEditUserWidget> {
                                                           .bodyMediumFamily,
                                                   letterSpacing: 0.07,
                                                   fontWeight: FontWeight.w600,
-                                                  useGoogleFonts: GoogleFonts
-                                                          .asMap()
-                                                      .containsKey(
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .bodyMediumFamily),
                                                   lineHeight: 1.4,
+                                                  useGoogleFonts:
+                                                      !FlutterFlowTheme.of(
+                                                              context)
+                                                          .bodyMediumIsCustom,
                                                 ),
                                             maxLength: 50,
                                             maxLengthEnforcement:
@@ -2037,6 +2145,20 @@ class _AdminEditUserWidgetState extends State<AdminEditUserWidget> {
                                             validator: _model
                                                 .heightcmTextControllerValidator
                                                 .asValidator(context),
+                                            inputFormatters: [
+                                              if (!isAndroid && !isiOS)
+                                                TextInputFormatter.withFunction(
+                                                    (oldValue, newValue) {
+                                                  return TextEditingValue(
+                                                    selection:
+                                                        newValue.selection,
+                                                    text: newValue.text
+                                                        .toCapitalization(
+                                                            TextCapitalization
+                                                                .none),
+                                                  );
+                                                }),
+                                            ],
                                           ),
                                         ),
                                       ),
@@ -2061,36 +2183,42 @@ class _AdminEditUserWidgetState extends State<AdminEditUserWidget> {
                                         (genderStatesIndex) {
                                       final genderStatesItem =
                                           genderStates[genderStatesIndex];
-                                      return Row(
-                                        mainAxisSize: MainAxisSize.max,
-                                        children: [
-                                          FlutterFlowIconButton(
-                                            borderColor:
-                                                FlutterFlowTheme.of(context)
-                                                    .middleGray,
-                                            borderRadius: 60.0,
-                                            borderWidth: 1.0,
-                                            buttonSize: 28.0,
-                                            fillColor:
-                                                FlutterFlowTheme.of(context)
-                                                    .middleGray,
-                                            icon: Icon(
+                                      return InkWell(
+                                        splashColor: Colors.transparent,
+                                        focusColor: Colors.transparent,
+                                        hoverColor: Colors.transparent,
+                                        highlightColor: Colors.transparent,
+                                        onTap: () async {
+                                          logFirebaseEvent(
+                                              'ADMIN_EDIT_USER_PAGE_Row_ti6upufm_ON_TAP');
+                                          logFirebaseEvent(
+                                              'Row_haptic_feedback');
+                                          HapticFeedback.mediumImpact();
+                                          logFirebaseEvent(
+                                              'Row_update_page_state');
+                                          _model.genderEn =
+                                              genderStatesItem.titleEn;
+                                          _model.genderDe =
+                                              genderStatesItem.titleDe;
+                                          _model.genderJa =
+                                              genderStatesItem.titleJa;
+                                          safeSetState(() {});
+                                        },
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.max,
+                                          children: [
+                                            Icon(
                                               Icons.circle_sharp,
                                               color: valueOrDefault<Color>(
-                                                _model.genderEn ==
-                                                        valueOrDefault<String>(
-                                                          FFLocalizations.of(
-                                                                  context)
-                                                              .getVariableText(
-                                                            enText:
-                                                                genderStatesItem
-                                                                    .titleEn,
-                                                            deText:
-                                                                genderStatesItem
-                                                                    .titleDe,
-                                                          ),
-                                                          'Male',
-                                                        )
+                                                (_model.genderEn ==
+                                                            genderStatesItem
+                                                                .titleEn) &&
+                                                        (_model.genderDe ==
+                                                            genderStatesItem
+                                                                .titleDe) &&
+                                                        (_model.genderJa ==
+                                                            genderStatesItem
+                                                                .titleJa)
                                                     ? FlutterFlowTheme.of(
                                                             context)
                                                         .secondary
@@ -2100,54 +2228,47 @@ class _AdminEditUserWidgetState extends State<AdminEditUserWidget> {
                                                 FlutterFlowTheme.of(context)
                                                     .middleGray,
                                               ),
-                                              size: 12.0,
+                                              size: 28.0,
                                             ),
-                                            onPressed: () async {
-                                              HapticFeedback.mediumImpact();
-                                              _model.genderEn =
-                                                  genderStatesItem.titleEn;
-                                              _model.genderDe =
-                                                  genderStatesItem.titleDe;
-                                              safeSetState(() {});
-                                            },
-                                          ),
-                                          Text(
-                                            valueOrDefault<String>(
-                                              FFLocalizations.of(context)
-                                                  .getVariableText(
-                                                enText:
-                                                    genderStatesItem.titleEn,
-                                                deText:
-                                                    genderStatesItem.titleDe,
-                                              ),
-                                              'Male',
-                                            ),
-                                            style: FlutterFlowTheme.of(context)
-                                                .bodyMedium
-                                                .override(
-                                                  fontFamily:
-                                                      FlutterFlowTheme.of(
-                                                              context)
-                                                          .bodyMediumFamily,
-                                                  letterSpacing: 0.07,
-                                                  useGoogleFonts: GoogleFonts
-                                                          .asMap()
-                                                      .containsKey(
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .bodyMediumFamily),
-                                                  lineHeight: 1.4,
+                                            Text(
+                                              valueOrDefault<String>(
+                                                FFLocalizations.of(context)
+                                                    .getVariableText(
+                                                  enText:
+                                                      genderStatesItem.titleEn,
+                                                  deText:
+                                                      genderStatesItem.titleDe,
+                                                  jaText:
+                                                      genderStatesItem.titleJa,
                                                 ),
-                                          ),
-                                        ].divide(SizedBox(width: 8.0)),
+                                                'Male',
+                                              ),
+                                              style:
+                                                  FlutterFlowTheme.of(context)
+                                                      .bodyMedium
+                                                      .override(
+                                                        fontFamily:
+                                                            FlutterFlowTheme.of(
+                                                                    context)
+                                                                .bodyMediumFamily,
+                                                        letterSpacing: 0.07,
+                                                        lineHeight: 1.4,
+                                                        useGoogleFonts:
+                                                            !FlutterFlowTheme
+                                                                    .of(context)
+                                                                .bodyMediumIsCustom,
+                                                      ),
+                                            ),
+                                          ].divide(SizedBox(width: 8.0)),
+                                        ),
                                       );
                                     }).divide(SizedBox(width: 24.0)),
                                   );
                                 },
                               ),
                             ),
-                            if (widget.user?.language != null &&
-                                widget.user?.language != '')
+                            if (widget!.user?.language != null &&
+                                widget!.user?.language != '')
                               Padding(
                                 padding: EdgeInsetsDirectional.fromSTEB(
                                     0.0, 32.0, 0.0, 0.0),
@@ -2170,13 +2291,10 @@ class _AdminEditUserWidgetState extends State<AdminEditUserWidget> {
                                               fontSize: 12.0,
                                               letterSpacing: 0.0,
                                               fontWeight: FontWeight.w500,
-                                              useGoogleFonts: GoogleFonts
-                                                      .asMap()
-                                                  .containsKey(
-                                                      FlutterFlowTheme.of(
-                                                              context)
-                                                          .bodyMediumFamily),
                                               lineHeight: 1.3,
+                                              useGoogleFonts:
+                                                  !FlutterFlowTheme.of(context)
+                                                      .bodyMediumIsCustom,
                                             ),
                                       ),
                                     ),
@@ -2191,7 +2309,7 @@ class _AdminEditUserWidgetState extends State<AdminEditUserWidget> {
                                               BorderRadius.circular(8.0),
                                         ),
                                         child: Container(
-                                          width: 100.0,
+                                          width: 150.0,
                                           height: 40.0,
                                           decoration: BoxDecoration(
                                             color: FlutterFlowTheme.of(context)
@@ -2224,7 +2342,7 @@ class _AdminEditUserWidgetState extends State<AdminEditUserWidget> {
                                                                 0.0, 0.0),
                                                     color:
                                                         valueOrDefault<Color>(
-                                                      widget.user?.language ==
+                                                      widget!.user?.language ==
                                                               'en'
                                                           ? FlutterFlowTheme.of(
                                                                   context)
@@ -2246,7 +2364,7 @@ class _AdminEditUserWidgetState extends State<AdminEditUserWidget> {
                                                                   .titleSmallFamily,
                                                           color: valueOrDefault<
                                                               Color>(
-                                                            widget.user?.language ==
+                                                            widget!.user?.language ==
                                                                     'en'
                                                                 ? FlutterFlowTheme.of(
                                                                         context)
@@ -2260,25 +2378,19 @@ class _AdminEditUserWidgetState extends State<AdminEditUserWidget> {
                                                           ),
                                                           fontSize: 14.0,
                                                           letterSpacing: 0.07,
-                                                          useGoogleFonts: GoogleFonts
-                                                                  .asMap()
-                                                              .containsKey(
-                                                                  FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .titleSmallFamily),
                                                           lineHeight: 1.4,
+                                                          useGoogleFonts:
+                                                              !FlutterFlowTheme
+                                                                      .of(context)
+                                                                  .titleSmallIsCustom,
                                                         ),
                                                     elevation: 0.0,
                                                     borderRadius:
                                                         BorderRadius.only(
-                                                      bottomLeft:
-                                                          Radius.circular(8.0),
-                                                      bottomRight:
-                                                          Radius.circular(0.0),
                                                       topLeft:
                                                           Radius.circular(8.0),
-                                                      topRight:
-                                                          Radius.circular(0.0),
+                                                      bottomLeft:
+                                                          Radius.circular(8.0),
                                                     ),
                                                   ),
                                                 ),
@@ -2305,7 +2417,7 @@ class _AdminEditUserWidgetState extends State<AdminEditUserWidget> {
                                                                 0.0, 0.0),
                                                     color:
                                                         valueOrDefault<Color>(
-                                                      widget.user?.language ==
+                                                      widget!.user?.language ==
                                                               'de'
                                                           ? FlutterFlowTheme.of(
                                                                   context)
@@ -2327,7 +2439,7 @@ class _AdminEditUserWidgetState extends State<AdminEditUserWidget> {
                                                                   .titleSmallFamily,
                                                           color: valueOrDefault<
                                                               Color>(
-                                                            widget.user?.language ==
+                                                            widget!.user?.language ==
                                                                     'de'
                                                                 ? FlutterFlowTheme.of(
                                                                         context)
@@ -2341,24 +2453,93 @@ class _AdminEditUserWidgetState extends State<AdminEditUserWidget> {
                                                           ),
                                                           fontSize: 14.0,
                                                           letterSpacing: 0.07,
-                                                          useGoogleFonts: GoogleFonts
-                                                                  .asMap()
-                                                              .containsKey(
-                                                                  FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .titleSmallFamily),
                                                           lineHeight: 1.4,
+                                                          useGoogleFonts:
+                                                              !FlutterFlowTheme
+                                                                      .of(context)
+                                                                  .titleSmallIsCustom,
                                                         ),
                                                     elevation: 0.0,
                                                     borderRadius:
                                                         BorderRadius.only(
-                                                      bottomLeft:
-                                                          Radius.circular(0.0),
+                                                      topRight:
+                                                          Radius.circular(8.0),
                                                       bottomRight:
                                                           Radius.circular(8.0),
-                                                      topLeft:
-                                                          Radius.circular(0.0),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                              Expanded(
+                                                child: FFButtonWidget(
+                                                  onPressed: () {
+                                                    print('JA pressed ...');
+                                                  },
+                                                  text: FFLocalizations.of(
+                                                          context)
+                                                      .getText(
+                                                    '4ulwfqhb' /* JA */,
+                                                  ),
+                                                  options: FFButtonOptions(
+                                                    height: 40.0,
+                                                    padding:
+                                                        EdgeInsetsDirectional
+                                                            .fromSTEB(0.0, 0.0,
+                                                                0.0, 0.0),
+                                                    iconPadding:
+                                                        EdgeInsetsDirectional
+                                                            .fromSTEB(0.0, 0.0,
+                                                                0.0, 0.0),
+                                                    color:
+                                                        valueOrDefault<Color>(
+                                                      widget!.user?.language ==
+                                                              'ja'
+                                                          ? FlutterFlowTheme.of(
+                                                                  context)
+                                                              .primaryText
+                                                          : FlutterFlowTheme.of(
+                                                                  context)
+                                                              .middleGray,
+                                                      FlutterFlowTheme.of(
+                                                              context)
+                                                          .middleGray,
+                                                    ),
+                                                    textStyle: FlutterFlowTheme
+                                                            .of(context)
+                                                        .titleSmall
+                                                        .override(
+                                                          fontFamily:
+                                                              FlutterFlowTheme.of(
+                                                                      context)
+                                                                  .titleSmallFamily,
+                                                          color: valueOrDefault<
+                                                              Color>(
+                                                            widget!.user?.language ==
+                                                                    'ja'
+                                                                ? FlutterFlowTheme.of(
+                                                                        context)
+                                                                    .primary
+                                                                : FlutterFlowTheme.of(
+                                                                        context)
+                                                                    .gray,
+                                                            FlutterFlowTheme.of(
+                                                                    context)
+                                                                .gray,
+                                                          ),
+                                                          fontSize: 14.0,
+                                                          letterSpacing: 0.07,
+                                                          lineHeight: 1.4,
+                                                          useGoogleFonts:
+                                                              !FlutterFlowTheme
+                                                                      .of(context)
+                                                                  .titleSmallIsCustom,
+                                                        ),
+                                                    elevation: 0.0,
+                                                    borderRadius:
+                                                        BorderRadius.only(
                                                       topRight:
+                                                          Radius.circular(8.0),
+                                                      bottomRight:
                                                           Radius.circular(8.0),
                                                     ),
                                                   ),

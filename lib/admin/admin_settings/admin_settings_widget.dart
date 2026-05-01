@@ -3,9 +3,16 @@ import '/auth/firebase_auth/auth_util.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
+import 'dart:async';
+import 'dart:ui';
+import '/custom_code/actions/index.dart' as actions;
+import '/index.dart';
 import 'package:easy_debounce/easy_debounce.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'admin_settings_model.dart';
 export 'admin_settings_model.dart';
 
@@ -28,6 +35,19 @@ class _AdminSettingsWidgetState extends State<AdminSettingsWidget> {
   void initState() {
     super.initState();
     _model = createModel(context, () => AdminSettingsModel());
+
+    logFirebaseEvent('screen_view',
+        parameters: {'screen_name': 'AdminSettings'});
+    // On page load action.
+    SchedulerBinding.instance.addPostFrameCallback((_) async {
+      logFirebaseEvent('ADMIN_SETTINGS_AdminSettings_ON_INIT_STA');
+      logFirebaseEvent('AdminSettings_custom_action');
+      unawaited(
+        () async {
+          await actions.setStatusBarColor();
+        }(),
+      );
+    });
 
     _model.emailTextController ??=
         TextEditingController(text: currentUserEmail);
@@ -59,7 +79,9 @@ class _AdminSettingsWidgetState extends State<AdminSettingsWidget> {
             wrapWithModel(
               model: _model.adminNavBarModel,
               updateCallback: () => safeSetState(() {}),
-              child: AdminNavBarWidget(),
+              child: AdminNavBarWidget(
+                pageNum: 7,
+              ),
             ),
             Expanded(
               child: Padding(
@@ -85,14 +107,16 @@ class _AdminSettingsWidgetState extends State<AdminSettingsWidget> {
                                   fontSize: 24.0,
                                   letterSpacing: 0.0,
                                   fontWeight: FontWeight.w500,
-                                  useGoogleFonts: GoogleFonts.asMap()
-                                      .containsKey(FlutterFlowTheme.of(context)
-                                          .bodyMediumFamily),
+                                  useGoogleFonts: !FlutterFlowTheme.of(context)
+                                      .bodyMediumIsCustom,
                                 ),
                           ),
                         ),
                         FFButtonWidget(
                           onPressed: () async {
+                            logFirebaseEvent(
+                                'ADMIN_SETTINGS_PAGE_Resetpassword_ON_TAP');
+                            logFirebaseEvent('Resetpassword_auth');
                             if (_model.emailTextController.text.isEmpty) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
@@ -129,10 +153,9 @@ class _AdminSettingsWidgetState extends State<AdminSettingsWidget> {
                                   fontSize: 12.0,
                                   letterSpacing: 0.07,
                                   fontWeight: FontWeight.normal,
-                                  useGoogleFonts: GoogleFonts.asMap()
-                                      .containsKey(FlutterFlowTheme.of(context)
-                                          .titleSmallFamily),
                                   lineHeight: 1.4,
+                                  useGoogleFonts: !FlutterFlowTheme.of(context)
+                                      .titleSmallIsCustom,
                                 ),
                             elevation: 0.0,
                             borderSide: BorderSide(
@@ -144,6 +167,9 @@ class _AdminSettingsWidgetState extends State<AdminSettingsWidget> {
                         ),
                         FFButtonWidget(
                           onPressed: () async {
+                            logFirebaseEvent(
+                                'ADMIN_SETTINGS_PAGE_Changeemail_ON_TAP');
+                            logFirebaseEvent('Changeemail_auth');
                             if (_model.emailTextController.text.isEmpty) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
@@ -162,6 +188,14 @@ class _AdminSettingsWidgetState extends State<AdminSettingsWidget> {
                               context: context,
                             );
                             safeSetState(() {});
+
+                            logFirebaseEvent('Changeemail_update_app_state');
+                            FFAppState().refreshDate = getCurrentTimestamp;
+                            safeSetState(() {});
+                            logFirebaseEvent('Changeemail_clear_query_cache');
+                            FFAppState().clearUsersCache();
+                            logFirebaseEvent('Changeemail_navigate_back');
+                            context.safePop();
                           },
                           text: FFLocalizations.of(context).getText(
                             'xnsc4vlh' /* Change email */,
@@ -182,10 +216,9 @@ class _AdminSettingsWidgetState extends State<AdminSettingsWidget> {
                                   fontSize: 12.0,
                                   letterSpacing: 0.07,
                                   fontWeight: FontWeight.normal,
-                                  useGoogleFonts: GoogleFonts.asMap()
-                                      .containsKey(FlutterFlowTheme.of(context)
-                                          .titleSmallFamily),
                                   lineHeight: 1.4,
+                                  useGoogleFonts: !FlutterFlowTheme.of(context)
+                                      .titleSmallIsCustom,
                                 ),
                             elevation: 0.0,
                             borderSide: BorderSide(
@@ -214,9 +247,8 @@ class _AdminSettingsWidgetState extends State<AdminSettingsWidget> {
                                   fontFamily: FlutterFlowTheme.of(context)
                                       .bodyMediumFamily,
                                   letterSpacing: 0.0,
-                                  useGoogleFonts: GoogleFonts.asMap()
-                                      .containsKey(FlutterFlowTheme.of(context)
-                                          .bodyMediumFamily),
+                                  useGoogleFonts: !FlutterFlowTheme.of(context)
+                                      .bodyMediumIsCustom,
                                 ),
                           ),
                         ),
@@ -245,11 +277,10 @@ class _AdminSettingsWidgetState extends State<AdminSettingsWidget> {
                                     color: FlutterFlowTheme.of(context).gray,
                                     letterSpacing: 0.07,
                                     fontWeight: FontWeight.w600,
-                                    useGoogleFonts: GoogleFonts.asMap()
-                                        .containsKey(
-                                            FlutterFlowTheme.of(context)
-                                                .bodyMediumFamily),
                                     lineHeight: 1.4,
+                                    useGoogleFonts:
+                                        !FlutterFlowTheme.of(context)
+                                            .bodyMediumIsCustom,
                                   ),
                               enabledBorder: OutlineInputBorder(
                                 borderSide: BorderSide(
@@ -294,10 +325,9 @@ class _AdminSettingsWidgetState extends State<AdminSettingsWidget> {
                                       .bodyMediumFamily,
                                   letterSpacing: 0.07,
                                   fontWeight: FontWeight.w600,
-                                  useGoogleFonts: GoogleFonts.asMap()
-                                      .containsKey(FlutterFlowTheme.of(context)
-                                          .bodyMediumFamily),
                                   lineHeight: 1.4,
+                                  useGoogleFonts: !FlutterFlowTheme.of(context)
+                                      .bodyMediumIsCustom,
                                 ),
                             keyboardType: TextInputType.emailAddress,
                             cursorColor:

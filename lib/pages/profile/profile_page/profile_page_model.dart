@@ -1,10 +1,31 @@
+import '/auth/firebase_auth/auth_util.dart';
+import '/backend/backend.dart';
 import '/components/becomea_h_i_i_tthe_beat_trainer/becomea_h_i_i_tthe_beat_trainer_widget.dart';
+import '/components/dialogs/guest_dialog/guest_dialog_widget.dart';
+import '/components/dialogs/log_out_dialog/log_out_dialog_widget.dart';
 import '/components/navbar/navbar_widget.dart';
 import '/components/profile_menu_option/profile_menu_option_widget.dart';
+import '/components/skeleton/skeleton_homezoom/skeleton_homezoom_widget.dart';
+import '/flutter_flow/flutter_flow_animations.dart';
+import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
+import '/flutter_flow/flutter_flow_widgets.dart';
+import 'dart:async';
+import 'dart:math';
+import 'dart:ui';
+import '/custom_code/actions/index.dart' as actions;
 import '/index.dart';
 import 'profile_page_widget.dart' show ProfilePageWidget;
+import 'package:auto_size_text/auto_size_text.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
 class ProfilePageModel extends FlutterFlowModel<ProfilePageWidget> {
   ///  State fields for stateful widgets in this page.
@@ -27,8 +48,6 @@ class ProfilePageModel extends FlutterFlowModel<ProfilePageWidget> {
   late ProfileMenuOptionModel profileMenuOptionModel7;
   // Model for profileMenuOption component.
   late ProfileMenuOptionModel profileMenuOptionModel8;
-  // Model for profileMenuOption component.
-  late ProfileMenuOptionModel profileMenuOptionModel9;
   // Model for navbar component.
   late NavbarModel navbarModel;
 
@@ -52,8 +71,6 @@ class ProfilePageModel extends FlutterFlowModel<ProfilePageWidget> {
         createModel(context, () => ProfileMenuOptionModel());
     profileMenuOptionModel8 =
         createModel(context, () => ProfileMenuOptionModel());
-    profileMenuOptionModel9 =
-        createModel(context, () => ProfileMenuOptionModel());
     navbarModel = createModel(context, () => NavbarModel());
   }
 
@@ -68,7 +85,6 @@ class ProfilePageModel extends FlutterFlowModel<ProfilePageWidget> {
     profileMenuOptionModel6.dispose();
     profileMenuOptionModel7.dispose();
     profileMenuOptionModel8.dispose();
-    profileMenuOptionModel9.dispose();
     navbarModel.dispose();
   }
 }

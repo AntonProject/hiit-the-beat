@@ -17,22 +17,16 @@ import '/auth/firebase_auth/auth_util.dart';
 double? passCheckupProgress(String? pass) {
   if (pass == null || pass.isEmpty) return 0;
 
-  // Счетчик выполненных условий
   int count = 0;
 
-  // Проверка минимальной длины (8 символов)
   if (pass.length >= 8) count++;
 
-  // Проверка наличия строчной буквы
   if (RegExp(r'[a-z]').hasMatch(pass)) count++;
 
-  // Проверка наличия заглавной буквы
   if (RegExp(r'[A-Z]').hasMatch(pass)) count++;
 
-  // Проверка наличия цифры
   if (RegExp(r'[0-9]').hasMatch(pass)) count++;
 
-  // Возвращаем прогресс (каждое условие = 0.25)
   return count / 4;
 }
 
@@ -41,68 +35,66 @@ String? durationListIntToTime(
   String language,
 ) {
   try {
-    // Суммируем все длительности из списка
     int totalDuration = duration.fold(0, (sum, item) => sum + item);
 
-    // Определяем обозначения в зависимости от языка
     final Map<String, String> labels = {
-      'hour': language == 'de' ? 'Stunde' : 'hour',
-      'hours': language == 'de' ? 'Stunden' : 'hours',
-      'day': language == 'de' ? 'Tag' : 'day',
-      'days': language == 'de' ? 'Tage' : 'days',
-      'week': language == 'de' ? 'Woche' : 'week',
-      'weeks': language == 'de' ? 'Wochen' : 'weeks',
+      'minute': language == 'de' ? 'min' : (language == 'ja' ? '分' : 'min'),
+      'minutes': language == 'de' ? 'min' : (language == 'ja' ? '分' : 'min'),
+      'hour': language == 'de' ? 'Stunde' : (language == 'ja' ? '時間' : 'hour'),
+      'hours':
+          language == 'de' ? 'Stunden' : (language == 'ja' ? '時間' : 'hours'),
+      'day': language == 'de' ? 'Tag' : (language == 'ja' ? '日' : 'day'),
+      'days': language == 'de' ? 'Tage' : (language == 'ja' ? '日' : 'days'),
+      'week': language == 'de' ? 'Woche' : (language == 'ja' ? '週間' : 'week'),
+      'weeks':
+          language == 'de' ? 'Wochen' : (language == 'ja' ? '週間' : 'weeks'),
     };
 
-    // Конвертируем общее количество миллисекунд в различные единицы времени
     double minutes = totalDuration / (1000 * 60);
     double hours = minutes / 60;
     double days = hours / 24;
     double weeks = days / 7;
 
-    // Форматирование с учетом правил округления
     if (weeks >= 1) {
       if (days % 7 >= 5) {
-        // Если остаток 5 дней или больше, округляем до следующей недели
         int weekCount = (weeks + 1).floor();
         String label = weekCount == 1 ? labels['week']! : labels['weeks']!;
-        return '$weekCount $label';
+
+        return language == 'ja' ? '$weekCount$label' : '$weekCount $label';
       } else {
         int weekCount = weeks.floor();
         String label = weekCount == 1 ? labels['week']! : labels['weeks']!;
-        return '$weekCount $label';
+        return language == 'ja' ? '$weekCount$label' : '$weekCount $label';
       }
     }
-
     if (days >= 1) {
       if (hours % 24 >= 12) {
-        // Если остаток 12 часов или больше, округляем до следующего дня
         int dayCount = (days + 1).floor();
         String label = dayCount == 1 ? labels['day']! : labels['days']!;
-        return '$dayCount $label';
+        return language == 'ja' ? '$dayCount$label' : '$dayCount $label';
       } else {
         int dayCount = days.floor();
         String label = dayCount == 1 ? labels['day']! : labels['days']!;
-        return '$dayCount $label';
+        return language == 'ja' ? '$dayCount$label' : '$dayCount $label';
       }
     }
-
     if (hours >= 1) {
       if (minutes % 60 >= 30) {
-        // Если остаток 30 минут или больше, округляем до следующего часа
         int hourCount = (hours + 1).floor();
         String label = hourCount == 1 ? labels['hour']! : labels['hours']!;
-        return '$hourCount $label';
+        return language == 'ja' ? '$hourCount$label' : '$hourCount $label';
       } else {
         int hourCount = hours.floor();
         String label = hourCount == 1 ? labels['hour']! : labels['hours']!;
-        return '$hourCount $label';
+        return language == 'ja' ? '$hourCount$label' : '$hourCount $label';
       }
     }
 
-    // Для минут
-    int minuteCount = (minutes + 0.5).ceil(); // Округляем вверх
-    return '$minuteCount min'; // Всегда используем сокращенную форму для минут
+    int minuteCount = (minutes + 0.5).ceil();
+    String minuteLabel = language == 'ja' ? '分' : 'min';
+    return language == 'ja'
+        ? '$minuteCount$minuteLabel'
+        : '$minuteCount $minuteLabel';
   } catch (e) {
     return null;
   }
@@ -113,10 +105,6 @@ bool emailFormatCheck(String? email) {
     return false;
   }
 
-  // Обновленное регулярное выражение, которое учитывает:
-  // - символ + в локальной части
-  // - более длинные доменные зоны (например, .museum)
-  // - поддержку международных доменов
   final emailRegex = RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
       caseSensitive: false);
 
@@ -133,39 +121,43 @@ List<SeasonsRecord>? filterSeasons(
   if (seasons == null || seasons.isEmpty) {
     return null;
   }
-
   // Filter by level first
   var levelFiltered = seasons.where((season) => season.level == level).toList();
   if (levelFiltered.isEmpty) {
     return null;
   }
 
-  // Фильтруем выполненные сезоны, если нужно
   if (hideCompeted && seasonDone != null && seasonDone.isNotEmpty) {
-    // Получаем список ID выполненных сезонов
     final completedSeasonIds = seasonDone.map((stat) => stat.seasonId).toSet();
 
-    // Исключаем сезоны, ID которых есть в списке выполненных
     levelFiltered = levelFiltered
         .where((season) => !completedSeasonIds.contains(season.reference.id))
         .toList();
 
-    // Если после фильтрации ничего не осталось
     if (levelFiltered.isEmpty) {
       return null;
     }
   }
-
-  // Then filter by language only for specific languages
+  // Then filter by language
   switch (filterAppstate.toLowerCase()) {
     case 'en':
-      final filtered =
-          levelFiltered.where((season) => season.en == true).toList();
+      // Only EN: en == true AND de == false
+      final filtered = levelFiltered
+          .where((season) => season.en == true && season.de == false)
+          .toList();
       return filtered.isEmpty ? null : filtered;
+
     case 'de':
-      final filtered =
-          levelFiltered.where((season) => season.de == true).toList();
+      // Only DE: de == true AND en == false
+      final filtered = levelFiltered
+          .where((season) => season.de == true && season.en == false)
+          .toList();
       return filtered.isEmpty ? null : filtered;
+
+    case 'all':
+      // Return all seasons without language filtering
+      return levelFiltered;
+
     default:
       return levelFiltered;
   }
@@ -176,67 +168,64 @@ String? durationIntToTime(
   String language,
 ) {
   try {
-    // Определяем обозначения в зависимости от языка
     final Map<String, String> labels = {
-      'minute': language == 'de' ? 'min' : 'min', // Сокращенная форма
-      'minutes': language == 'de' ? 'min' : 'min', // Сокращенная форма
-      'hour': language == 'de' ? 'Stunde' : 'hour',
-      'hours': language == 'de' ? 'Stunden' : 'hours',
-      'day': language == 'de' ? 'Tag' : 'day',
-      'days': language == 'de' ? 'Tage' : 'days',
-      'week': language == 'de' ? 'Woche' : 'week',
-      'weeks': language == 'de' ? 'Wochen' : 'weeks',
+      'minute': language == 'de' ? 'min' : (language == 'ja' ? '分' : 'min'),
+      'minutes': language == 'de' ? 'min' : (language == 'ja' ? '分' : 'min'),
+      'hour': language == 'de' ? 'Stunde' : (language == 'ja' ? '時間' : 'hour'),
+      'hours':
+          language == 'de' ? 'Stunden' : (language == 'ja' ? '時間' : 'hours'),
+      'day': language == 'de' ? 'Tag' : (language == 'ja' ? '日' : 'day'),
+      'days': language == 'de' ? 'Tage' : (language == 'ja' ? '日' : 'days'),
+      'week': language == 'de' ? 'Woche' : (language == 'ja' ? '週間' : 'week'),
+      'weeks':
+          language == 'de' ? 'Wochen' : (language == 'ja' ? '週間' : 'weeks'),
     };
 
-    // Конвертируем миллисекунды в различные единицы времени
     double minutes = duration / (1000 * 60);
     double hours = minutes / 60;
     double days = hours / 24;
     double weeks = days / 7;
 
-    // Форматирование с учетом правил округления
     if (weeks >= 1) {
       if (days % 7 >= 5) {
-        // Если остаток 5 дней или больше, округляем до следующей недели
         int weekCount = (weeks + 1).floor();
         String label = weekCount == 1 ? labels['week']! : labels['weeks']!;
-        return '$weekCount $label';
+
+        return language == 'ja' ? '$weekCount$label' : '$weekCount $label';
       } else {
         int weekCount = weeks.floor();
         String label = weekCount == 1 ? labels['week']! : labels['weeks']!;
-        return '$weekCount $label';
+        return language == 'ja' ? '$weekCount$label' : '$weekCount $label';
       }
     }
-
     if (days >= 1) {
       if (hours % 24 >= 12) {
-        // Если остаток 12 часов или больше, округляем до следующего дня
         int dayCount = (days + 1).floor();
         String label = dayCount == 1 ? labels['day']! : labels['days']!;
-        return '$dayCount $label';
+        return language == 'ja' ? '$dayCount$label' : '$dayCount $label';
       } else {
         int dayCount = days.floor();
         String label = dayCount == 1 ? labels['day']! : labels['days']!;
-        return '$dayCount $label';
+        return language == 'ja' ? '$dayCount$label' : '$dayCount $label';
       }
     }
-
     if (hours >= 1) {
       if (minutes % 60 >= 30) {
-        // Если остаток 30 минут или больше, округляем до следующего часа
         int hourCount = (hours + 1).floor();
         String label = hourCount == 1 ? labels['hour']! : labels['hours']!;
-        return '$hourCount $label';
+        return language == 'ja' ? '$hourCount$label' : '$hourCount $label';
       } else {
         int hourCount = hours.floor();
         String label = hourCount == 1 ? labels['hour']! : labels['hours']!;
-        return '$hourCount $label';
+        return language == 'ja' ? '$hourCount$label' : '$hourCount $label';
       }
     }
-
     // Для минут
-    int minuteCount = (minutes + 0.5).ceil(); // Округляем вверх
-    return '$minuteCount min'; // Всегда используем сокращенную форму для минут
+    int minuteCount = (minutes + 0.5).ceil();
+    String minuteLabel = language == 'ja' ? '分' : 'min';
+    return language == 'ja'
+        ? '$minuteCount$minuteLabel'
+        : '$minuteCount $minuteLabel';
   } catch (e) {
     return null;
   }
@@ -263,10 +252,7 @@ List<SeasonsRecord>? seasonsNotDone(
   if (seasons == null || seasons.isEmpty) {
     return null;
   }
-
-  // Если level null или 0, используем дефолтное значение 1
   final actualLevel = (level == null || level == 0) ? 1 : level;
-
   // Filter by level first
   var levelFiltered =
       seasons.where((season) => season.level == actualLevel).toList();
@@ -274,23 +260,19 @@ List<SeasonsRecord>? seasonsNotDone(
     return null;
   }
 
-  // Если нет статистики, возвращаем все сезоны указанного уровня
   if ((seasonDone == null || seasonDone.isEmpty) &&
       (workoutDone == null || workoutDone.isEmpty)) {
     return levelFiltered;
   }
 
-  // Получаем ID выполненных и начатых сезонов
   final completedSeasonIds =
       seasonDone?.map((stat) => stat.seasonId).toSet() ?? {};
 
   final startedSeasonIds =
       workoutDone?.map((workout) => workout.seasonId).toSet() ?? {};
 
-  // Объединяем множества ID выполненных и начатых сезонов
   final allTouchedSeasonIds = {...completedSeasonIds, ...startedSeasonIds};
 
-  // Исключаем все сезоны, которые есть в списке выполненных или начатых
   levelFiltered = levelFiltered
       .where((season) => !allTouchedSeasonIds.contains(season.reference.id))
       .toList();
@@ -382,14 +364,12 @@ double totalPointsProgress(
         (workout.warpmupPoints ?? 2) +
         (workout.cooldownPoints ?? 2);
 
-    // Сохраняем лучший результат для каждого воркаута
     if (!bestScores.containsKey(workoutId) ||
         bestScores[workoutId]! < totalScore) {
       bestScores[workoutId] = totalScore;
     }
   }
 
-  // Суммируем лучшие результаты
   final earnedPoints = bestScores.values.fold(0, (sum, points) => sum + points);
 
   // Calculate progress (0 to 1)
@@ -409,11 +389,9 @@ bool workoutSeasonDone(
     return false;
   }
 
-  // Фильтруем воркауты текущего сезона
   final seasonWorkouts =
       workoutDone.where((workout) => workout.seasonId == seasonId);
 
-  // Группируем воркауты по их ID и подсчитываем количество выполнений
   final workoutCompletions = <String, int>{};
 
   for (var workout in seasonWorkouts) {
@@ -421,11 +399,76 @@ bool workoutSeasonDone(
         (workoutCompletions[workout.workoutId] ?? 0) + 1;
   }
 
-  // Проверяем:
-  // 1. Количество уникальных воркаутов равно workoutCount
-  // 2. Каждый воркаут выполнен минимум 3 раза
   return workoutCompletions.length == workoutCount &&
       workoutCompletions.values.every((count) => count >= 3);
+}
+
+List<UserLevelStruct> levels() {
+  // Define the levels data structure with corresponding points thresholds
+  final levelData = [
+    {"levelNumber": 1, "levelName": "Newbie", "points": 0},
+    {"levelNumber": 2, "levelName": "Chunky Monkey", "points": 21},
+    {"levelNumber": 3, "levelName": "Biceps Bunny", "points": 41},
+    {"levelNumber": 4, "levelName": "Rookie", "points": 64},
+    {"levelNumber": 5, "levelName": "Hangry Bird", "points": 90},
+    {"levelNumber": 6, "levelName": "Road Runner", "points": 117},
+    {"levelNumber": 7, "levelName": "Hobby Athlete", "points": 148},
+    {"levelNumber": 8, "levelName": "Lightweight Baby", "points": 182},
+    {"levelNumber": 9, "levelName": "Pound Dropper", "points": 210},
+    {"levelNumber": 10, "levelName": "Challenger", "points": 260},
+    {"levelNumber": 11, "levelName": "Footworker", "points": 305},
+    {"levelNumber": 12, "levelName": "Gym Class Hero", "points": 355},
+    {"levelNumber": 13, "levelName": "Playmaker", "points": 409},
+    {"levelNumber": 14, "levelName": "Babyfreeze Master", "points": 469},
+    {"levelNumber": 15, "levelName": "Beatkiller", "points": 535},
+    {"levelNumber": 16, "levelName": "Workout Wonder", "points": 607},
+    {"levelNumber": 17, "levelName": "Beast Booty", "points": 687},
+    {"levelNumber": 18, "levelName": "Sixpack Analyst", "points": 775},
+    {"levelNumber": 19, "levelName": "Explosive Mover", "points": 865},
+    {"levelNumber": 20, "levelName": "Workout Hunter", "points": 955},
+    {"levelNumber": 21, "levelName": "Gamechanger", "points": 1045},
+    {"levelNumber": 22, "levelName": "King of Pushups", "points": 1135},
+    {"levelNumber": 23, "levelName": "Vegeta", "points": 1230},
+    {"levelNumber": 24, "levelName": "Core Dominator", "points": 1330},
+    {"levelNumber": 25, "levelName": "Sweat Samurai", "points": 1420},
+    {"levelNumber": 26, "levelName": "Cardio Crusher", "points": 1510},
+    {"levelNumber": 27, "levelName": "Mobility Master", "points": 1600},
+    {"levelNumber": 28, "levelName": "Form Freak", "points": 1690},
+    {"levelNumber": 29, "levelName": "Power Panther", "points": 1780},
+    {"levelNumber": 30, "levelName": "Iron Chest", "points": 1870},
+    {"levelNumber": 31, "levelName": "Beastmode Rookie", "points": 1960},
+    {"levelNumber": 32, "levelName": "Flexecutioner", "points": 2050},
+    {"levelNumber": 33, "levelName": "Agility Ace", "points": 2140},
+    {"levelNumber": 34, "levelName": "Bodyweight Champion", "points": 2230},
+    {"levelNumber": 35, "levelName": "Pushup Prince", "points": 2320},
+    {"levelNumber": 36, "levelName": "Rhythm Rebel", "points": 2410},
+    {"levelNumber": 37, "levelName": "Plank Pirate", "points": 2500},
+    {"levelNumber": 38, "levelName": "Jumping Juggernaut", "points": 2590},
+    {"levelNumber": 39, "levelName": "Iron Dancer", "points": 2680},
+    {"levelNumber": 40, "levelName": "Explosive Panther", "points": 2770},
+    {"levelNumber": 41, "levelName": "Beast Beyond", "points": 2860},
+    {"levelNumber": 42, "levelName": "Core Commander", "points": 2950},
+    {"levelNumber": 43, "levelName": "Sprint Cyclone", "points": 3040},
+    {"levelNumber": 44, "levelName": "Gravity Bender", "points": 3130},
+    {"levelNumber": 45, "levelName": "Battle Beast", "points": 3220},
+    {"levelNumber": 46, "levelName": "The Transformer", "points": 3310},
+    {"levelNumber": 47, "levelName": "HIIT Legend", "points": 3400},
+    {"levelNumber": 48, "levelName": "Push Warrior", "points": 3490},
+    {"levelNumber": 49, "levelName": "Rage Releaser", "points": 3580},
+    {"levelNumber": 50, "levelName": "King of Gods", "points": 3670}
+  ];
+
+  // Convert raw data to UserLevelStruct objects
+  List<UserLevelStruct> userLevels = [];
+  for (var level in levelData) {
+    userLevels.add(UserLevelStruct(
+      levelNumber: level["levelNumber"] as int,
+      levenName: level["levelName"] as String,
+      points: level["points"] as int,
+    ));
+  }
+
+  return userLevels;
 }
 
 double workoutSeasonProgress(
@@ -433,7 +476,6 @@ double workoutSeasonProgress(
   String seasonId,
   int? workoutCount,
 ) {
-  // Базовые проверки
   if (workoutDone == null ||
       seasonId.isEmpty ||
       workoutCount == null ||
@@ -441,11 +483,9 @@ double workoutSeasonProgress(
     return 0.0;
   }
 
-  // Фильтруем воркауты текущего сезона
   final seasonWorkouts =
       workoutDone.where((workout) => workout.seasonId == seasonId);
 
-  // Группируем воркауты по их ID и подсчитываем количество выполнений
   final workoutCompletions = <String, int>{};
 
   for (var workout in seasonWorkouts) {
@@ -453,19 +493,15 @@ double workoutSeasonProgress(
         (workoutCompletions[workout.workoutId] ?? 0) + 1;
   }
 
-  // Подсчитываем прогресс для каждого воркаута
   double totalProgress = 0.0;
 
   for (var count in workoutCompletions.values) {
-    // Для каждого воркаута максимум 3 повторения
     double workoutProgress = math.min(count / 3, 1.0);
     totalProgress += workoutProgress;
   }
 
-  // Добавляем учет недостающих воркаутов
   int missingWorkouts = workoutCount - workoutCompletions.length;
 
-  // Вычисляем общий прогресс
   return totalProgress / workoutCount;
 }
 
@@ -478,31 +514,6 @@ bool seasonDoneExist(
   }
 
   return seasonDone.any((season) => season.seasonId == seasonId);
-}
-
-bool seasonsDone(
-  List<SeasonStatisticStruct>? seasonDone,
-  int level,
-  int? seasonCount,
-) {
-  // Проверяем на null и пустоту
-  if (seasonDone == null ||
-      seasonDone.isEmpty ||
-      level <= 0 ||
-      seasonCount == null ||
-      seasonCount == 0) {
-    return false;
-  }
-
-  // Получаем количество уникальных выполненных сезонов для этого левела
-  final completedUniqueSeasons = seasonDone
-      .where((season) => season.seasonLevel == level)
-      .map((season) => season.seasonId)
-      .toSet() // Преобразуем в Set для получения уникальных значений
-      .length;
-
-  // Сравниваем количество уникальных выполненных сезонов с общим количеством
-  return completedUniqueSeasons == seasonCount;
 }
 
 DateTime? dayPlusInt(
@@ -530,22 +541,18 @@ int userWorkoutPassed(
 ) {
   if (progress == null || progress.isEmpty) return 0;
 
-  // Создаем Set для хранения уникальных пользователей
   Set<DocumentReference> uniqueUsers = {};
 
   for (final record in progress) {
-    // Проверяем есть ли у записи workout_done с нужными seasonId и workoutId
     final hasWorkout = record.workoutDone?.any((workout) =>
             workout.seasonId == seasonId && workout.workoutId == workoutId) ??
         false;
 
-    // Если есть - добавляем пользователя в Set
     if (hasWorkout && record.user != null) {
       uniqueUsers.add(record.user!);
     }
   }
 
-  // Возвращаем количество уникальных пользователей
   return uniqueUsers.length ?? 0;
 }
 
@@ -562,6 +569,71 @@ bool search(
       text3!.toLowerCase().contains(searchText.toLowerCase()) ||
       text4!.toLowerCase().contains(searchText.toLowerCase()) ||
       text5!.toLowerCase().contains(searchText.toLowerCase());
+}
+
+int totalPointsLevel(List<WorkoutStatisticStruct>? workoutDone) {
+  if (workoutDone == null || workoutDone.isEmpty) {
+    return 0;
+  }
+
+  // Create a map to store the best score for each workout
+  final Map<String, int> bestScores = {};
+
+  // Iterate through all workouts and keep only the best score for each workout ID
+  for (var workout in workoutDone) {
+    final workoutId = workout.workoutId;
+    final totalScore = (workout.workoutPoints ?? 0) +
+        (workout.warpmupPoints ?? 0) +
+        (workout.cooldownPoints ?? 0);
+
+    // Save the best score for this workout
+    if (!bestScores.containsKey(workoutId) ||
+        bestScores[workoutId]! < totalScore) {
+      bestScores[workoutId] = totalScore;
+    }
+  }
+
+  // Sum up the best scores to get the total points
+  final earnedPoints = bestScores.values.fold(0, (sum, points) => sum + points);
+
+  return earnedPoints;
+}
+
+int nextSeasonInListSeasons(
+  DocumentReference? season,
+  List<DocumentReference>? seasonsList,
+) {
+  // Default index if not found
+  int defaultIndex = 0;
+
+  // Check if parameters are null or empty
+  if (season == null) {
+    return defaultIndex;
+  }
+
+  if (seasonsList == null || seasonsList.isEmpty) {
+    return defaultIndex;
+  }
+
+  // Try to find the index of the season in the list
+  for (int i = 0; i < seasonsList.length; i++) {
+    // Compare document paths to see if they're the same reference
+    if (seasonsList[i].path == season.path) {
+      // Found the current season
+      // Calculate next index with boundary check
+      int nextIndex = i + 1;
+
+      // If next index would be out of bounds, return the last valid index
+      if (nextIndex >= seasonsList.length) {
+        return seasonsList.length - 1;
+      }
+
+      return nextIndex;
+    }
+  }
+
+  // If current season not found, return the default index
+  return defaultIndex;
 }
 
 DateTime dateTimeCombine(
@@ -584,37 +656,73 @@ DateTime dateTimeCombine(
   );
 }
 
-bool workoutNoExistOrNotDone(
+double totalPointsProgressLevel(
   List<WorkoutStatisticStruct>? workoutDone,
-  String workoutId,
-  String seasonId,
+  List<UserLevelStruct> levelsList,
 ) {
-  // Базовые проверки
-  if (workoutDone == null || seasonId.isEmpty) {
-    return false;
+  // Check if workoutDone is null or empty.
+  if (workoutDone == null || workoutDone.isEmpty) {
+    return 0.0;
   }
 
-  // Получаем все пройденные воркауты этого сезона
-  final completedWorkouts =
-      workoutDone.where((workout) => workout.seasonId == seasonId);
+  // Check if levelsList is empty
+  if (levelsList.isEmpty) {
+    return 0.0;
+  }
 
-  // Подсчитываем количество выполнений конкретного воркаута
-  final currentWorkoutCount = completedWorkouts
-      .where((workout) => workout.workoutId == workoutId)
-      .length;
+  // Calculate total earned points from workout statistics
+  int earnedPoints = 0;
+  for (var workout in workoutDone) {
+    final int workoutPoints = workout.workoutPoints ?? 0;
+    final int warpmupPoints = workout.warpmupPoints ?? 0;
+    final int cooldownPoints = workout.cooldownPoints ?? 0;
+    earnedPoints += workoutPoints + warpmupPoints + cooldownPoints;
+  }
 
-  // Проверяем есть ли другие пройденные воркауты в этом сезоне
-  final hasOtherWorkouts =
-      completedWorkouts.any((workout) => workout.workoutId != workoutId);
+  // Find current level based on total earned points
+  int currentLevelIndex = 0;
+  bool levelFound = false;
 
-  // Если это новый воркаут
-  if (currentWorkoutCount == 0) {
-    // Разрешаем только если нет других пройденных воркаутов
-    return !hasOtherWorkouts;
+  for (int i = levelsList.length - 1; i >= 0; i--) {
+    final int levelPoints = levelsList[i].points ?? 0;
+    if (earnedPoints >= levelPoints) {
+      currentLevelIndex = i;
+      levelFound = true;
+      break;
+    }
+  }
+
+  // If no level found, stay at level 0
+  if (!levelFound) {
+    currentLevelIndex = 0;
+  }
+
+  // Get current level points
+  final int currentLevelMinPoints = levelsList[currentLevelIndex].points ?? 0;
+
+  // Calculate next level points
+  final int currentLevelMaxPoints;
+  if (currentLevelIndex >= levelsList.length - 1) {
+    currentLevelMaxPoints = currentLevelMinPoints + 100;
   } else {
-    // Если это уже начатый воркаут, разрешаем только если он пройден менее 3 раз
-    return currentWorkoutCount < 3;
+    final int nextLevelPoints = levelsList[currentLevelIndex + 1].points ?? 0;
+    currentLevelMaxPoints = nextLevelPoints;
   }
+
+  // Calculate progress
+  final int pointsInCurrentLevel = earnedPoints - currentLevelMinPoints;
+  final int totalPointsInLevel = currentLevelMaxPoints - currentLevelMinPoints;
+
+  // Avoid division by zero
+  if (totalPointsInLevel <= 0) {
+    return 1.0;
+  }
+
+  // Calculate progress within current level (0 to 1)
+  final double progress = pointsInCurrentLevel / totalPointsInLevel;
+
+  // Ensure progress is between 0 and 1
+  return progress.clamp(0.0, 1.0);
 }
 
 int userSeasonPassed(
@@ -623,22 +731,18 @@ int userSeasonPassed(
 ) {
   if (progress == null || progress.isEmpty) return 0;
 
-  // Создаем Set для хранения уникальных пользователей
   Set<DocumentReference> uniqueUsers = {};
 
   for (final record in progress) {
-    // Проверяем есть ли у записи season_done с нужным seasonId
     final hasSeason =
         record.seasonDone?.any((season) => season.seasonId == seasonId) ??
             false;
 
-    // Если есть - добавляем пользователя в Set
     if (hasSeason && record.user != null) {
       uniqueUsers.add(record.user!);
     }
   }
 
-  // Возвращаем количество уникальных пользователей
   return uniqueUsers.length ?? 0;
 }
 
@@ -648,28 +752,19 @@ String pricePeriod(
   String monthPrice,
   bool increase,
 ) {
-  // Вспомогательная функция для корректной обработки чисел с разделителями
   String cleanNumber(String price) {
-    // Удаляем все символы кроме цифр, точек и запятых
     String cleaned = price.replaceAll(RegExp(r'[^\d.,]'), '');
 
-    // Находим позиции разделителей
     int commaIndex = cleaned.lastIndexOf(',');
     int dotIndex = cleaned.lastIndexOf('.');
 
-    // Если есть оба разделителя
     if (commaIndex != -1 && dotIndex != -1) {
-      // Используем последний как десятичный, удаляем остальные
       if (commaIndex > dotIndex) {
-        // Если запятая последняя - она десятичный разделитель
         cleaned = cleaned.replaceAll('.', '').replaceAll(',', '.');
       } else {
-        // Если точка последняя - она десятичный разделитель
         cleaned = cleaned.replaceAll(',', '');
       }
-    }
-    // Если только запятая - заменяем на точку
-    else if (commaIndex != -1) {
+    } else if (commaIndex != -1) {
       cleaned = cleaned.replaceAll(',', '.');
     }
 
@@ -681,7 +776,6 @@ String pricePeriod(
       return price.contains('₽') ? price.replaceAll('₽', 'RUB') : price;
     }
 
-    // Очищаем строку цены и преобразуем в число
     String numStr = cleanNumber(price);
     if (numStr.isEmpty) {
       return price.contains('₽') ? price.replaceAll('₽', 'RUB') : price;
@@ -692,7 +786,6 @@ String pricePeriod(
       return price.contains('₽') ? price.replaceAll('₽', 'RUB') : price;
     }
 
-    // Округляем до 2 знаков после запятой для избежания проблем с плавающей точкой
     numValue = double.parse(numValue.toStringAsFixed(2));
 
     String currency = price.replaceAll(RegExp(r'[\d\s.,]'), '').trim();
@@ -710,7 +803,6 @@ String pricePeriod(
         : '$formattedPrice $currency';
     return result.contains('RUB') ? result : result.replaceAll('₽', 'RUB');
   } else {
-    // Очищаем строки цен и преобразуем в числа
     String priceNumStr = cleanNumber(price);
     String monthPriceNumStr = cleanNumber(monthPrice);
 
@@ -726,7 +818,6 @@ String pricePeriod(
       return price.contains('₽') ? price.replaceAll('₽', 'RUB') : price;
     }
 
-    // Округляем значения для точности
     priceValue = double.parse(priceValue.toStringAsFixed(2));
     monthPriceValue = double.parse(monthPriceValue.toStringAsFixed(2));
 
@@ -797,4 +888,137 @@ bool hasAutomationSeries(
   }
 
   return false;
+}
+
+UserLevelStruct levelUser(
+  int totalPoints,
+  List<UserLevelStruct> levelsList,
+) {
+  // Find current level based on user's total points
+  int currentLevelIndex = 0;
+
+  // Iterate through levels to find the highest level the user qualifies for
+  for (int i = levelsList.length - 1; i >= 0; i--) {
+    if (totalPoints >= levelsList[i].points) {
+      currentLevelIndex = i;
+      break;
+    }
+  }
+
+  // Return the user's current level
+  return levelsList[currentLevelIndex];
+}
+
+bool newLevelAchieved(
+  List<WorkoutStatisticStruct>? currentProgress,
+  WorkoutStatisticStruct? newProgress,
+  List<UserLevelStruct> levelsList,
+) {
+  // Handle null or empty currentProgress
+  if (currentProgress == null) {
+    currentProgress = [];
+  }
+
+  // Handle null newProgress
+  if (newProgress == null) {
+    return false;
+  }
+
+  // Calculate current total points
+  final currentTotalPoints = currentProgress.fold(0, (sum, workout) {
+    final workoutPoints = workout.workoutPoints ?? 0;
+    final warpmupPoints = workout.warpmupPoints ?? 0;
+    final cooldownPoints = workout.cooldownPoints ?? 0;
+    return sum + workoutPoints + warpmupPoints + cooldownPoints;
+  });
+
+  // Calculate points from new progress
+  final newWorkoutPoints = newProgress.workoutPoints ?? 0;
+  final newWarpmupPoints = newProgress.warpmupPoints ?? 0;
+  final newCooldownPoints = newProgress.cooldownPoints ?? 0;
+  final newPoints = newWorkoutPoints + newWarpmupPoints + newCooldownPoints;
+
+  // Calculate new total points
+  final newTotalPoints = currentTotalPoints + newPoints;
+
+  // Find current level based on current total points
+  int currentLevelIndex = 0;
+  for (int i = levelsList.length - 1; i >= 0; i--) {
+    if (currentTotalPoints >= levelsList[i].points) {
+      currentLevelIndex = i;
+      break;
+    }
+  }
+
+  // Find new level based on new total points
+  int newLevelIndex = 0;
+  for (int i = levelsList.length - 1; i >= 0; i--) {
+    if (newTotalPoints >= levelsList[i].points) {
+      newLevelIndex = i;
+      break;
+    }
+  }
+
+  // Return true if user achieved a new level
+  return newLevelIndex > currentLevelIndex;
+}
+
+List<String> getAutomationIdsBySeries(
+  List<int> automationSeries,
+  dynamic inputData,
+) {
+  final contactAutomations = inputData['contactAutomations'] as List<dynamic>?;
+  if (contactAutomations == null) return [];
+
+  return contactAutomations
+      .where((ca) {
+        final seriesId = (ca as Map)['seriesid']?.toString();
+        if (seriesId == null) return false;
+        final parsedId = int.tryParse(seriesId);
+        return parsedId != null && automationSeries.contains(parsedId);
+      })
+      .map<String>((ca) => (ca as Map)['id'].toString())
+      .toList();
+}
+
+int seasonInListSeasons(
+  DocumentReference? season,
+  List<DocumentReference>? seasonsList,
+) {
+  // Default index if not found
+  int defaultIndex = 0;
+
+  // Check if parameters are null or empty
+  if (season == null) {
+    return defaultIndex;
+  }
+
+  if (seasonsList == null || seasonsList.isEmpty) {
+    return defaultIndex;
+  }
+
+  // Try to find the index of the season in the list
+  for (int i = 0; i < seasonsList.length; i++) {
+    // Compare document paths to see if they're the same reference
+    if (seasonsList[i].path == season.path) {
+      return i;
+    }
+  }
+
+  // If not found, return the default index
+  return defaultIndex;
+}
+
+DateTime parseToLocal(DateTime date) {
+  return date.toLocal();
+}
+
+String debugDate(DateTime dt) {
+  final local = dt.toLocal();
+  final utc = dt.toUtc();
+  return 'raw=$dt | local=${local.toIso8601String()} offset=${local.timeZoneOffset} | utc=${utc.toIso8601String()}';
+}
+
+String getDayMonthTimeDateString(DateTime date) {
+  return '${DateFormat('d MMMM', 'en_US').format(date.toLocal()).toLowerCase()}, ${DateFormat('HH:mm a', 'en_US').format(date.toLocal())}';
 }

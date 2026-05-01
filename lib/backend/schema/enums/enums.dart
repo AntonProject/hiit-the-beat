@@ -11,6 +11,11 @@ enum AdminPages {
   videos,
 }
 
+enum ActiveCampaignAutomations {
+  Freemember,
+  Plusmember,
+}
+
 extension FFEnumExtensions<T extends Enum> on T {
   String serialize() => name;
 }
@@ -24,6 +29,8 @@ T? deserializeEnum<T>(String? value) {
   switch (T) {
     case (AdminPages):
       return AdminPages.values.deserialize(value) as T?;
+    case (ActiveCampaignAutomations):
+      return ActiveCampaignAutomations.values.deserialize(value) as T?;
     default:
       return null;
   }

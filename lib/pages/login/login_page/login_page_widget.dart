@@ -7,6 +7,8 @@ import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
 import 'dart:async';
+import 'dart:math';
+import 'dart:ui';
 import '/custom_code/actions/index.dart' as actions;
 import '/index.dart';
 import 'package:easy_debounce/easy_debounce.dart';
@@ -15,7 +17,9 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'login_page_model.dart';
 export 'login_page_model.dart';
 
@@ -44,15 +48,20 @@ class _LoginPageWidgetState extends State<LoginPageWidget>
     super.initState();
     _model = createModel(context, () => LoginPageModel());
 
+    logFirebaseEvent('screen_view', parameters: {'screen_name': 'LoginPage'});
     // On page load action.
     SchedulerBinding.instance.addPostFrameCallback((_) async {
-      GoRouter.of(context).prepareAuthEvent();
-      await authManager.signOut();
-      GoRouter.of(context).clearRedirectLocation();
-
+      logFirebaseEvent('LOGIN_PAGE_PAGE_LoginPage_ON_INIT_STATE');
+      logFirebaseEvent('LoginPage_custom_action');
       unawaited(
         () async {
           await actions.lockLandscapeMode();
+        }(),
+      );
+      logFirebaseEvent('LoginPage_custom_action');
+      unawaited(
+        () async {
+          await actions.setStatusBarColor();
         }(),
       );
     });
@@ -155,78 +164,106 @@ class _LoginPageWidgetState extends State<LoginPageWidget>
                       size: 24.0,
                     ),
                     onPressed: () async {
+                      logFirebaseEvent(
+                          'LOGIN_PAGE_PAGE_arrowLeft24_ICN_ON_TAP');
+                      logFirebaseEvent('IconButton_navigate_back');
                       context.safePop();
                     },
                   ),
-                  InkWell(
-                    splashColor: Colors.transparent,
-                    focusColor: Colors.transparent,
-                    hoverColor: Colors.transparent,
-                    highlightColor: Colors.transparent,
-                    onTap: () async {
-                      HapticFeedback.selectionClick();
-                      showModalBottomSheet(
-                        isScrollControlled: true,
-                        backgroundColor: Colors.transparent,
-                        context: context,
-                        builder: (context) {
-                          return GestureDetector(
-                            onTap: () {
-                              FocusScope.of(context).unfocus();
-                              FocusManager.instance.primaryFocus?.unfocus();
-                            },
-                            child: Padding(
-                              padding: MediaQuery.viewInsetsOf(context),
-                              child: LanguageSelectDialogWidget(),
-                            ),
-                          );
-                        },
-                      ).then((value) => safeSetState(() {}));
-                    },
-                    child: Container(
-                      width: 40.0,
-                      height: 40.0,
-                      decoration: BoxDecoration(),
-                      child: Builder(
-                        builder: (context) {
-                          if (FFLocalizations.of(context).languageCode ==
-                              'en') {
-                            return Align(
-                              alignment: AlignmentDirectional(0.0, 0.0),
-                              child: Container(
-                                width: 32.0,
-                                height: 24.0,
-                                decoration: BoxDecoration(
-                                  color: FlutterFlowTheme.of(context).ukFlag,
-                                  image: DecorationImage(
-                                    fit: BoxFit.cover,
-                                    image: Image.asset(
-                                      'assets/images/Element.png',
-                                    ).image,
-                                  ),
-                                  borderRadius: BorderRadius.circular(2.0),
-                                ),
+                  Opacity(
+                    opacity: 0.0,
+                    child: InkWell(
+                      splashColor: Colors.transparent,
+                      focusColor: Colors.transparent,
+                      hoverColor: Colors.transparent,
+                      highlightColor: Colors.transparent,
+                      onTap: () async {
+                        logFirebaseEvent('LOGIN_Container_1df91lj0_ON_TAP');
+                        logFirebaseEvent('Container_haptic_feedback');
+                        HapticFeedback.selectionClick();
+                        logFirebaseEvent('Container_bottom_sheet');
+                        showModalBottomSheet(
+                          isScrollControlled: true,
+                          backgroundColor: Colors.transparent,
+                          context: context,
+                          builder: (context) {
+                            return GestureDetector(
+                              onTap: () {
+                                FocusScope.of(context).unfocus();
+                                FocusManager.instance.primaryFocus?.unfocus();
+                              },
+                              child: Padding(
+                                padding: MediaQuery.viewInsetsOf(context),
+                                child: LanguageSelectDialogWidget(),
                               ),
                             );
-                          } else {
-                            return Align(
-                              alignment: AlignmentDirectional(0.0, 0.0),
-                              child: Container(
-                                width: 32.0,
-                                height: 24.0,
-                                decoration: BoxDecoration(
-                                  image: DecorationImage(
-                                    fit: BoxFit.cover,
-                                    image: Image.asset(
-                                      'assets/images/Rounded.png',
-                                    ).image,
+                          },
+                        ).then((value) => safeSetState(() {}));
+                      },
+                      child: Container(
+                        width: 40.0,
+                        height: 40.0,
+                        decoration: BoxDecoration(),
+                        child: Builder(
+                          builder: (context) {
+                            if (FFLocalizations.of(context).languageCode ==
+                                'en') {
+                              return Align(
+                                alignment: AlignmentDirectional(0.0, 0.0),
+                                child: Container(
+                                  width: 32.0,
+                                  height: 24.0,
+                                  decoration: BoxDecoration(
+                                    color: FlutterFlowTheme.of(context).ukFlag,
+                                    image: DecorationImage(
+                                      fit: BoxFit.cover,
+                                      image: Image.asset(
+                                        'assets/images/Element.png',
+                                      ).image,
+                                    ),
+                                    borderRadius: BorderRadius.circular(2.0),
                                   ),
-                                  borderRadius: BorderRadius.circular(2.0),
                                 ),
-                              ),
-                            );
-                          }
-                        },
+                              );
+                            } else if (FFLocalizations.of(context)
+                                    .languageCode ==
+                                'de') {
+                              return Align(
+                                alignment: AlignmentDirectional(0.0, 0.0),
+                                child: Container(
+                                  width: 32.0,
+                                  height: 24.0,
+                                  decoration: BoxDecoration(
+                                    image: DecorationImage(
+                                      fit: BoxFit.cover,
+                                      image: Image.asset(
+                                        'assets/images/Rounded.png',
+                                      ).image,
+                                    ),
+                                    borderRadius: BorderRadius.circular(2.0),
+                                  ),
+                                ),
+                              );
+                            } else {
+                              return Align(
+                                alignment: AlignmentDirectional(0.0, 0.0),
+                                child: Container(
+                                  width: 32.0,
+                                  height: 24.0,
+                                  decoration: BoxDecoration(
+                                    image: DecorationImage(
+                                      fit: BoxFit.cover,
+                                      image: Image.asset(
+                                        'assets/images/Flag_of_Japan.svg.png',
+                                      ).image,
+                                    ),
+                                    borderRadius: BorderRadius.circular(2.0),
+                                  ),
+                                ),
+                              );
+                            }
+                          },
+                        ),
                       ),
                     ),
                   ),
@@ -253,10 +290,9 @@ class _LoginPageWidgetState extends State<LoginPageWidget>
                                 fontSize: 24.0,
                                 letterSpacing: 0.0,
                                 fontWeight: FontWeight.bold,
-                                useGoogleFonts: GoogleFonts.asMap().containsKey(
-                                    FlutterFlowTheme.of(context)
-                                        .bodyMediumFamily),
                                 lineHeight: 1.3,
+                                useGoogleFonts: !FlutterFlowTheme.of(context)
+                                    .bodyMediumIsCustom,
                               ),
                         ),
                         Padding(
@@ -274,10 +310,9 @@ class _LoginPageWidgetState extends State<LoginPageWidget>
                                   fontSize: 12.0,
                                   letterSpacing: 0.0,
                                   fontWeight: FontWeight.w500,
-                                  useGoogleFonts: GoogleFonts.asMap()
-                                      .containsKey(FlutterFlowTheme.of(context)
-                                          .bodyMediumFamily),
                                   lineHeight: 1.3,
+                                  useGoogleFonts: !FlutterFlowTheme.of(context)
+                                      .bodyMediumIsCustom,
                                 ),
                           ),
                         ),
@@ -306,11 +341,10 @@ class _LoginPageWidgetState extends State<LoginPageWidget>
                                       color: FlutterFlowTheme.of(context).gray,
                                       letterSpacing: 0.07,
                                       fontWeight: FontWeight.w600,
-                                      useGoogleFonts: GoogleFonts.asMap()
-                                          .containsKey(
-                                              FlutterFlowTheme.of(context)
-                                                  .bodyMediumFamily),
                                       lineHeight: 1.4,
+                                      useGoogleFonts:
+                                          !FlutterFlowTheme.of(context)
+                                              .bodyMediumIsCustom,
                                     ),
                                 enabledBorder: OutlineInputBorder(
                                   borderSide: BorderSide(
@@ -355,11 +389,10 @@ class _LoginPageWidgetState extends State<LoginPageWidget>
                                         .bodyMediumFamily,
                                     letterSpacing: 0.07,
                                     fontWeight: FontWeight.w600,
-                                    useGoogleFonts: GoogleFonts.asMap()
-                                        .containsKey(
-                                            FlutterFlowTheme.of(context)
-                                                .bodyMediumFamily),
                                     lineHeight: 1.4,
+                                    useGoogleFonts:
+                                        !FlutterFlowTheme.of(context)
+                                            .bodyMediumIsCustom,
                                   ),
                               maxLength: 50,
                               maxLengthEnforcement: MaxLengthEnforcement.none,
@@ -391,10 +424,9 @@ class _LoginPageWidgetState extends State<LoginPageWidget>
                                   fontSize: 12.0,
                                   letterSpacing: 0.0,
                                   fontWeight: FontWeight.w500,
-                                  useGoogleFonts: GoogleFonts.asMap()
-                                      .containsKey(FlutterFlowTheme.of(context)
-                                          .bodyMediumFamily),
                                   lineHeight: 1.3,
+                                  useGoogleFonts: !FlutterFlowTheme.of(context)
+                                      .bodyMediumIsCustom,
                                 ),
                           ),
                         ),
@@ -423,11 +455,10 @@ class _LoginPageWidgetState extends State<LoginPageWidget>
                                       color: FlutterFlowTheme.of(context).gray,
                                       letterSpacing: 0.07,
                                       fontWeight: FontWeight.w600,
-                                      useGoogleFonts: GoogleFonts.asMap()
-                                          .containsKey(
-                                              FlutterFlowTheme.of(context)
-                                                  .bodyMediumFamily),
                                       lineHeight: 1.4,
+                                      useGoogleFonts:
+                                          !FlutterFlowTheme.of(context)
+                                              .bodyMediumIsCustom,
                                     ),
                                 enabledBorder: OutlineInputBorder(
                                   borderSide: BorderSide(
@@ -465,10 +496,11 @@ class _LoginPageWidgetState extends State<LoginPageWidget>
                                 contentPadding: EdgeInsetsDirectional.fromSTEB(
                                     16.0, 12.0, 16.0, 12.0),
                                 suffixIcon: InkWell(
-                                  onTap: () => safeSetState(
-                                    () => _model.passwordVisibility =
-                                        !_model.passwordVisibility,
-                                  ),
+                                  onTap: () async {
+                                    safeSetState(() =>
+                                        _model.passwordVisibility =
+                                            !_model.passwordVisibility);
+                                  },
                                   focusNode: FocusNode(skipTraversal: true),
                                   child: Icon(
                                     _model.passwordVisibility
@@ -487,11 +519,10 @@ class _LoginPageWidgetState extends State<LoginPageWidget>
                                         .bodyMediumFamily,
                                     letterSpacing: 0.07,
                                     fontWeight: FontWeight.w600,
-                                    useGoogleFonts: GoogleFonts.asMap()
-                                        .containsKey(
-                                            FlutterFlowTheme.of(context)
-                                                .bodyMediumFamily),
                                     lineHeight: 1.4,
+                                    useGoogleFonts:
+                                        !FlutterFlowTheme.of(context)
+                                            .bodyMediumIsCustom,
                                   ),
                               maxLength: 50,
                               maxLengthEnforcement: MaxLengthEnforcement.none,
@@ -513,12 +544,16 @@ class _LoginPageWidgetState extends State<LoginPageWidget>
                               0.0, 32.0, 0.0, 0.0),
                           child: FFButtonWidget(
                             onPressed: () async {
+                              logFirebaseEvent('LOGIN_PAGE_PAGE_login_ON_TAP');
                               await authManager.refreshUser();
+                              logFirebaseEvent('login_haptic_feedback');
                               HapticFeedback.selectionClick();
+                              logFirebaseEvent('login_validate_form');
                               if (_model.formKey.currentState == null ||
                                   !_model.formKey.currentState!.validate()) {
                                 return;
                               }
+                              logFirebaseEvent('login_auth');
                               GoRouter.of(context).prepareAuthEvent();
 
                               final user = await authManager.signInWithEmail(
@@ -532,11 +567,14 @@ class _LoginPageWidgetState extends State<LoginPageWidget>
 
                               if (valueOrDefault<bool>(
                                   currentUserDocument?.deleted, false)) {
+                                logFirebaseEvent('login_auth');
                                 await authManager.deleteUser(context);
+                                logFirebaseEvent('login_auth');
                                 GoRouter.of(context).prepareAuthEvent();
                                 await authManager.signOut();
                                 GoRouter.of(context).clearRedirectLocation();
 
+                                logFirebaseEvent('login_bottom_sheet');
                                 showModalBottomSheet(
                                   isScrollControlled: true,
                                   backgroundColor: Colors.transparent,
@@ -567,11 +605,13 @@ class _LoginPageWidgetState extends State<LoginPageWidget>
                                 return;
                               } else {
                                 if (currentUserEmailVerified) {
+                                  logFirebaseEvent('login_navigate_to');
+
                                   context.goNamedAuth(
                                     StartPageWidget.routeName,
                                     context.mounted,
                                     extra: <String, dynamic>{
-                                      kTransitionInfoKey: TransitionInfo(
+                                      '__transition_info__': TransitionInfo(
                                         hasTransition: true,
                                         transitionType: PageTransitionType.fade,
                                         duration: Duration(milliseconds: 0),
@@ -581,6 +621,8 @@ class _LoginPageWidgetState extends State<LoginPageWidget>
 
                                   return;
                                 } else {
+                                  logFirebaseEvent('login_navigate_to');
+
                                   context.pushNamedAuth(
                                     EmailVerificationPageWidget.routeName,
                                     context.mounted,
@@ -592,6 +634,7 @@ class _LoginPageWidgetState extends State<LoginPageWidget>
                                     }.withoutNulls,
                                   );
 
+                                  logFirebaseEvent('login_auth');
                                   await authManager.sendEmailVerification();
                                   return;
                                 }
@@ -616,11 +659,10 @@ class _LoginPageWidgetState extends State<LoginPageWidget>
                                     color: FlutterFlowTheme.of(context).primary,
                                     fontSize: 14.0,
                                     letterSpacing: 0.07,
-                                    useGoogleFonts: GoogleFonts.asMap()
-                                        .containsKey(
-                                            FlutterFlowTheme.of(context)
-                                                .titleSmallFamily),
                                     lineHeight: 1.4,
+                                    useGoogleFonts:
+                                        !FlutterFlowTheme.of(context)
+                                            .titleSmallIsCustom,
                                   ),
                               elevation: 0.0,
                               borderSide: BorderSide(
@@ -678,10 +720,9 @@ class _LoginPageWidgetState extends State<LoginPageWidget>
                                       .bodyMediumFamily,
                                   letterSpacing: 0.07,
                                   fontWeight: FontWeight.w600,
-                                  useGoogleFonts: GoogleFonts.asMap()
-                                      .containsKey(FlutterFlowTheme.of(context)
-                                          .bodyMediumFamily),
                                   lineHeight: 1.4,
+                                  useGoogleFonts: !FlutterFlowTheme.of(context)
+                                      .bodyMediumIsCustom,
                                 ),
                           ),
                         ]
@@ -692,19 +733,23 @@ class _LoginPageWidgetState extends State<LoginPageWidget>
                     ),
                     FFButtonWidget(
                       onPressed: () async {
+                        logFirebaseEvent('LOGIN_PAGE_PAGE_googleLogin_ON_TAP');
+                        logFirebaseEvent('googleLogin_haptic_feedback');
                         HapticFeedback.selectionClick();
+                        logFirebaseEvent('googleLogin_auth');
                         GoRouter.of(context).prepareAuthEvent();
                         final user =
                             await authManager.signInWithGoogle(context);
                         if (user == null) {
                           return;
                         }
+                        logFirebaseEvent('googleLogin_navigate_to');
 
                         context.goNamedAuth(
                           StartPageWidget.routeName,
                           context.mounted,
                           extra: <String, dynamic>{
-                            kTransitionInfoKey: TransitionInfo(
+                            '__transition_info__': TransitionInfo(
                               hasTransition: true,
                               transitionType: PageTransitionType.fade,
                               duration: Duration(milliseconds: 0),
@@ -731,10 +776,9 @@ class _LoginPageWidgetState extends State<LoginPageWidget>
                               color: Colors.transparent,
                               fontSize: 0.0,
                               letterSpacing: 0.07,
-                              useGoogleFonts: GoogleFonts.asMap().containsKey(
-                                  FlutterFlowTheme.of(context)
-                                      .titleSmallFamily),
                               lineHeight: 1.4,
+                              useGoogleFonts: !FlutterFlowTheme.of(context)
+                                  .titleSmallIsCustom,
                             ),
                         elevation: 0.0,
                         borderSide: BorderSide(
@@ -790,10 +834,9 @@ class _LoginPageWidgetState extends State<LoginPageWidget>
                                       .bodyMediumFamily,
                                   letterSpacing: 0.07,
                                   fontWeight: FontWeight.w600,
-                                  useGoogleFonts: GoogleFonts.asMap()
-                                      .containsKey(FlutterFlowTheme.of(context)
-                                          .bodyMediumFamily),
                                   lineHeight: 1.4,
+                                  useGoogleFonts: !FlutterFlowTheme.of(context)
+                                      .bodyMediumIsCustom,
                                 ),
                           ),
                         ]
@@ -806,19 +849,24 @@ class _LoginPageWidgetState extends State<LoginPageWidget>
                         ? Container()
                         : FFButtonWidget(
                             onPressed: () async {
+                              logFirebaseEvent(
+                                  'LOGIN_PAGE_PAGE_appleLogin_ON_TAP');
+                              logFirebaseEvent('appleLogin_haptic_feedback');
                               HapticFeedback.selectionClick();
+                              logFirebaseEvent('appleLogin_auth');
                               GoRouter.of(context).prepareAuthEvent();
                               final user =
                                   await authManager.signInWithApple(context);
                               if (user == null) {
                                 return;
                               }
+                              logFirebaseEvent('appleLogin_navigate_to');
 
                               context.goNamedAuth(
                                 StartPageWidget.routeName,
                                 context.mounted,
                                 extra: <String, dynamic>{
-                                  kTransitionInfoKey: TransitionInfo(
+                                  '__transition_info__': TransitionInfo(
                                     hasTransition: true,
                                     transitionType: PageTransitionType.fade,
                                     duration: Duration(milliseconds: 0),
@@ -845,11 +893,10 @@ class _LoginPageWidgetState extends State<LoginPageWidget>
                                     color: Colors.transparent,
                                     fontSize: 0.0,
                                     letterSpacing: 0.07,
-                                    useGoogleFonts: GoogleFonts.asMap()
-                                        .containsKey(
-                                            FlutterFlowTheme.of(context)
-                                                .titleSmallFamily),
                                     lineHeight: 1.4,
+                                    useGoogleFonts:
+                                        !FlutterFlowTheme.of(context)
+                                            .titleSmallIsCustom,
                                   ),
                               elevation: 0.0,
                               borderSide: BorderSide(
@@ -873,7 +920,10 @@ class _LoginPageWidgetState extends State<LoginPageWidget>
                       Expanded(
                         child: FFButtonWidget(
                           onPressed: () async {
+                            logFirebaseEvent('LOGIN_PAGE_PAGE_signup_ON_TAP');
+                            logFirebaseEvent('signup_haptic_feedback');
                             HapticFeedback.selectionClick();
+                            logFirebaseEvent('signup_navigate_to');
 
                             context.pushNamed(SignupPageWidget.routeName);
                           },
@@ -896,10 +946,9 @@ class _LoginPageWidgetState extends State<LoginPageWidget>
                                       FlutterFlowTheme.of(context).primaryText,
                                   fontSize: 14.0,
                                   letterSpacing: 0.07,
-                                  useGoogleFonts: GoogleFonts.asMap()
-                                      .containsKey(FlutterFlowTheme.of(context)
-                                          .titleSmallFamily),
                                   lineHeight: 1.4,
+                                  useGoogleFonts: !FlutterFlowTheme.of(context)
+                                      .titleSmallIsCustom,
                                 ),
                             elevation: 0.0,
                             borderSide: BorderSide(
@@ -913,7 +962,11 @@ class _LoginPageWidgetState extends State<LoginPageWidget>
                       Expanded(
                         child: FFButtonWidget(
                           onPressed: () async {
+                            logFirebaseEvent(
+                                'LOGIN_PAGE_PAGE_Restorepassword_ON_TAP');
+                            logFirebaseEvent('Restorepassword_haptic_feedback');
                             HapticFeedback.selectionClick();
+                            logFirebaseEvent('Restorepassword_navigate_to');
 
                             context
                                 .pushNamed(RestorePasswordPageWidget.routeName);
@@ -936,10 +989,9 @@ class _LoginPageWidgetState extends State<LoginPageWidget>
                                       FlutterFlowTheme.of(context).primaryText,
                                   fontSize: 14.0,
                                   letterSpacing: 0.07,
-                                  useGoogleFonts: GoogleFonts.asMap()
-                                      .containsKey(FlutterFlowTheme.of(context)
-                                          .titleSmallFamily),
                                   lineHeight: 1.4,
+                                  useGoogleFonts: !FlutterFlowTheme.of(context)
+                                      .titleSmallIsCustom,
                                 ),
                             elevation: 0.0,
                             borderSide: BorderSide(

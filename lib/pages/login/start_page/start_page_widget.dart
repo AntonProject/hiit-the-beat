@@ -1,19 +1,25 @@
+import '/auth/base_auth_user_provider.dart';
 import '/auth/firebase_auth/auth_util.dart';
 import '/backend/backend.dart';
 import '/components/dialog/dialog_widget.dart';
-import '/components/dialogs/payment_dialog_start/payment_dialog_start_widget.dart';
 import '/flutter_flow/flutter_flow_animations.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
+import '/flutter_flow/flutter_flow_widgets.dart';
 import 'dart:async';
+import 'dart:math';
+import 'dart:ui';
 import '/actions/actions.dart' as action_blocks;
 import '/custom_code/actions/index.dart' as actions;
 import '/index.dart';
-import 'package:collection/collection.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'start_page_model.dart';
 export 'start_page_model.dart';
 
@@ -40,26 +46,66 @@ class _StartPageWidgetState extends State<StartPageWidget>
     super.initState();
     _model = createModel(context, () => StartPageModel());
 
+    logFirebaseEvent('screen_view', parameters: {'screen_name': 'StartPage'});
     // On page load action.
     SchedulerBinding.instance.addPostFrameCallback((_) async {
+      if (RootPageContext.isInactiveRootPage(context)) {
+        return;
+      }
+      logFirebaseEvent('START_PAGE_PAGE_StartPage_ON_INIT_STATE');
       await authManager.refreshUser();
+      if (valueOrDefault(currentUserDocument?.language, '') == null ||
+          valueOrDefault(currentUserDocument?.language, '') == '') {
+        if (FFLocalizations.of(context).languageCode == 'de') {
+          logFirebaseEvent('StartPage_backend_call');
+
+          await currentUserReference!.update(createUsersRecordData(
+            language: 'de',
+          ));
+        } else {
+          logFirebaseEvent('StartPage_backend_call');
+
+          await currentUserReference!.update(createUsersRecordData(
+            language: 'en',
+          ));
+        }
+      }
+      if (FFLocalizations.of(context).languageCode == 'de') {
+        logFirebaseEvent('StartPage_set_app_language');
+        setAppLanguage(context, 'de');
+      } else {
+        logFirebaseEvent('StartPage_set_app_language');
+        setAppLanguage(context, 'en');
+      }
+
+      logFirebaseEvent('StartPage_custom_action');
       unawaited(
         () async {
           await actions.lockLandscapeMode();
         }(),
       );
+      logFirebaseEvent('StartPage_custom_action');
+      unawaited(
+        () async {
+          await actions.setStatusBarColor();
+        }(),
+      );
       if (loggedIn) {
         if (valueOrDefault<bool>(currentUserDocument?.deleted, false)) {
+          logFirebaseEvent('StartPage_auth');
           await authManager.deleteUser(context);
+          logFirebaseEvent('StartPage_auth');
           GoRouter.of(context).prepareAuthEvent();
           await authManager.signOut();
           GoRouter.of(context).clearRedirectLocation();
+
+          logFirebaseEvent('StartPage_navigate_to');
 
           context.goNamedAuth(
             AuthPageWidget.routeName,
             context.mounted,
             extra: <String, dynamic>{
-              kTransitionInfoKey: TransitionInfo(
+              '__transition_info__': TransitionInfo(
                 hasTransition: true,
                 transitionType: PageTransitionType.fade,
                 duration: Duration(milliseconds: 0),
@@ -67,6 +113,7 @@ class _StartPageWidgetState extends State<StartPageWidget>
             },
           );
 
+          logFirebaseEvent('StartPage_bottom_sheet');
           showModalBottomSheet(
             isScrollControlled: true,
             backgroundColor: Colors.transparent,
@@ -94,56 +141,33 @@ class _StartPageWidgetState extends State<StartPageWidget>
           return;
         } else {
           if (currentUserEmailVerified ||
-              (currentUserEmail == '')) {
-            if ((valueOrDefault(currentUserDocument?.currentLevel, 0) ==
-                    null) ||
-                (valueOrDefault(currentUserDocument?.currentLevel, 0) <= 0)) {
-              _model.progress = await queryProgressRecordOnce(
-                queryBuilder: (progressRecord) => progressRecord.where(
-                  'user',
-                  isEqualTo: currentUserReference,
-                ),
-                singleRecord: true,
-              ).then((s) => s.firstOrNull);
-              if (!(_model.progress != null)) {
-                unawaited(
-                  () async {
-                    await ProgressRecord.collection
-                        .doc()
-                        .set(createProgressRecordData(
-                          user: currentUserReference,
-                        ));
-                  }(),
-                );
-
-                await currentUserReference!.update(createUsersRecordData(
-                  currentLevel: 1,
-                ));
-              }
-            }
+              (currentUserEmail == null || currentUserEmail == '')) {
+            logFirebaseEvent('StartPage_action_block');
             unawaited(
               () async {
-                await actions.checkSubscriptionById(
-                  currentUserReference!.id,
-                );
+                await action_blocks.checkProgressDoc(context);
+                safeSetState(() {});
               }(),
             );
-            if (valueOrDefault(currentUserDocument?.language, '') == '') {
-              unawaited(
-                () async {
-                  await currentUserReference!.update(createUsersRecordData(
-                    language: FFLocalizations.of(context).languageCode,
-                  ));
-                }(),
-              );
+            if (FFLocalizations.of(context).languageCode == 'de') {
+              logFirebaseEvent('StartPage_update_app_state');
+              FFAppState().seasonFilter = 'de';
+              FFAppState().update(() {});
+            } else {
+              logFirebaseEvent('StartPage_update_app_state');
+              FFAppState().seasonFilter = 'en';
+              FFAppState().update(() {});
             }
+
             if (!kDebugMode) {
               if (isWeb) {
+                logFirebaseEvent('StartPage_navigate_to');
+
                 context.goNamedAuth(
                   AdminAuthWidget.routeName,
                   context.mounted,
                   extra: <String, dynamic>{
-                    kTransitionInfoKey: TransitionInfo(
+                    '__transition_info__': TransitionInfo(
                       hasTransition: true,
                       transitionType: PageTransitionType.fade,
                       duration: Duration(milliseconds: 0),
@@ -154,17 +178,13 @@ class _StartPageWidgetState extends State<StartPageWidget>
                 return;
               }
             }
-
-            await currentUserReference!.update(createUsersRecordData(
-              language: FFLocalizations.of(context).languageCode,
-            ));
-            await action_blocks.checkSignupActiveCampaign(context);
+            logFirebaseEvent('StartPage_navigate_to');
 
             context.goNamedAuth(
               HomePageWidget.routeName,
               context.mounted,
               extra: <String, dynamic>{
-                kTransitionInfoKey: TransitionInfo(
+                '__transition_info__': TransitionInfo(
                   hasTransition: true,
                   transitionType: PageTransitionType.fade,
                   duration: Duration(milliseconds: 0),
@@ -172,39 +192,17 @@ class _StartPageWidgetState extends State<StartPageWidget>
               },
             );
 
-            if (((valueOrDefault<bool>(
-                            currentUserDocument?.showTrialDialog, false) !=
-                        true) ||
-                    (valueOrDefault<bool>(
-                            currentUserDocument?.showTrialDialog, false) ==
-                        null)) &&
-                ((valueOrDefault<bool>(
-                            currentUserDocument?.plusmember, false) !=
-                        true) ||
-                    (valueOrDefault<bool>(
-                            currentUserDocument?.plusmember, false) ==
-                        null))) {
-              showModalBottomSheet(
-                isScrollControlled: true,
-                backgroundColor: Colors.transparent,
-                isDismissible: false,
-                enableDrag: false,
-                context: context,
-                builder: (context) {
-                  return GestureDetector(
-                    onTap: () {
-                      FocusScope.of(context).unfocus();
-                      FocusManager.instance.primaryFocus?.unfocus();
-                    },
-                    child: Padding(
-                      padding: MediaQuery.viewInsetsOf(context),
-                      child: PaymentDialogStartWidget(),
-                    ),
-                  );
-                },
-              ).then((value) => safeSetState(() {}));
-            }
+            logFirebaseEvent('StartPage_custom_action');
+            unawaited(
+              () async {
+                await actions.checkSubscriptionById(
+                  currentUserReference!.id,
+                );
+              }(),
+            );
           } else {
+            logFirebaseEvent('StartPage_navigate_to');
+
             context.goNamedAuth(
               EmailVerificationPageWidget.routeName,
               context.mounted,
@@ -215,7 +213,7 @@ class _StartPageWidgetState extends State<StartPageWidget>
                 ),
               }.withoutNulls,
               extra: <String, dynamic>{
-                kTransitionInfoKey: TransitionInfo(
+                '__transition_info__': TransitionInfo(
                   hasTransition: true,
                   transitionType: PageTransitionType.fade,
                   duration: Duration(milliseconds: 0),
@@ -229,11 +227,13 @@ class _StartPageWidgetState extends State<StartPageWidget>
       } else {
         if (!kDebugMode) {
           if (isWeb) {
+            logFirebaseEvent('StartPage_navigate_to');
+
             context.goNamedAuth(
               AdminAuthWidget.routeName,
               context.mounted,
               extra: <String, dynamic>{
-                kTransitionInfoKey: TransitionInfo(
+                '__transition_info__': TransitionInfo(
                   hasTransition: true,
                   transitionType: PageTransitionType.fade,
                   duration: Duration(milliseconds: 0),
@@ -244,12 +244,13 @@ class _StartPageWidgetState extends State<StartPageWidget>
             return;
           }
         }
+        logFirebaseEvent('StartPage_navigate_to');
 
         context.goNamedAuth(
           AuthPageWidget.routeName,
           context.mounted,
           extra: <String, dynamic>{
-            kTransitionInfoKey: TransitionInfo(
+            '__transition_info__': TransitionInfo(
               hasTransition: true,
               transitionType: PageTransitionType.fade,
               duration: Duration(milliseconds: 0),
@@ -262,8 +263,7 @@ class _StartPageWidgetState extends State<StartPageWidget>
     });
 
     animationsMap.addAll({
-      'containerOnPageLoadAnimation': AnimationInfo(
-        loop: true,
+      'imageOnPageLoadAnimation': AnimationInfo(
         trigger: AnimationTrigger.onPageLoad,
         effectsBuilder: () => [
           FadeEffect(
@@ -289,6 +289,8 @@ class _StartPageWidgetState extends State<StartPageWidget>
 
   @override
   Widget build(BuildContext context) {
+    context.watch<FFAppState>();
+
     return GestureDetector(
       onTap: () {
         FocusScope.of(context).unfocus();
@@ -305,19 +307,14 @@ class _StartPageWidgetState extends State<StartPageWidget>
             children: [
               Align(
                 alignment: AlignmentDirectional(0.0, 0.0),
-                child: Container(
-                  width: double.infinity,
-                  height: MediaQuery.sizeOf(context).height * 0.5,
-                  decoration: BoxDecoration(
-                    image: DecorationImage(
-                      fit: BoxFit.none,
-                      image: Image.asset(
-                        'assets/images/Logo_white_1.png',
-                      ).image,
-                    ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8.0),
+                  child: Image.asset(
+                    'assets/images/newLogo.png',
+                    height: MediaQuery.sizeOf(context).height * 0.25,
+                    fit: BoxFit.contain,
                   ),
-                ).animateOnPageLoad(
-                    animationsMap['containerOnPageLoadAnimation']!),
+                ).animateOnPageLoad(animationsMap['imageOnPageLoadAnimation']!),
               ),
             ],
           ),

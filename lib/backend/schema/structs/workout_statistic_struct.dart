@@ -3,7 +3,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '/backend/schema/util/firestore_util.dart';
+import '/backend/schema/util/schema_util.dart';
+import '/backend/schema/enums/enums.dart';
 
+import 'index.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 
 class WorkoutStatisticStruct extends FFFirebaseStruct {
@@ -288,7 +291,7 @@ Map<String, dynamic> getWorkoutStatisticFirestoreData(
   final firestoreData = mapToFirestore(workoutStatistic.toMap());
 
   // Add any Firestore field values
-  workoutStatistic.firestoreUtilData.fieldValues
+  mapToFirestore(workoutStatistic.firestoreUtilData.fieldValues)
       .forEach((k, v) => firestoreData[k] = v);
 
   return forFieldValue ? mergeNestedFields(firestoreData) : firestoreData;

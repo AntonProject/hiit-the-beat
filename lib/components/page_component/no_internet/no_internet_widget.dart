@@ -1,9 +1,12 @@
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'no_internet_model.dart';
 export 'no_internet_model.dart';
 
@@ -84,10 +87,9 @@ class _NoInternetWidgetState extends State<NoInternetWidget> {
                               fontSize: 20.0,
                               letterSpacing: 0.07,
                               fontWeight: FontWeight.bold,
-                              useGoogleFonts: GoogleFonts.asMap().containsKey(
-                                  FlutterFlowTheme.of(context)
-                                      .bodyMediumFamily),
                               lineHeight: 1.4,
+                              useGoogleFonts: !FlutterFlowTheme.of(context)
+                                  .bodyMediumIsCustom,
                             ),
                       ),
                     ),
@@ -101,9 +103,9 @@ class _NoInternetWidgetState extends State<NoInternetWidget> {
                                 FlutterFlowTheme.of(context).bodyMediumFamily,
                             letterSpacing: 0.07,
                             fontWeight: FontWeight.normal,
-                            useGoogleFonts: GoogleFonts.asMap().containsKey(
-                                FlutterFlowTheme.of(context).bodyMediumFamily),
                             lineHeight: 1.4,
+                            useGoogleFonts: !FlutterFlowTheme.of(context)
+                                .bodyMediumIsCustom,
                           ),
                     ),
                   ].divide(SizedBox(height: 12.0)),
@@ -112,6 +114,8 @@ class _NoInternetWidgetState extends State<NoInternetWidget> {
             ),
             FFButtonWidget(
               onPressed: () async {
+                logFirebaseEvent('NO_INTERNET_COMP_RECONNECT_BTN_ON_TAP');
+                logFirebaseEvent('Button_haptic_feedback');
                 HapticFeedback.selectionClick();
               },
               text: FFLocalizations.of(context).getText(
@@ -128,9 +132,9 @@ class _NoInternetWidgetState extends State<NoInternetWidget> {
                       color: FlutterFlowTheme.of(context).primaryText,
                       fontSize: 14.0,
                       letterSpacing: 0.07,
-                      useGoogleFonts: GoogleFonts.asMap().containsKey(
-                          FlutterFlowTheme.of(context).titleSmallFamily),
                       lineHeight: 1.4,
+                      useGoogleFonts:
+                          !FlutterFlowTheme.of(context).titleSmallIsCustom,
                     ),
                 elevation: 0.0,
                 borderSide: BorderSide(

@@ -1,0 +1,5 @@
+NSCameraUsageDescription = "プロフィール写真を撮るには、このアプリはカメラへのアクセス許可が必要です";
+NSPhotoLibraryUsageDescription = "プロフィール写真を撮るには、このアプリはカメラへのアクセス許可が必要です";
+NSMicrophoneUsageDescription = "動画の音声を録音するには、このアプリはマイクにアクセスする許可が必要です";
+ITSAppUsesNonExemptEncryption = "false";
+NSUserTrackingUsageDescription = "この許可により、パーソナライズされたワークアウト体験を提供し、アプリの品質を向上させることができます。";

@@ -4,12 +4,18 @@ import '/flutter_flow/flutter_flow_animations.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
+import 'dart:math';
+import 'dart:ui';
 import '/index.dart';
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'beginner_seasons_done_dialog_model.dart';
 export 'beginner_seasons_done_dialog_model.dart';
 
@@ -161,10 +167,9 @@ class _BeginnerSeasonsDoneDialogWidgetState
                               fontSize: 24.0,
                               letterSpacing: 0.07,
                               fontWeight: FontWeight.bold,
-                              useGoogleFonts: GoogleFonts.asMap().containsKey(
-                                  FlutterFlowTheme.of(context)
-                                      .bodyMediumFamily),
                               lineHeight: 1.4,
+                              useGoogleFonts: !FlutterFlowTheme.of(context)
+                                  .bodyMediumIsCustom,
                             ),
                       ),
                     ),
@@ -180,9 +185,9 @@ class _BeginnerSeasonsDoneDialogWidgetState
                             color: FlutterFlowTheme.of(context).primaryText,
                             letterSpacing: 0.07,
                             fontWeight: FontWeight.w600,
-                            useGoogleFonts: GoogleFonts.asMap().containsKey(
-                                FlutterFlowTheme.of(context).bodyMediumFamily),
                             lineHeight: 1.4,
+                            useGoogleFonts: !FlutterFlowTheme.of(context)
+                                .bodyMediumIsCustom,
                           ),
                     ),
                     Padding(
@@ -190,26 +195,37 @@ class _BeginnerSeasonsDoneDialogWidgetState
                           EdgeInsetsDirectional.fromSTEB(0.0, 32.0, 0.0, 0.0),
                       child: FFButtonWidget(
                         onPressed: () async {
+                          logFirebaseEvent(
+                              'BEGINNER_SEASONS_DONE_DIALOG_Gotonextsea');
+                          logFirebaseEvent('Gotonextseason_haptic_feedback');
                           HapticFeedback.selectionClick();
                           if (valueOrDefault(
                                   currentUserDocument?.currentLevel, 0) <
                               3) {
-                            await currentUserReference!.update({
-                              ...mapToFirestore(
-                                {
-                                  'current_level': FieldValue.increment(1),
-                                },
-                              ),
-                            });
+                            logFirebaseEvent('Gotonextseason_backend_call');
+
+                            await currentUserReference!
+                                .update(createUsersRecordData(
+                              currentLevel: 2,
+                            ));
+                            logFirebaseEvent('Gotonextseason_update_app_state');
 
                             FFAppState().update(() {});
                           }
+                          logFirebaseEvent('Gotonextseason_bottom_sheet');
                           Navigator.pop(context);
+                          logFirebaseEvent('Gotonextseason_navigate_to');
 
                           context.goNamed(
                             SeasonWorkoutPageWidget.routeName,
+                            queryParameters: {
+                              'level': serializeParam(
+                                2,
+                                ParamType.int,
+                              ),
+                            }.withoutNulls,
                             extra: <String, dynamic>{
-                              kTransitionInfoKey: TransitionInfo(
+                              '__transition_info__': TransitionInfo(
                                 hasTransition: true,
                                 transitionType: PageTransitionType.fade,
                                 duration: Duration(milliseconds: 0),
@@ -236,10 +252,9 @@ class _BeginnerSeasonsDoneDialogWidgetState
                                 color: FlutterFlowTheme.of(context).primary,
                                 fontSize: 14.0,
                                 letterSpacing: 0.07,
-                                useGoogleFonts: GoogleFonts.asMap().containsKey(
-                                    FlutterFlowTheme.of(context)
-                                        .titleSmallFamily),
                                 lineHeight: 1.4,
+                                useGoogleFonts: !FlutterFlowTheme.of(context)
+                                    .titleSmallIsCustom,
                               ),
                           elevation: 0.0,
                           borderSide: BorderSide(
@@ -255,13 +270,18 @@ class _BeginnerSeasonsDoneDialogWidgetState
                           EdgeInsetsDirectional.fromSTEB(0.0, 8.0, 0.0, 0.0),
                       child: FFButtonWidget(
                         onPressed: () async {
+                          logFirebaseEvent(
+                              'BEGINNER_SEASONS_DONE_DIALOG_Waitfornews');
+                          logFirebaseEvent('Waitfornewseasons_haptic_feedback');
                           HapticFeedback.selectionClick();
+                          logFirebaseEvent('Waitfornewseasons_bottom_sheet');
                           Navigator.pop(context);
+                          logFirebaseEvent('Waitfornewseasons_navigate_to');
 
                           context.goNamed(
                             HomePageWidget.routeName,
                             extra: <String, dynamic>{
-                              kTransitionInfoKey: TransitionInfo(
+                              '__transition_info__': TransitionInfo(
                                 hasTransition: true,
                                 transitionType: PageTransitionType.fade,
                                 duration: Duration(milliseconds: 0),
@@ -288,10 +308,9 @@ class _BeginnerSeasonsDoneDialogWidgetState
                                 color: FlutterFlowTheme.of(context).primaryText,
                                 fontSize: 14.0,
                                 letterSpacing: 0.07,
-                                useGoogleFonts: GoogleFonts.asMap().containsKey(
-                                    FlutterFlowTheme.of(context)
-                                        .titleSmallFamily),
                                 lineHeight: 1.4,
+                                useGoogleFonts: !FlutterFlowTheme.of(context)
+                                    .titleSmallIsCustom,
                               ),
                           elevation: 0.0,
                           borderSide: BorderSide(

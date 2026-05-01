@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'flutter_flow/request_manager.dart';
 import '/backend/backend.dart';
 import '/backend/schema/structs/index.dart';
+import '/backend/schema/enums/enums.dart';
+import '/backend/api_requests/api_manager.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'flutter_flow/flutter_flow_util.dart';
 
@@ -21,6 +24,9 @@ class FFAppState extends ChangeNotifier {
     prefs = await SharedPreferences.getInstance();
     _safeInit(() {
       _hideBanners = prefs.getStringList('ff_hideBanners') ?? _hideBanners;
+    });
+    _safeInit(() {
+      _hideCompleted = prefs.getBool('ff_hideCompleted') ?? _hideCompleted;
     });
     _safeInit(() {
       _levels = prefs
@@ -89,7 +95,14 @@ class FFAppState extends ChangeNotifier {
           _genders;
     });
     _safeInit(() {
-      _adminPage = prefs.getString('ff_adminPage') ?? _adminPage;
+      _requestFBpermission =
+          prefs.getBool('ff_requestFBpermission') ?? _requestFBpermission;
+    });
+    _safeInit(() {
+      _firstOpen = prefs.getBool('ff_firstOpen') ?? _firstOpen;
+    });
+    _safeInit(() {
+      _onboardingHome = prefs.getBool('ff_onboardingHome') ?? _onboardingHome;
     });
   }
 
@@ -135,7 +148,7 @@ class FFAppState extends ChangeNotifier {
     prefs.setStringList('ff_hideBanners', _hideBanners);
   }
 
-  String _seasonFilter = 'all';
+  String _seasonFilter = 'de';
   String get seasonFilter => _seasonFilter;
   set seasonFilter(String value) {
     _seasonFilter = value;
@@ -145,17 +158,18 @@ class FFAppState extends ChangeNotifier {
   bool get hideCompleted => _hideCompleted;
   set hideCompleted(bool value) {
     _hideCompleted = value;
+    prefs.setBool('ff_hideCompleted', value);
   }
 
   List<LevelStruct> _levels = [
     LevelStruct.fromSerializableMap(jsonDecode(
-        '{\"number\":\"1\",\"title_en\":\"Beginner\",\"title_de\":\"Beginner\"}')),
+        '{\"number\":\"1\",\"title_en\":\"Beginner\",\"title_de\":\"Beginner\",\"title_ja\":\"Beginner\"}')),
     LevelStruct.fromSerializableMap(jsonDecode(
-        '{\"number\":\"2\",\"title_en\":\"Advanced\",\"title_de\":\"Advanced\"}')),
+        '{\"number\":\"2\",\"title_en\":\"Advanced\",\"title_de\":\"Advanced\",\"title_ja\":\"Advanced\"}')),
     LevelStruct.fromSerializableMap(jsonDecode(
-        '{\"number\":\"3\",\"title_en\":\"Expert\",\"title_de\":\"Expert\"}')),
+        '{\"number\":\"3\",\"title_en\":\"Expert\",\"title_de\":\"Expert\",\"title_ja\":\"Expert\"}')),
     LevelStruct.fromSerializableMap(jsonDecode(
-        '{\"number\":\"4\",\"title_en\":\"Godmode\",\"title_de\":\"Godmode\"}'))
+        '{\"number\":\"4\",\"title_en\":\"Godmode\",\"title_de\":\"Godmode\",\"title_ja\":\"Godmode\"}'))
   ];
   List<LevelStruct> get levels => _levels;
   set levels(List<LevelStruct> value) {
@@ -212,9 +226,9 @@ class FFAppState extends ChangeNotifier {
 
   List<LevelStruct> _types = [
     LevelStruct.fromSerializableMap(jsonDecode(
-        '{\"number\":\"1\",\"title_en\":\"Warm Ups\",\"title_de\":\"Warm Ups\"}')),
+        '{\"number\":\"1\",\"title_en\":\"Warm Ups\",\"title_de\":\"Warm Ups\",\"title_ja\":\"Warm Ups\"}')),
     LevelStruct.fromSerializableMap(jsonDecode(
-        '{\"number\":\"2\",\"title_en\":\"Cool Downs\",\"title_de\":\"Cool Downs\"}'))
+        '{\"number\":\"2\",\"title_en\":\"Cool Downs\",\"title_de\":\"Cool Downs\",\"title_ja\":\"Cool Downs\"}'))
   ];
   List<LevelStruct> get types => _types;
   set types(List<LevelStruct> value) {
@@ -252,15 +266,15 @@ class FFAppState extends ChangeNotifier {
 
   List<LevelStruct> _goalsList = [
     LevelStruct.fromSerializableMap(jsonDecode(
-        '{\"number\":\"1\",\"title_en\":\"Get more fit\",\"title_de\":\"Fitter werden\"}')),
+        '{\"number\":\"1\",\"title_en\":\"Get more fit\",\"title_de\":\"Fitter werden\",\"title_ja\":\"もっと健康になる\"}')),
     LevelStruct.fromSerializableMap(jsonDecode(
-        '{\"number\":\"2\",\"title_en\":\"Lose weight\",\"title_de\":\"Gewicht verlieren\"}')),
+        '{\"number\":\"2\",\"title_en\":\"Lose weight\",\"title_de\":\"Gewicht verlieren\",\"title_ja\":\"体重を減らす\"}')),
     LevelStruct.fromSerializableMap(jsonDecode(
-        '{\"number\":\"3\",\"title_en\":\"Build muscle\",\"title_de\":\"Athletischer werden\"}')),
+        '{\"number\":\"3\",\"title_en\":\"Build muscle\",\"title_de\":\"Athletischer werden\",\"title_ja\":\"筋肉を鍛える\"}')),
     LevelStruct.fromSerializableMap(jsonDecode(
-        '{\"number\":\"4\",\"title_en\":\"Stay healthy\",\"title_de\":\"Gesund bleiben\"}')),
+        '{\"number\":\"4\",\"title_en\":\"Stay healthy\",\"title_de\":\"Gesund bleiben\",\"title_ja\":\"健康を維持する\"}')),
     LevelStruct.fromSerializableMap(jsonDecode(
-        '{\"number\":\"5\",\"title_en\":\"Build strength and endurance\",\"title_de\":\"Mehr Kraft aufbauen und Ausdauer verbessern\"}'))
+        '{\"number\":\"5\",\"title_en\":\"Build strength and endurance\",\"title_de\":\"Mehr Kraft aufbauen und Ausdauer verbessern\",\"title_ja\":\"強さと持久力を高める\"}'))
   ];
   List<LevelStruct> get goalsList => _goalsList;
   set goalsList(List<LevelStruct> value) {
@@ -304,11 +318,11 @@ class FFAppState extends ChangeNotifier {
 
   List<LevelStruct> _genders = [
     LevelStruct.fromSerializableMap(jsonDecode(
-        '{\"number\":\"1\",\"title_en\":\"Male\",\"title_de\":\"Männlich\"}')),
+        '{\"number\":\"1\",\"title_en\":\"Male\",\"title_de\":\"Männlich\",\"title_ja\":\"男\"}')),
     LevelStruct.fromSerializableMap(jsonDecode(
-        '{\"number\":\"2\",\"title_en\":\"Female\",\"title_de\":\"Weiblich\"}')),
+        '{\"number\":\"2\",\"title_en\":\"Female\",\"title_de\":\"Weiblich\",\"title_ja\":\"女性\"}')),
     LevelStruct.fromSerializableMap(jsonDecode(
-        '{\"number\":\"3\",\"title_en\":\"Other\",\"title_de\":\"Divers\"}'))
+        '{\"number\":\"3\",\"title_en\":\"Other\",\"title_de\":\"Divers\",\"title_ja\":\"他の\"}'))
   ];
   List<LevelStruct> get genders => _genders;
   set genders(List<LevelStruct> value) {
@@ -349,30 +363,158 @@ class FFAppState extends ChangeNotifier {
         'ff_genders', _genders.map((x) => x.serialize()).toList());
   }
 
-  String _adminPage = 'users';
-  String get adminPage => _adminPage;
-  set adminPage(String value) {
-    _adminPage = value;
-    prefs.setString('ff_adminPage', value);
-  }
-
-  String _goalEn = 'Get more fit';
-  String get goalEn => _goalEn;
-  set goalEn(String value) {
-    _goalEn = value;
-  }
-
-  String _goalDe = 'Fitter werden';
-  String get goalDe => _goalDe;
-  set goalDe(String value) {
-    _goalDe = value;
-  }
-
   int _subscriptionLooop = 0;
   int get subscriptionLooop => _subscriptionLooop;
   set subscriptionLooop(int value) {
     _subscriptionLooop = value;
   }
+
+  bool _requestFBpermission = true;
+  bool get requestFBpermission => _requestFBpermission;
+  set requestFBpermission(bool value) {
+    _requestFBpermission = value;
+    prefs.setBool('ff_requestFBpermission', value);
+  }
+
+  DateTime? _refreshDate;
+  DateTime? get refreshDate => _refreshDate;
+  set refreshDate(DateTime? value) {
+    _refreshDate = value;
+  }
+
+  bool _firstOpen = true;
+  bool get firstOpen => _firstOpen;
+  set firstOpen(bool value) {
+    _firstOpen = value;
+    prefs.setBool('ff_firstOpen', value);
+  }
+
+  bool _onboardingHome = true;
+  bool get onboardingHome => _onboardingHome;
+  set onboardingHome(bool value) {
+    _onboardingHome = value;
+    prefs.setBool('ff_onboardingHome', value);
+  }
+
+  final _workoutsManager = FutureRequestManager<List<WorkoutsRecord>>();
+  Future<List<WorkoutsRecord>> workouts({
+    String? uniqueQueryKey,
+    bool? overrideCache,
+    required Future<List<WorkoutsRecord>> Function() requestFn,
+  }) =>
+      _workoutsManager.performRequest(
+        uniqueQueryKey: uniqueQueryKey,
+        overrideCache: overrideCache,
+        requestFn: requestFn,
+      );
+  void clearWorkoutsCache() => _workoutsManager.clear();
+  void clearWorkoutsCacheKey(String? uniqueKey) =>
+      _workoutsManager.clearRequest(uniqueKey);
+
+  final _seasonsManager = FutureRequestManager<List<SeasonsRecord>>();
+  Future<List<SeasonsRecord>> seasons({
+    String? uniqueQueryKey,
+    bool? overrideCache,
+    required Future<List<SeasonsRecord>> Function() requestFn,
+  }) =>
+      _seasonsManager.performRequest(
+        uniqueQueryKey: uniqueQueryKey,
+        overrideCache: overrideCache,
+        requestFn: requestFn,
+      );
+  void clearSeasonsCache() => _seasonsManager.clear();
+  void clearSeasonsCacheKey(String? uniqueKey) =>
+      _seasonsManager.clearRequest(uniqueKey);
+
+  final _usersManager = FutureRequestManager<List<UsersRecord>>();
+  Future<List<UsersRecord>> users({
+    String? uniqueQueryKey,
+    bool? overrideCache,
+    required Future<List<UsersRecord>> Function() requestFn,
+  }) =>
+      _usersManager.performRequest(
+        uniqueQueryKey: uniqueQueryKey,
+        overrideCache: overrideCache,
+        requestFn: requestFn,
+      );
+  void clearUsersCache() => _usersManager.clear();
+  void clearUsersCacheKey(String? uniqueKey) =>
+      _usersManager.clearRequest(uniqueKey);
+
+  final _addManager = FutureRequestManager<List<AdditionalsRecord>>();
+  Future<List<AdditionalsRecord>> add({
+    String? uniqueQueryKey,
+    bool? overrideCache,
+    required Future<List<AdditionalsRecord>> Function() requestFn,
+  }) =>
+      _addManager.performRequest(
+        uniqueQueryKey: uniqueQueryKey,
+        overrideCache: overrideCache,
+        requestFn: requestFn,
+      );
+  void clearAddCache() => _addManager.clear();
+  void clearAddCacheKey(String? uniqueKey) =>
+      _addManager.clearRequest(uniqueKey);
+
+  final _zoomManager = FutureRequestManager<List<AdditionalsRecord>>();
+  Future<List<AdditionalsRecord>> zoom({
+    String? uniqueQueryKey,
+    bool? overrideCache,
+    required Future<List<AdditionalsRecord>> Function() requestFn,
+  }) =>
+      _zoomManager.performRequest(
+        uniqueQueryKey: uniqueQueryKey,
+        overrideCache: overrideCache,
+        requestFn: requestFn,
+      );
+  void clearZoomCache() => _zoomManager.clear();
+  void clearZoomCacheKey(String? uniqueKey) =>
+      _zoomManager.clearRequest(uniqueKey);
+
+  final _bannersManager = FutureRequestManager<List<VideosRecord>>();
+  Future<List<VideosRecord>> banners({
+    String? uniqueQueryKey,
+    bool? overrideCache,
+    required Future<List<VideosRecord>> Function() requestFn,
+  }) =>
+      _bannersManager.performRequest(
+        uniqueQueryKey: uniqueQueryKey,
+        overrideCache: overrideCache,
+        requestFn: requestFn,
+      );
+  void clearBannersCache() => _bannersManager.clear();
+  void clearBannersCacheKey(String? uniqueKey) =>
+      _bannersManager.clearRequest(uniqueKey);
+
+  final _promoManager = FutureRequestManager<List<PromoRecord>>();
+  Future<List<PromoRecord>> promo({
+    String? uniqueQueryKey,
+    bool? overrideCache,
+    required Future<List<PromoRecord>> Function() requestFn,
+  }) =>
+      _promoManager.performRequest(
+        uniqueQueryKey: uniqueQueryKey,
+        overrideCache: overrideCache,
+        requestFn: requestFn,
+      );
+  void clearPromoCache() => _promoManager.clear();
+  void clearPromoCacheKey(String? uniqueKey) =>
+      _promoManager.clearRequest(uniqueKey);
+
+  final _progressManager = FutureRequestManager<List<ProgressRecord>>();
+  Future<List<ProgressRecord>> progress({
+    String? uniqueQueryKey,
+    bool? overrideCache,
+    required Future<List<ProgressRecord>> Function() requestFn,
+  }) =>
+      _progressManager.performRequest(
+        uniqueQueryKey: uniqueQueryKey,
+        overrideCache: overrideCache,
+        requestFn: requestFn,
+      );
+  void clearProgressCache() => _progressManager.clear();
+  void clearProgressCacheKey(String? uniqueKey) =>
+      _progressManager.clearRequest(uniqueKey);
 }
 
 void _safeInit(Function() initializeField) {

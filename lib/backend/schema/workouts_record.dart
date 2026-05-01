@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 
 import '/backend/schema/util/firestore_util.dart';
+import '/backend/schema/util/schema_util.dart';
+import '/backend/schema/enums/enums.dart';
 
 import 'index.dart';
 import '/flutter_flow/flutter_flow_util.dart';
@@ -75,6 +77,21 @@ class WorkoutsRecord extends FirestoreRecord {
   bool get free => _free ?? false;
   bool hasFree() => _free != null;
 
+  // "video_url_ja" field.
+  String? _videoUrlJa;
+  String get videoUrlJa => _videoUrlJa ?? '';
+  bool hasVideoUrlJa() => _videoUrlJa != null;
+
+  // "title_ja" field.
+  String? _titleJa;
+  String get titleJa => _titleJa ?? '';
+  bool hasTitleJa() => _titleJa != null;
+
+  // "duration_ja" field.
+  String? _durationJa;
+  String get durationJa => _durationJa ?? '';
+  bool hasDurationJa() => _durationJa != null;
+
   void _initializeFields() {
     _videoUrlEn = snapshotData['video_url_en'] as String?;
     _videoUrlDe = snapshotData['video_url_de'] as String?;
@@ -88,6 +105,9 @@ class WorkoutsRecord extends FirestoreRecord {
     _duration = snapshotData['duration'] as String?;
     _durationDe = snapshotData['duration_de'] as String?;
     _free = snapshotData['free'] as bool?;
+    _videoUrlJa = snapshotData['video_url_ja'] as String?;
+    _titleJa = snapshotData['title_ja'] as String?;
+    _durationJa = snapshotData['duration_ja'] as String?;
   }
 
   static CollectionReference get collection =>
@@ -137,6 +157,9 @@ Map<String, dynamic> createWorkoutsRecordData({
   String? duration,
   String? durationDe,
   bool? free,
+  String? videoUrlJa,
+  String? titleJa,
+  String? durationJa,
 }) {
   final firestoreData = mapToFirestore(
     <String, dynamic>{
@@ -152,6 +175,9 @@ Map<String, dynamic> createWorkoutsRecordData({
       'duration': duration,
       'duration_de': durationDe,
       'free': free,
+      'video_url_ja': videoUrlJa,
+      'title_ja': titleJa,
+      'duration_ja': durationJa,
     }.withoutNulls,
   );
 
@@ -174,7 +200,10 @@ class WorkoutsRecordDocumentEquality implements Equality<WorkoutsRecord> {
         e1?.points == e2?.points &&
         e1?.duration == e2?.duration &&
         e1?.durationDe == e2?.durationDe &&
-        e1?.free == e2?.free;
+        e1?.free == e2?.free &&
+        e1?.videoUrlJa == e2?.videoUrlJa &&
+        e1?.titleJa == e2?.titleJa &&
+        e1?.durationJa == e2?.durationJa;
   }
 
   @override
@@ -190,7 +219,10 @@ class WorkoutsRecordDocumentEquality implements Equality<WorkoutsRecord> {
         e?.points,
         e?.duration,
         e?.durationDe,
-        e?.free
+        e?.free,
+        e?.videoUrlJa,
+        e?.titleJa,
+        e?.durationJa
       ]);
 
   @override

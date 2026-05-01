@@ -7,14 +7,18 @@ import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
 import 'dart:async';
+import 'dart:math';
 import 'dart:ui';
 import '/index.dart';
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'payment_dialog_start_model.dart';
 export 'payment_dialog_start_model.dart';
 
@@ -45,6 +49,8 @@ class _PaymentDialogStartWidgetState extends State<PaymentDialogStartWidget>
 
     // On component load action.
     SchedulerBinding.instance.addPostFrameCallback((_) async {
+      logFirebaseEvent('PAYMENT_DIALOG_START_PaymentDialogStart_');
+      logFirebaseEvent('PaymentDialogStart_backend_call');
       unawaited(
         () async {
           await currentUserReference!.update(createUsersRecordData(
@@ -101,12 +107,7 @@ class _PaymentDialogStartWidgetState extends State<PaymentDialogStartWidget>
               'assets/images/instant_paywall_new_user.webp',
             ).image,
           ),
-          borderRadius: BorderRadius.only(
-            bottomLeft: Radius.circular(0.0),
-            bottomRight: Radius.circular(0.0),
-            topLeft: Radius.circular(0.0),
-            topRight: Radius.circular(0.0),
-          ),
+          borderRadius: BorderRadius.only(),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -127,6 +128,8 @@ class _PaymentDialogStartWidgetState extends State<PaymentDialogStartWidget>
                     size: 24.0,
                   ),
                   onPressed: () async {
+                    logFirebaseEvent('PAYMENT_DIALOG_START_close24_ICN_ON_TAP');
+                    logFirebaseEvent('IconButton_bottom_sheet');
                     Navigator.pop(context);
                   },
                 ),
@@ -147,12 +150,12 @@ class _PaymentDialogStartWidgetState extends State<PaymentDialogStartWidget>
                               0.0, 24.0, 0.0, 0.0),
                           child: AutoSizeText(
                             FFLocalizations.of(context).getText(
-                              'yddbsx0v' /* START YOUR 7-DAY 
-TRIAL — FOR ... */
+                              'yddbsx0v' /* UNLOCK
+THE FULL HIIT THE BEAT ... */
                               ,
                             ),
                             textAlign: TextAlign.center,
-                            maxLines: 2,
+                            maxLines: 3,
                             style: FlutterFlowTheme.of(context)
                                 .bodyMedium
                                 .override(
@@ -162,10 +165,9 @@ TRIAL — FOR ... */
                                   letterSpacing: 0.07,
                                   fontWeight: FontWeight.w900,
                                   fontStyle: FontStyle.italic,
-                                  useGoogleFonts: GoogleFonts.asMap()
-                                      .containsKey(FlutterFlowTheme.of(context)
-                                          .bodyMediumFamily),
                                   lineHeight: 1.4,
+                                  useGoogleFonts: !FlutterFlowTheme.of(context)
+                                      .bodyMediumIsCustom,
                                 ),
                           ),
                         ),
@@ -177,7 +179,7 @@ TRIAL — FOR ... */
                               0.0, 4.0, 0.0, 32.0),
                           child: AutoSizeText(
                             FFLocalizations.of(context).getText(
-                              'regbuahb' /* YOUR FIRST WORKOUT IS WAITING ... */,
+                              'regbuahb' /* TRAIN WITH MUSIC, ENERGY & FUN... */,
                             ),
                             textAlign: TextAlign.center,
                             maxLines: 2,
@@ -192,10 +194,9 @@ TRIAL — FOR ... */
                                   letterSpacing: 0.07,
                                   fontWeight: FontWeight.bold,
                                   fontStyle: FontStyle.italic,
-                                  useGoogleFonts: GoogleFonts.asMap()
-                                      .containsKey(FlutterFlowTheme.of(context)
-                                          .bodyMediumFamily),
                                   lineHeight: 1.4,
+                                  useGoogleFonts: !FlutterFlowTheme.of(context)
+                                      .bodyMediumIsCustom,
                                 ),
                           ),
                         ),
@@ -230,7 +231,7 @@ TRIAL — FOR ... */
                                   Expanded(
                                     child: Text(
                                       FFLocalizations.of(context).getText(
-                                        'ho2sfkjt' /* More energy, more motivation, ... */,
+                                        'ho2sfkjt' /* Music-driven workouts — no lim... */,
                                       ),
                                       textAlign: TextAlign.start,
                                       style: FlutterFlowTheme.of(context)
@@ -244,127 +245,10 @@ TRIAL — FOR ... */
                                             fontSize: 14.0,
                                             letterSpacing: 0.07,
                                             fontWeight: FontWeight.normal,
-                                            useGoogleFonts: GoogleFonts.asMap()
-                                                .containsKey(
-                                                    FlutterFlowTheme.of(context)
-                                                        .bodyMediumFamily),
                                             lineHeight: 1.4,
-                                          ),
-                                    ),
-                                  ),
-                                ].divide(SizedBox(width: 16.0)),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(12.0),
-                        child: BackdropFilter(
-                          filter: ImageFilter.blur(
-                            sigmaX: 24.0,
-                            sigmaY: 24.0,
-                          ),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: Color(0x12FFFFFF),
-                              borderRadius: BorderRadius.circular(12.0),
-                            ),
-                            child: Padding(
-                              padding: EdgeInsetsDirectional.fromSTEB(
-                                  16.0, 12.0, 16.0, 12.0),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.max,
-                                children: [
-                                  ClipRRect(
-                                    borderRadius: BorderRadius.circular(0.0),
-                                    child: Image.asset(
-                                      'assets/images/chart.webp',
-                                      width: 24.0,
-                                      height: 24.0,
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: Text(
-                                      FFLocalizations.of(context).getText(
-                                        'p773u3g7' /* 100+ exercises & 80+ workouts ... */,
-                                      ),
-                                      textAlign: TextAlign.start,
-                                      style: FlutterFlowTheme.of(context)
-                                          .bodyMedium
-                                          .override(
-                                            fontFamily:
-                                                FlutterFlowTheme.of(context)
-                                                    .bodyMediumFamily,
-                                            color: FlutterFlowTheme.of(context)
-                                                .primaryText,
-                                            fontSize: 14.0,
-                                            letterSpacing: 0.07,
-                                            fontWeight: FontWeight.normal,
-                                            useGoogleFonts: GoogleFonts.asMap()
-                                                .containsKey(
-                                                    FlutterFlowTheme.of(context)
-                                                        .bodyMediumFamily),
-                                            lineHeight: 1.4,
-                                          ),
-                                    ),
-                                  ),
-                                ].divide(SizedBox(width: 16.0)),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(12.0),
-                        child: BackdropFilter(
-                          filter: ImageFilter.blur(
-                            sigmaX: 24.0,
-                            sigmaY: 24.0,
-                          ),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: Color(0x12FFFFFF),
-                              borderRadius: BorderRadius.circular(12.0),
-                            ),
-                            child: Padding(
-                              padding: EdgeInsetsDirectional.fromSTEB(
-                                  16.0, 12.0, 16.0, 12.0),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.max,
-                                children: [
-                                  ClipRRect(
-                                    borderRadius: BorderRadius.circular(0.0),
-                                    child: Image.asset(
-                                      'assets/images/stars.webp',
-                                      width: 24.0,
-                                      height: 24.0,
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: Text(
-                                      FFLocalizations.of(context).getText(
-                                        '78caukbi' /* New content regularly — no wor... */,
-                                      ),
-                                      textAlign: TextAlign.start,
-                                      style: FlutterFlowTheme.of(context)
-                                          .bodyMedium
-                                          .override(
-                                            fontFamily:
-                                                FlutterFlowTheme.of(context)
-                                                    .bodyMediumFamily,
-                                            color: FlutterFlowTheme.of(context)
-                                                .primaryText,
-                                            fontSize: 14.0,
-                                            letterSpacing: 0.07,
-                                            fontWeight: FontWeight.normal,
-                                            useGoogleFonts: GoogleFonts.asMap()
-                                                .containsKey(
-                                                    FlutterFlowTheme.of(context)
-                                                        .bodyMediumFamily),
-                                            lineHeight: 1.4,
+                                            useGoogleFonts:
+                                                !FlutterFlowTheme.of(context)
+                                                    .bodyMediumIsCustom,
                                           ),
                                     ),
                                   ),
@@ -404,7 +288,7 @@ TRIAL — FOR ... */
                                   Expanded(
                                     child: Text(
                                       FFLocalizations.of(context).getText(
-                                        '0a9jj1ve' /* Live Zoom training — work out ... */,
+                                        '0a9jj1ve' /* Weekly live ZOOM workout Jams ... */,
                                       ),
                                       textAlign: TextAlign.start,
                                       style: FlutterFlowTheme.of(context)
@@ -418,11 +302,10 @@ TRIAL — FOR ... */
                                             fontSize: 14.0,
                                             letterSpacing: 0.07,
                                             fontWeight: FontWeight.normal,
-                                            useGoogleFonts: GoogleFonts.asMap()
-                                                .containsKey(
-                                                    FlutterFlowTheme.of(context)
-                                                        .bodyMediumFamily),
                                             lineHeight: 1.4,
+                                            useGoogleFonts:
+                                                !FlutterFlowTheme.of(context)
+                                                    .bodyMediumIsCustom,
                                           ),
                                     ),
                                   ),
@@ -453,7 +336,7 @@ TRIAL — FOR ... */
                                   ClipRRect(
                                     borderRadius: BorderRadius.circular(0.0),
                                     child: Image.asset(
-                                      'assets/images/fingers.webp',
+                                      'assets/images/stars.webp',
                                       width: 24.0,
                                       height: 24.0,
                                       fit: BoxFit.cover,
@@ -462,7 +345,7 @@ TRIAL — FOR ... */
                                   Expanded(
                                     child: Text(
                                       FFLocalizations.of(context).getText(
-                                        'kxbtg83c' /* Try HIIT the Beat for free for... */,
+                                        '78caukbi' /* For all fitness levels — Simpl... */,
                                       ),
                                       textAlign: TextAlign.start,
                                       style: FlutterFlowTheme.of(context)
@@ -476,11 +359,67 @@ TRIAL — FOR ... */
                                             fontSize: 14.0,
                                             letterSpacing: 0.07,
                                             fontWeight: FontWeight.normal,
-                                            useGoogleFonts: GoogleFonts.asMap()
-                                                .containsKey(
-                                                    FlutterFlowTheme.of(context)
-                                                        .bodyMediumFamily),
                                             lineHeight: 1.4,
+                                            useGoogleFonts:
+                                                !FlutterFlowTheme.of(context)
+                                                    .bodyMediumIsCustom,
+                                          ),
+                                    ),
+                                  ),
+                                ].divide(SizedBox(width: 16.0)),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(12.0),
+                        child: BackdropFilter(
+                          filter: ImageFilter.blur(
+                            sigmaX: 24.0,
+                            sigmaY: 24.0,
+                          ),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Color(0x12FFFFFF),
+                              borderRadius: BorderRadius.circular(12.0),
+                            ),
+                            child: Padding(
+                              padding: EdgeInsetsDirectional.fromSTEB(
+                                  16.0, 12.0, 16.0, 12.0),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.max,
+                                children: [
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(0.0),
+                                    child: Image.asset(
+                                      'assets/images/chart.webp',
+                                      width: 24.0,
+                                      height: 24.0,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: Text(
+                                      FFLocalizations.of(context).getText(
+                                        'p773u3g7' /* Track your progress & stay mot... */,
+                                      ),
+                                      textAlign: TextAlign.start,
+                                      style: FlutterFlowTheme.of(context)
+                                          .bodyMedium
+                                          .override(
+                                            fontFamily:
+                                                FlutterFlowTheme.of(context)
+                                                    .bodyMediumFamily,
+                                            color: FlutterFlowTheme.of(context)
+                                                .primaryText,
+                                            fontSize: 14.0,
+                                            letterSpacing: 0.07,
+                                            fontWeight: FontWeight.normal,
+                                            lineHeight: 1.4,
+                                            useGoogleFonts:
+                                                !FlutterFlowTheme.of(context)
+                                                    .bodyMediumIsCustom,
                                           ),
                                     ),
                                   ),
@@ -503,13 +442,18 @@ TRIAL — FOR ... */
               padding: EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 0.0),
               child: FFButtonWidget(
                 onPressed: () async {
+                  logFirebaseEvent('PAYMENT_DIALOG_START_SELECTSUBSCRIPTION_');
+                  logFirebaseEvent('SELECTSUBSCRIPTION_haptic_feedback');
                   HapticFeedback.selectionClick();
-                  if (currentUserEmail != '') {
+                  if (currentUserEmail != null && currentUserEmail != '') {
+                    logFirebaseEvent('SELECTSUBSCRIPTION_bottom_sheet');
                     Navigator.pop(context);
+                    logFirebaseEvent('SELECTSUBSCRIPTION_navigate_to');
 
                     context.pushNamed(SubscriptionPageWidget.routeName);
                   } else {
-                    showModalBottomSheet(
+                    logFirebaseEvent('SELECTSUBSCRIPTION_bottom_sheet');
+                    await showModalBottomSheet(
                       isScrollControlled: true,
                       backgroundColor: Colors.transparent,
                       context: context,
@@ -523,7 +467,7 @@ TRIAL — FOR ... */
                   }
                 },
                 text: FFLocalizations.of(context).getText(
-                  '0rf1lodg' /* START YOUR FREE TRIAL */,
+                  '0rf1lodg' /* START 7-DAY FREE TRIAL */,
                 ),
                 options: FFButtonOptions(
                   width: double.infinity,
@@ -539,9 +483,9 @@ TRIAL — FOR ... */
                         fontSize: 16.0,
                         letterSpacing: 0.07,
                         fontWeight: FontWeight.bold,
-                        useGoogleFonts: GoogleFonts.asMap().containsKey(
-                            FlutterFlowTheme.of(context).titleSmallFamily),
                         lineHeight: 1.4,
+                        useGoogleFonts:
+                            !FlutterFlowTheme.of(context).titleSmallIsCustom,
                       ),
                   elevation: 0.0,
                   borderSide: BorderSide(

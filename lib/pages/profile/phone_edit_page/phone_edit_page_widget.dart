@@ -5,12 +5,16 @@ import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
 import 'dart:async';
+import 'dart:ui';
 import '/custom_code/actions/index.dart' as actions;
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:easy_debounce/easy_debounce.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'phone_edit_page_model.dart';
 export 'phone_edit_page_model.dart';
 
@@ -34,11 +38,21 @@ class _PhoneEditPageWidgetState extends State<PhoneEditPageWidget> {
     super.initState();
     _model = createModel(context, () => PhoneEditPageModel());
 
+    logFirebaseEvent('screen_view',
+        parameters: {'screen_name': 'PhoneEditPage'});
     // On page load action.
     SchedulerBinding.instance.addPostFrameCallback((_) async {
+      logFirebaseEvent('PHONE_EDIT_PhoneEditPage_ON_INIT_STATE');
+      logFirebaseEvent('PhoneEditPage_custom_action');
       unawaited(
         () async {
           await actions.lockLandscapeMode();
+        }(),
+      );
+      logFirebaseEvent('PhoneEditPage_custom_action');
+      unawaited(
+        () async {
+          await actions.setStatusBarColor();
         }(),
       );
     });
@@ -88,6 +102,8 @@ class _PhoneEditPageWidgetState extends State<PhoneEditPageWidget> {
                       size: 24.0,
                     ),
                     onPressed: () async {
+                      logFirebaseEvent('PHONE_EDIT_arrowLeft24_ICN_ON_TAP');
+                      logFirebaseEvent('IconButton_navigate_back');
                       context.safePop();
                     },
                   ),
@@ -100,9 +116,9 @@ class _PhoneEditPageWidgetState extends State<PhoneEditPageWidget> {
                               FlutterFlowTheme.of(context).bodyMediumFamily,
                           letterSpacing: 0.07,
                           fontWeight: FontWeight.w600,
-                          useGoogleFonts: GoogleFonts.asMap().containsKey(
-                              FlutterFlowTheme.of(context).bodyMediumFamily),
                           lineHeight: 1.4,
+                          useGoogleFonts:
+                              !FlutterFlowTheme.of(context).bodyMediumIsCustom,
                         ),
                   ),
                   Container(
@@ -127,9 +143,9 @@ class _PhoneEditPageWidgetState extends State<PhoneEditPageWidget> {
                             fontSize: 24.0,
                             letterSpacing: 0.0,
                             fontWeight: FontWeight.bold,
-                            useGoogleFonts: GoogleFonts.asMap().containsKey(
-                                FlutterFlowTheme.of(context).bodyMediumFamily),
                             lineHeight: 1.3,
+                            useGoogleFonts: !FlutterFlowTheme.of(context)
+                                .bodyMediumIsCustom,
                           ),
                     ),
                     Padding(
@@ -143,10 +159,9 @@ class _PhoneEditPageWidgetState extends State<PhoneEditPageWidget> {
                               fontFamily:
                                   FlutterFlowTheme.of(context).bodyMediumFamily,
                               letterSpacing: 0.07,
-                              useGoogleFonts: GoogleFonts.asMap().containsKey(
-                                  FlutterFlowTheme.of(context)
-                                      .bodyMediumFamily),
                               lineHeight: 1.4,
+                              useGoogleFonts: !FlutterFlowTheme.of(context)
+                                  .bodyMediumIsCustom,
                             ),
                       ),
                     ),
@@ -163,10 +178,9 @@ class _PhoneEditPageWidgetState extends State<PhoneEditPageWidget> {
                               fontSize: 12.0,
                               letterSpacing: 0.0,
                               fontWeight: FontWeight.w500,
-                              useGoogleFonts: GoogleFonts.asMap().containsKey(
-                                  FlutterFlowTheme.of(context)
-                                      .bodyMediumFamily),
                               lineHeight: 1.3,
+                              useGoogleFonts: !FlutterFlowTheme.of(context)
+                                  .bodyMediumIsCustom,
                             ),
                       ),
                     ),
@@ -196,11 +210,10 @@ class _PhoneEditPageWidgetState extends State<PhoneEditPageWidget> {
                                     color: FlutterFlowTheme.of(context).gray,
                                     letterSpacing: 0.07,
                                     fontWeight: FontWeight.w600,
-                                    useGoogleFonts: GoogleFonts.asMap()
-                                        .containsKey(
-                                            FlutterFlowTheme.of(context)
-                                                .bodyMediumFamily),
                                     lineHeight: 1.4,
+                                    useGoogleFonts:
+                                        !FlutterFlowTheme.of(context)
+                                            .bodyMediumIsCustom,
                                   ),
                               enabledBorder: OutlineInputBorder(
                                 borderSide: BorderSide(
@@ -245,10 +258,9 @@ class _PhoneEditPageWidgetState extends State<PhoneEditPageWidget> {
                                       .bodyMediumFamily,
                                   letterSpacing: 0.07,
                                   fontWeight: FontWeight.w600,
-                                  useGoogleFonts: GoogleFonts.asMap()
-                                      .containsKey(FlutterFlowTheme.of(context)
-                                          .bodyMediumFamily),
                                   lineHeight: 1.4,
+                                  useGoogleFonts: !FlutterFlowTheme.of(context)
+                                      .bodyMediumIsCustom,
                                 ),
                             maxLength: 50,
                             maxLengthEnforcement: MaxLengthEnforcement.none,
@@ -270,15 +282,20 @@ class _PhoneEditPageWidgetState extends State<PhoneEditPageWidget> {
                 ),
               ),
               FFButtonWidget(
-                onPressed: (_model.phoneTextController.text == '')
+                onPressed: (_model.phoneTextController.text == null ||
+                        _model.phoneTextController.text == '')
                     ? null
                     : () async {
+                        logFirebaseEvent('PHONE_EDIT_PAGE_PAGE_save_ON_TAP');
+                        logFirebaseEvent('save_haptic_feedback');
                         HapticFeedback.selectionClick();
+                        logFirebaseEvent('save_backend_call');
 
                         await currentUserReference!
                             .update(createUsersRecordData(
                           phoneNumber: _model.phoneTextController.text,
                         ));
+                        logFirebaseEvent('save_navigate_back');
                         context.safePop();
                       },
                 text: FFLocalizations.of(context).getText(
@@ -297,9 +314,9 @@ class _PhoneEditPageWidgetState extends State<PhoneEditPageWidget> {
                         color: FlutterFlowTheme.of(context).primary,
                         fontSize: 14.0,
                         letterSpacing: 0.07,
-                        useGoogleFonts: GoogleFonts.asMap().containsKey(
-                            FlutterFlowTheme.of(context).titleSmallFamily),
                         lineHeight: 1.4,
+                        useGoogleFonts:
+                            !FlutterFlowTheme.of(context).titleSmallIsCustom,
                       ),
                   elevation: 0.0,
                   borderSide: BorderSide(

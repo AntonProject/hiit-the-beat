@@ -1,8 +1,9 @@
 import '/auth/firebase_auth/auth_util.dart';
 import '/backend/backend.dart';
+import '/backend/schema/structs/index.dart';
 import '/components/dialogs/filter_season_dialog/filter_season_dialog_widget.dart';
-import '/components/dialogs/god_mode_dialog/god_mode_dialog_widget.dart';
 import '/components/dialogs/guest_dialog/guest_dialog_widget.dart';
+import '/components/dialogs/onboarding_home_step2/onboarding_home_step2_widget.dart';
 import '/components/empty_list/empty_list_widget.dart';
 import '/components/navbar/navbar_widget.dart';
 import '/components/season_main_comp/season_main_comp_widget.dart';
@@ -12,19 +13,27 @@ import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
 import 'dart:async';
+import 'dart:ui';
+import '/actions/actions.dart' as action_blocks;
 import '/custom_code/actions/index.dart' as actions;
 import '/flutter_flow/custom_functions.dart' as functions;
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'season_workout_page_model.dart';
 export 'season_workout_page_model.dart';
 
 class SeasonWorkoutPageWidget extends StatefulWidget {
-  const SeasonWorkoutPageWidget({super.key});
+  const SeasonWorkoutPageWidget({
+    super.key,
+    int? level,
+  }) : this.level = level ?? 1;
+
+  final int level;
 
   static String routeName = 'SeasonWorkoutPage';
   static String routePath = '/seasonWorkoutPage';
@@ -44,23 +53,43 @@ class _SeasonWorkoutPageWidgetState extends State<SeasonWorkoutPageWidget> {
     super.initState();
     _model = createModel(context, () => SeasonWorkoutPageModel());
 
+    logFirebaseEvent('screen_view',
+        parameters: {'screen_name': 'SeasonWorkoutPage'});
     // On page load action.
     SchedulerBinding.instance.addPostFrameCallback((_) async {
+      logFirebaseEvent('SEASON_WORKOUT_SeasonWorkoutPage_ON_INIT');
+      logFirebaseEvent('SeasonWorkoutPage_update_page_state');
+      _model.tab = valueOrDefault<int>(
+        widget!.level,
+        1,
+      );
+      safeSetState(() {});
+      logFirebaseEvent('SeasonWorkoutPage_action_block');
+      unawaited(
+        () async {
+          await action_blocks.checkProgressDoc(context);
+          safeSetState(() {});
+        }(),
+      );
+      logFirebaseEvent('SeasonWorkoutPage_custom_action');
+      unawaited(
+        () async {
+          await actions.setStatusBarColor();
+        }(),
+      );
+      logFirebaseEvent('SeasonWorkoutPage_custom_action');
       unawaited(
         () async {
           await actions.lockLandscapeMode();
         }(),
       );
-      _model.tab = valueOrDefault<int>(
-        valueOrDefault(currentUserDocument?.currentLevel, 0),
-        1,
-      );
+      logFirebaseEvent('SeasonWorkoutPage_page_view');
       unawaited(
         () async {
           await _model.pageViewController?.animateToPage(
             valueOrDefault<int>(
               valueOrDefault<int>(
-                    valueOrDefault(currentUserDocument?.currentLevel, 0),
+                    widget!.level,
                     1,
                   ) -
                   1,
@@ -71,6 +100,29 @@ class _SeasonWorkoutPageWidgetState extends State<SeasonWorkoutPageWidget> {
           );
         }(),
       );
+      if (FFAppState().onboardingHome) {
+        logFirebaseEvent('SeasonWorkoutPage_bottom_sheet');
+        await showModalBottomSheet(
+          isScrollControlled: true,
+          backgroundColor: Colors.transparent,
+          barrierColor: Colors.transparent,
+          isDismissible: false,
+          enableDrag: false,
+          context: context,
+          builder: (context) {
+            return GestureDetector(
+              onTap: () {
+                FocusScope.of(context).unfocus();
+                FocusManager.instance.primaryFocus?.unfocus();
+              },
+              child: Padding(
+                padding: MediaQuery.viewInsetsOf(context),
+                child: OnboardingHomeStep2Widget(),
+              ),
+            );
+          },
+        ).then((value) => safeSetState(() {}));
+      }
     });
 
     WidgetsBinding.instance.addPostFrameCallback((_) => safeSetState(() {}));
@@ -127,73 +179,79 @@ class _SeasonWorkoutPageWidgetState extends State<SeasonWorkoutPageWidget> {
                                       fontSize: 24.0,
                                       letterSpacing: 0.07,
                                       fontWeight: FontWeight.bold,
-                                      useGoogleFonts: GoogleFonts.asMap()
-                                          .containsKey(
-                                              FlutterFlowTheme.of(context)
-                                                  .bodyMediumFamily),
                                       lineHeight: 1.4,
+                                      useGoogleFonts:
+                                          !FlutterFlowTheme.of(context)
+                                              .bodyMediumIsCustom,
                                     ),
                               ),
                             ),
                           ),
-                          FlutterFlowIconButton(
-                            borderColor:
-                                FlutterFlowTheme.of(context).middleGray,
-                            borderRadius: 12.0,
-                            borderWidth: 1.0,
-                            buttonSize: 40.0,
-                            fillColor:
-                                FlutterFlowTheme.of(context).primaryBackground,
-                            icon: Icon(
-                              FFIcons.kfilter24,
-                              color: FlutterFlowTheme.of(context).primaryText,
-                              size: 24.0,
+                          if (FFLocalizations.of(context).languageCode != 'en')
+                            FlutterFlowIconButton(
+                              borderColor:
+                                  FlutterFlowTheme.of(context).middleGray,
+                              borderRadius: 12.0,
+                              borderWidth: 1.0,
+                              buttonSize: 40.0,
+                              fillColor: FlutterFlowTheme.of(context)
+                                  .primaryBackground,
+                              icon: Icon(
+                                FFIcons.kfilter24,
+                                color: FlutterFlowTheme.of(context).primaryText,
+                                size: 24.0,
+                              ),
+                              onPressed: () async {
+                                logFirebaseEvent(
+                                    'SEASON_WORKOUT_filter24_ICN_ON_TAP');
+                                logFirebaseEvent('IconButton_haptic_feedback');
+                                HapticFeedback.mediumImpact();
+                                if (currentUserEmail != null &&
+                                    currentUserEmail != '') {
+                                  logFirebaseEvent('IconButton_bottom_sheet');
+                                  showModalBottomSheet(
+                                    isScrollControlled: true,
+                                    backgroundColor: Colors.transparent,
+                                    context: context,
+                                    builder: (context) {
+                                      return GestureDetector(
+                                        onTap: () {
+                                          FocusScope.of(context).unfocus();
+                                          FocusManager.instance.primaryFocus
+                                              ?.unfocus();
+                                        },
+                                        child: Padding(
+                                          padding:
+                                              MediaQuery.viewInsetsOf(context),
+                                          child: FilterSeasonDialogWidget(),
+                                        ),
+                                      );
+                                    },
+                                  ).then((value) => safeSetState(() {}));
+                                } else {
+                                  logFirebaseEvent('IconButton_bottom_sheet');
+                                  showModalBottomSheet(
+                                    isScrollControlled: true,
+                                    backgroundColor: Colors.transparent,
+                                    context: context,
+                                    builder: (context) {
+                                      return GestureDetector(
+                                        onTap: () {
+                                          FocusScope.of(context).unfocus();
+                                          FocusManager.instance.primaryFocus
+                                              ?.unfocus();
+                                        },
+                                        child: Padding(
+                                          padding:
+                                              MediaQuery.viewInsetsOf(context),
+                                          child: GuestDialogWidget(),
+                                        ),
+                                      );
+                                    },
+                                  ).then((value) => safeSetState(() {}));
+                                }
+                              },
                             ),
-                            onPressed: () async {
-                              HapticFeedback.mediumImpact();
-                              if (currentUserEmail != '') {
-                                showModalBottomSheet(
-                                  isScrollControlled: true,
-                                  backgroundColor: Colors.transparent,
-                                  context: context,
-                                  builder: (context) {
-                                    return GestureDetector(
-                                      onTap: () {
-                                        FocusScope.of(context).unfocus();
-                                        FocusManager.instance.primaryFocus
-                                            ?.unfocus();
-                                      },
-                                      child: Padding(
-                                        padding:
-                                            MediaQuery.viewInsetsOf(context),
-                                        child: FilterSeasonDialogWidget(),
-                                      ),
-                                    );
-                                  },
-                                ).then((value) => safeSetState(() {}));
-                              } else {
-                                showModalBottomSheet(
-                                  isScrollControlled: true,
-                                  backgroundColor: Colors.transparent,
-                                  context: context,
-                                  builder: (context) {
-                                    return GestureDetector(
-                                      onTap: () {
-                                        FocusScope.of(context).unfocus();
-                                        FocusManager.instance.primaryFocus
-                                            ?.unfocus();
-                                      },
-                                      child: Padding(
-                                        padding:
-                                            MediaQuery.viewInsetsOf(context),
-                                        child: GuestDialogWidget(),
-                                      ),
-                                    );
-                                  },
-                                ).then((value) => safeSetState(() {}));
-                              }
-                            },
-                          ),
                         ],
                       ),
                     ),
@@ -259,13 +317,10 @@ class _SeasonWorkoutPageWidgetState extends State<SeasonWorkoutPageWidget> {
                                               fontSize: 12.0,
                                               letterSpacing: 0.07,
                                               fontWeight: FontWeight.normal,
-                                              useGoogleFonts: GoogleFonts
-                                                      .asMap()
-                                                  .containsKey(
-                                                      FlutterFlowTheme.of(
-                                                              context)
-                                                          .bodyMediumFamily),
                                               lineHeight: 1.4,
+                                              useGoogleFonts:
+                                                  !FlutterFlowTheme.of(context)
+                                                      .bodyMediumIsCustom,
                                             ),
                                       ),
                                     ),
@@ -292,43 +347,28 @@ class _SeasonWorkoutPageWidgetState extends State<SeasonWorkoutPageWidget> {
                                 final levelsItem = levels[levelsIndex];
                                 return FFButtonWidget(
                                   onPressed: () async {
+                                    logFirebaseEvent(
+                                        'SEASON_WORKOUT_PAGE_PAGE_Beginner_ON_TAP');
+                                    logFirebaseEvent(
+                                        'Beginner_haptic_feedback');
                                     HapticFeedback.selectionClick();
-                                    if (levelsItem.number < 4) {
-                                      _model.tab = valueOrDefault<int>(
-                                        levelsItem.number,
-                                        1,
-                                      );
-                                      safeSetState(() {});
-                                      await _model.pageViewController
-                                          ?.animateToPage(
-                                        valueOrDefault<int>(
-                                          levelsIndex,
-                                          0,
-                                        ),
-                                        duration: Duration(milliseconds: 500),
-                                        curve: Curves.ease,
-                                      );
-                                    } else {
-                                      showModalBottomSheet(
-                                        isScrollControlled: true,
-                                        backgroundColor: Colors.transparent,
-                                        context: context,
-                                        builder: (context) {
-                                          return GestureDetector(
-                                            onTap: () {
-                                              FocusScope.of(context).unfocus();
-                                              FocusManager.instance.primaryFocus
-                                                  ?.unfocus();
-                                            },
-                                            child: Padding(
-                                              padding: MediaQuery.viewInsetsOf(
-                                                  context),
-                                              child: GodModeDialogWidget(),
-                                            ),
-                                          );
-                                        },
-                                      ).then((value) => safeSetState(() {}));
-                                    }
+                                    logFirebaseEvent(
+                                        'Beginner_update_page_state');
+                                    _model.tab = valueOrDefault<int>(
+                                      levelsItem.number,
+                                      1,
+                                    );
+                                    safeSetState(() {});
+                                    logFirebaseEvent('Beginner_page_view');
+                                    await _model.pageViewController
+                                        ?.animateToPage(
+                                      valueOrDefault<int>(
+                                        levelsIndex,
+                                        0,
+                                      ),
+                                      duration: Duration(milliseconds: 500),
+                                      curve: Curves.ease,
+                                    );
                                   },
                                   text: valueOrDefault<String>(
                                     levelsItem.titleEn,
@@ -373,11 +413,10 @@ class _SeasonWorkoutPageWidgetState extends State<SeasonWorkoutPageWidget> {
                                           ),
                                           fontSize: 14.0,
                                           letterSpacing: 0.07,
-                                          useGoogleFonts: GoogleFonts.asMap()
-                                              .containsKey(
-                                                  FlutterFlowTheme.of(context)
-                                                      .titleSmallFamily),
                                           lineHeight: 1.4,
+                                          useGoogleFonts:
+                                              !FlutterFlowTheme.of(context)
+                                                  .titleSmallIsCustom,
                                         ),
                                     elevation: 0.0,
                                     borderSide: BorderSide(
@@ -435,15 +474,11 @@ class _SeasonWorkoutPageWidgetState extends State<SeasonWorkoutPageWidget> {
                             decoration: BoxDecoration(),
                             child: StreamBuilder<List<SeasonsRecord>>(
                               stream: querySeasonsRecord(
-                                queryBuilder: (seasonsRecord) => seasonsRecord
-                                    .where(
-                                      'level',
-                                      isEqualTo: _model.tab,
-                                    )
-                                    .where(
-                                      'released_at',
-                                      isLessThanOrEqualTo: getCurrentTimestamp,
-                                    ),
+                                queryBuilder: (seasonsRecord) =>
+                                    seasonsRecord.where(
+                                  'level',
+                                  isEqualTo: _model.tab,
+                                ),
                               ),
                               builder: (context, snapshot) {
                                 // Customize what your widget looks like when it's loading.
@@ -479,54 +514,15 @@ class _SeasonWorkoutPageWidgetState extends State<SeasonWorkoutPageWidget> {
                                                       min(0,
                                                           level.length - 1))),
                                           onPageChanged: (_) async {
+                                            logFirebaseEvent(
+                                                'SEASON_WORKOUT_PageView_jneigtkk_ON_WIDG');
+                                            logFirebaseEvent(
+                                                'PageView_update_page_state');
                                             _model.tab = valueOrDefault<int>(
                                               _model.pageViewCurrentIndex + 1,
                                               1,
                                             );
                                             safeSetState(() {});
-                                            if ((_model.tab == 4) &&
-                                                (containerSeasonsRecordList
-                                                        .where(
-                                                            (e) => e.level == 4)
-                                                        .toList()
-                                                        .length ==
-                                                    0)) {
-                                              showModalBottomSheet(
-                                                isScrollControlled: true,
-                                                backgroundColor:
-                                                    Colors.transparent,
-                                                context: context,
-                                                builder: (context) {
-                                                  return GestureDetector(
-                                                    onTap: () {
-                                                      FocusScope.of(context)
-                                                          .unfocus();
-                                                      FocusManager
-                                                          .instance.primaryFocus
-                                                          ?.unfocus();
-                                                    },
-                                                    child: Padding(
-                                                      padding: MediaQuery
-                                                          .viewInsetsOf(
-                                                              context),
-                                                      child:
-                                                          GodModeDialogWidget(),
-                                                    ),
-                                                  );
-                                                },
-                                              ).then((value) =>
-                                                  safeSetState(() {}));
-
-                                              await _model.pageViewController
-                                                  ?.animateToPage(
-                                                2,
-                                                duration:
-                                                    Duration(milliseconds: 500),
-                                                curve: Curves.ease,
-                                              );
-                                              _model.tab = 3;
-                                              safeSetState(() {});
-                                            }
                                           },
                                           scrollDirection: Axis.horizontal,
                                           itemCount: level.length,
@@ -549,7 +545,7 @@ class _SeasonWorkoutPageWidgetState extends State<SeasonWorkoutPageWidget> {
                                                                   String>(
                                                                 FFAppState()
                                                                     .seasonFilter,
-                                                                'all',
+                                                                'de',
                                                               ),
                                                               containerSeasonsRecordList
                                                                   .toList(),
@@ -557,12 +553,12 @@ class _SeasonWorkoutPageWidgetState extends State<SeasonWorkoutPageWidget> {
                                                                   .hideCompleted,
                                                               containerProgressRecord
                                                                   ?.seasonDone
-                                                                  .toList())
+                                                                  ?.toList())
                                                           ?.sortedList(
                                                               keyOf: (e) =>
                                                                   e.number,
                                                               desc: false)
-                                                          .toList() ??
+                                                          ?.toList() ??
                                                       [];
                                                   if (containerVar.isEmpty) {
                                                     return EmptyListWidget();

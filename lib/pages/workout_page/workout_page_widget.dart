@@ -1,6 +1,9 @@
 import '/auth/firebase_auth/auth_util.dart';
 import '/backend/backend.dart';
+import '/backend/schema/structs/index.dart';
 import '/components/dialogs/guest_dialog/guest_dialog_widget.dart';
+import '/components/dialogs/level_success_dialog/level_success_dialog_widget.dart';
+import '/components/dialogs/onboarding_home_step4/onboarding_home_step4_widget.dart';
 import '/components/dialogs/select_warm_up_cool_down_dialog/select_warm_up_cool_down_dialog_widget.dart';
 import '/components/dialogs/workout_success3times_dialog/workout_success3times_dialog_widget.dart';
 import '/components/dialogs/workout_success_dialog/workout_success_dialog_widget.dart';
@@ -10,13 +13,17 @@ import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
 import 'dart:async';
+import 'dart:ui';
 import '/custom_code/actions/index.dart' as actions;
 import '/flutter_flow/custom_functions.dart' as functions;
 import '/index.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'workout_page_model.dart';
@@ -59,13 +66,52 @@ class _WorkoutPageWidgetState extends State<WorkoutPageWidget> {
     super.initState();
     _model = createModel(context, () => WorkoutPageModel());
 
+    logFirebaseEvent('screen_view', parameters: {'screen_name': 'WorkoutPage'});
     // On page load action.
     SchedulerBinding.instance.addPostFrameCallback((_) async {
+      logFirebaseEvent('WORKOUT_WorkoutPage_ON_INIT_STATE');
+      logFirebaseEvent('WorkoutPage_custom_action');
       unawaited(
         () async {
           await actions.lockLandscapeMode();
         }(),
       );
+      logFirebaseEvent('WorkoutPage_custom_action');
+      unawaited(
+        () async {
+          await actions.setStatusBarColor();
+        }(),
+      );
+      if (FFAppState().onboardingHome) {
+        logFirebaseEvent('WorkoutPage_bottom_sheet');
+        await showModalBottomSheet(
+          isScrollControlled: true,
+          backgroundColor: Colors.transparent,
+          barrierColor: Colors.transparent,
+          isDismissible: false,
+          enableDrag: false,
+          context: context,
+          builder: (context) {
+            return GestureDetector(
+              onTap: () {
+                FocusScope.of(context).unfocus();
+                FocusManager.instance.primaryFocus?.unfocus();
+              },
+              child: Padding(
+                padding: MediaQuery.viewInsetsOf(context),
+                child: OnboardingHomeStep4Widget(
+                  season: widget!.season!,
+                  workout: widget!.workout!,
+                  workoutCount: widget!.workoutCount,
+                  progress: widget!.progress!,
+                  workIndex: widget!.indexInList,
+                  seasonIndex: widget!.seasonIndex,
+                ),
+              ),
+            );
+          },
+        ).then((value) => safeSetState(() {}));
+      }
     });
 
     WidgetsBinding.instance.addPostFrameCallback((_) => safeSetState(() {}));
@@ -109,13 +155,36 @@ class _WorkoutPageWidgetState extends State<WorkoutPageWidget> {
                     size: 24.0,
                   ),
                   onPressed: () async {
-                    context.safePop();
+                    logFirebaseEvent(
+                        'WORKOUT_PAGE_PAGE_arrowLeft24_ICN_ON_TAP');
+                    logFirebaseEvent('IconButton_navigate_to');
+
+                    context.pushNamed(
+                      SeasonPageWidget.routeName,
+                      queryParameters: {
+                        'season': serializeParam(
+                          widget!.season,
+                          ParamType.Document,
+                        ),
+                        'workoutCount': serializeParam(
+                          widget!.workoutCount,
+                          ParamType.int,
+                        ),
+                        'seasonIndex': serializeParam(
+                          widget!.seasonIndex,
+                          ParamType.int,
+                        ),
+                      }.withoutNulls,
+                      extra: <String, dynamic>{
+                        'season': widget!.season,
+                      },
+                    );
                   },
                 ),
               ),
               Expanded(
                 child: StreamBuilder<ProgressRecord>(
-                  stream: ProgressRecord.getDocument(widget.progress!),
+                  stream: ProgressRecord.getDocument(widget!.progress!),
                   builder: (context, snapshot) {
                     // Customize what your widget looks like when it's loading.
                     if (!snapshot.hasData) {
@@ -153,19 +222,17 @@ class _WorkoutPageWidgetState extends State<WorkoutPageWidget> {
                                                 fontSize: 24.0,
                                                 letterSpacing: 0.07,
                                                 fontWeight: FontWeight.bold,
-                                                useGoogleFonts: GoogleFonts
-                                                        .asMap()
-                                                    .containsKey(
-                                                        FlutterFlowTheme.of(
-                                                                context)
-                                                            .bodyMediumFamily),
                                                 lineHeight: 1.4,
+                                                useGoogleFonts:
+                                                    !FlutterFlowTheme.of(
+                                                            context)
+                                                        .bodyMediumIsCustom,
                                               ),
                                         ),
                                         TextSpan(
                                           text: valueOrDefault<String>(
                                             formatNumber(
-                                              widget.indexInList + 1,
+                                              widget!.indexInList + 1,
                                               formatType: FormatType.custom,
                                               format: ' 0',
                                               locale: '',
@@ -181,13 +248,11 @@ class _WorkoutPageWidgetState extends State<WorkoutPageWidget> {
                                                 fontSize: 24.0,
                                                 letterSpacing: 0.07,
                                                 fontWeight: FontWeight.bold,
-                                                useGoogleFonts: GoogleFonts
-                                                        .asMap()
-                                                    .containsKey(
-                                                        FlutterFlowTheme.of(
-                                                                context)
-                                                            .bodyMediumFamily),
                                                 lineHeight: 1.4,
+                                                useGoogleFonts:
+                                                    !FlutterFlowTheme.of(
+                                                            context)
+                                                        .bodyMediumIsCustom,
                                               ),
                                         )
                                       ],
@@ -198,10 +263,9 @@ class _WorkoutPageWidgetState extends State<WorkoutPageWidget> {
                                                 FlutterFlowTheme.of(context)
                                                     .bodyMediumFamily,
                                             letterSpacing: 0.0,
-                                            useGoogleFonts: GoogleFonts.asMap()
-                                                .containsKey(
-                                                    FlutterFlowTheme.of(context)
-                                                        .bodyMediumFamily),
+                                            useGoogleFonts:
+                                                !FlutterFlowTheme.of(context)
+                                                    .bodyMediumIsCustom,
                                           ),
                                     ),
                                   ),
@@ -218,7 +282,7 @@ class _WorkoutPageWidgetState extends State<WorkoutPageWidget> {
                                         (columnProgressRecord.workoutDone
                                                         .where((e) =>
                                                             e.workoutId ==
-                                                            widget.workout
+                                                            widget!.workout
                                                                 ?.reference.id)
                                                         .toList()
                                                         .length >=
@@ -238,7 +302,7 @@ class _WorkoutPageWidgetState extends State<WorkoutPageWidget> {
                                           (columnProgressRecord.workoutDone
                                                           .where((e) =>
                                                               e.workoutId ==
-                                                              widget
+                                                              widget!
                                                                   .workout
                                                                   ?.reference
                                                                   .id)
@@ -261,7 +325,7 @@ class _WorkoutPageWidgetState extends State<WorkoutPageWidget> {
                                       visible: (columnProgressRecord.workoutDone
                                                   .where((e) =>
                                                       e.workoutId ==
-                                                      widget.workout?.reference
+                                                      widget!.workout?.reference
                                                           .id)
                                                   .toList()
                                                   .length >=
@@ -289,7 +353,7 @@ class _WorkoutPageWidgetState extends State<WorkoutPageWidget> {
                                         (columnProgressRecord.workoutDone
                                                         .where((e) =>
                                                             e.workoutId ==
-                                                            widget.workout
+                                                            widget!.workout
                                                                 ?.reference.id)
                                                         .toList()
                                                         .length >=
@@ -309,7 +373,7 @@ class _WorkoutPageWidgetState extends State<WorkoutPageWidget> {
                                           (columnProgressRecord.workoutDone
                                                           .where((e) =>
                                                               e.workoutId ==
-                                                              widget
+                                                              widget!
                                                                   .workout
                                                                   ?.reference
                                                                   .id)
@@ -332,7 +396,7 @@ class _WorkoutPageWidgetState extends State<WorkoutPageWidget> {
                                       visible: (columnProgressRecord.workoutDone
                                                   .where((e) =>
                                                       e.workoutId ==
-                                                      widget.workout?.reference
+                                                      widget!.workout?.reference
                                                           .id)
                                                   .toList()
                                                   .length >=
@@ -360,7 +424,7 @@ class _WorkoutPageWidgetState extends State<WorkoutPageWidget> {
                                         (columnProgressRecord.workoutDone
                                                         .where((e) =>
                                                             e.workoutId ==
-                                                            widget.workout
+                                                            widget!.workout
                                                                 ?.reference.id)
                                                         .toList()
                                                         .length >=
@@ -380,7 +444,7 @@ class _WorkoutPageWidgetState extends State<WorkoutPageWidget> {
                                           (columnProgressRecord.workoutDone
                                                           .where((e) =>
                                                               e.workoutId ==
-                                                              widget
+                                                              widget!
                                                                   .workout
                                                                   ?.reference
                                                                   .id)
@@ -403,7 +467,7 @@ class _WorkoutPageWidgetState extends State<WorkoutPageWidget> {
                                       visible: (columnProgressRecord.workoutDone
                                                   .where((e) =>
                                                       e.workoutId ==
-                                                      widget.workout?.reference
+                                                      widget!.workout?.reference
                                                           .id)
                                                   .toList()
                                                   .length >=
@@ -473,7 +537,7 @@ class _WorkoutPageWidgetState extends State<WorkoutPageWidget> {
                                                       .levels
                                                       .where((e) =>
                                                           e.number ==
-                                                          widget.season?.level)
+                                                          widget!.season?.level)
                                                       .toList()
                                                       .firstOrNull
                                                       ?.titleEn,
@@ -491,12 +555,10 @@ class _WorkoutPageWidgetState extends State<WorkoutPageWidget> {
                                                           letterSpacing: 0.0,
                                                           fontWeight:
                                                               FontWeight.w500,
-                                                          useGoogleFonts: GoogleFonts
-                                                                  .asMap()
-                                                              .containsKey(
-                                                                  FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .bodyMediumFamily),
+                                                          useGoogleFonts:
+                                                              !FlutterFlowTheme
+                                                                      .of(context)
+                                                                  .bodyMediumIsCustom,
                                                         ),
                                               )
                                             ],
@@ -510,13 +572,11 @@ class _WorkoutPageWidgetState extends State<WorkoutPageWidget> {
                                                   fontSize: 12.0,
                                                   letterSpacing: 0.07,
                                                   fontWeight: FontWeight.w500,
-                                                  useGoogleFonts: GoogleFonts
-                                                          .asMap()
-                                                      .containsKey(
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .bodyMediumFamily),
                                                   lineHeight: 1.4,
+                                                  useGoogleFonts:
+                                                      !FlutterFlowTheme.of(
+                                                              context)
+                                                          .bodyMediumIsCustom,
                                                 ),
                                           ),
                                           maxLines: 1,
@@ -547,19 +607,23 @@ class _WorkoutPageWidgetState extends State<WorkoutPageWidget> {
                                                       .getVariableText(
                                                     enText:
                                                         valueOrDefault<String>(
-                                                      widget.season?.titleEn,
+                                                      widget!.season?.titleEn,
                                                       '-',
                                                     ),
                                                     deText:
                                                         valueOrDefault<String>(
-                                                      widget.season?.titleDe,
+                                                      widget!.season?.titleDe,
+                                                      '-',
+                                                    ),
+                                                    jaText:
+                                                        valueOrDefault<String>(
+                                                      widget!.season?.titleJa,
                                                       '-',
                                                     ),
                                                   ),
                                                   '-',
                                                 ),
-                                                style: GoogleFonts.getFont(
-                                                  'Urbanist',
+                                                style: GoogleFonts.urbanist(
                                                   color: FlutterFlowTheme.of(
                                                           context)
                                                       .primaryText,
@@ -579,93 +643,11 @@ class _WorkoutPageWidgetState extends State<WorkoutPageWidget> {
                                                   fontSize: 12.0,
                                                   letterSpacing: 0.07,
                                                   fontWeight: FontWeight.w500,
-                                                  useGoogleFonts: GoogleFonts
-                                                          .asMap()
-                                                      .containsKey(
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .bodyMediumFamily),
                                                   lineHeight: 1.4,
-                                                ),
-                                          ),
-                                          maxLines: 1,
-                                        ),
-                                      ),
-                                    ),
-                                    Container(
-                                      decoration: BoxDecoration(
-                                        color: FlutterFlowTheme.of(context)
-                                            .middleGray,
-                                        borderRadius:
-                                            BorderRadius.circular(8.0),
-                                        border: Border.all(
-                                          color: FlutterFlowTheme.of(context)
-                                              .middleGray,
-                                        ),
-                                      ),
-                                      child: Padding(
-                                        padding: EdgeInsets.all(8.0),
-                                        child: RichText(
-                                          textScaler:
-                                              MediaQuery.of(context).textScaler,
-                                          text: TextSpan(
-                                            children: [
-                                              TextSpan(
-                                                text:
-                                                    FFLocalizations.of(context)
-                                                        .getText(
-                                                  '9uuwdann' /* ~  */,
-                                                ),
-                                                style:
-                                                    FlutterFlowTheme.of(context)
-                                                        .bodyMedium
-                                                        .override(
-                                                          fontFamily:
-                                                              FlutterFlowTheme.of(
-                                                                      context)
-                                                                  .bodyMediumFamily,
-                                                          fontSize: 12.0,
-                                                          letterSpacing: 0.0,
-                                                          fontWeight:
-                                                              FontWeight.w500,
-                                                          useGoogleFonts: GoogleFonts
-                                                                  .asMap()
-                                                              .containsKey(
-                                                                  FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .bodyMediumFamily),
-                                                        ),
-                                              ),
-                                              TextSpan(
-                                                text: widget.season!.duration,
-                                                style: GoogleFonts.getFont(
-                                                  'Urbanist',
-                                                  color: FlutterFlowTheme.of(
-                                                          context)
-                                                      .primaryText,
-                                                  fontWeight: FontWeight.w500,
-                                                  fontSize: 12.0,
-                                                  height: 1.4,
-                                                ),
-                                              )
-                                            ],
-                                            style: FlutterFlowTheme.of(context)
-                                                .bodyMedium
-                                                .override(
-                                                  fontFamily:
-                                                      FlutterFlowTheme.of(
+                                                  useGoogleFonts:
+                                                      !FlutterFlowTheme.of(
                                                               context)
-                                                          .bodyMediumFamily,
-                                                  fontSize: 12.0,
-                                                  letterSpacing: 0.07,
-                                                  fontWeight: FontWeight.w500,
-                                                  useGoogleFonts: GoogleFonts
-                                                          .asMap()
-                                                      .containsKey(
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .bodyMediumFamily),
-                                                  lineHeight: 1.4,
+                                                          .bodyMediumIsCustom,
                                                 ),
                                           ),
                                           maxLines: 1,
@@ -697,7 +679,7 @@ class _WorkoutPageWidgetState extends State<WorkoutPageWidget> {
                                                                 .workoutDone
                                                                 .where((e) =>
                                                                     e.workoutId ==
-                                                                    widget
+                                                                    widget!
                                                                         .workout
                                                                         ?.reference
                                                                         .id)
@@ -715,6 +697,7 @@ class _WorkoutPageWidgetState extends State<WorkoutPageWidget> {
                                                               'No activity yet',
                                                           deText:
                                                               'Noch keine Aktivität',
+                                                          jaText: 'まだ活動はありません',
                                                         ),
                                                         'No activity yet',
                                                       );
@@ -722,16 +705,16 @@ class _WorkoutPageWidgetState extends State<WorkoutPageWidget> {
                                                             columnProgressRecord
                                                                 .workoutDone
                                                                 .toList(),
-                                                            widget.season!
+                                                            widget!.season!
                                                                 .reference.id,
-                                                            widget
+                                                            widget!
                                                                 .workoutCount) ||
                                                         functions.workoutSeasonDone(
                                                             columnProgressRecord
                                                                 .workoutDone
                                                                 .toList(),
-                                                            widget.season!.reference.id,
-                                                            widget.workoutCount)) {
+                                                            widget!.season!.reference.id,
+                                                            widget!.workoutCount)) {
                                                       return valueOrDefault<
                                                           String>(
                                                         '${valueOrDefault<String>(
@@ -742,6 +725,7 @@ class _WorkoutPageWidgetState extends State<WorkoutPageWidget> {
                                                                 'Last completion ',
                                                             deText:
                                                                 'Letzte Fertigstellung',
+                                                            jaText: '最後の完了 ',
                                                           ),
                                                           'Last completion',
                                                         )}${valueOrDefault<String>(
@@ -751,7 +735,7 @@ class _WorkoutPageWidgetState extends State<WorkoutPageWidget> {
                                                                 columnProgressRecord
                                                                     .workoutDone
                                                                     .toList(),
-                                                                widget
+                                                                widget!
                                                                     .workout!
                                                                     .reference
                                                                     .id),
@@ -773,6 +757,7 @@ class _WorkoutPageWidgetState extends State<WorkoutPageWidget> {
                                                               'No activity yet',
                                                           deText:
                                                               'Noch keine Aktivität',
+                                                          jaText: 'まだ活動はありません',
                                                         ),
                                                         'No activity yet',
                                                       );
@@ -792,12 +777,10 @@ class _WorkoutPageWidgetState extends State<WorkoutPageWidget> {
                                                           letterSpacing: 0.0,
                                                           fontWeight:
                                                               FontWeight.w500,
-                                                          useGoogleFonts: GoogleFonts
-                                                                  .asMap()
-                                                              .containsKey(
-                                                                  FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .bodyMediumFamily),
+                                                          useGoogleFonts:
+                                                              !FlutterFlowTheme
+                                                                      .of(context)
+                                                                  .bodyMediumIsCustom,
                                                         ),
                                               )
                                             ],
@@ -811,13 +794,11 @@ class _WorkoutPageWidgetState extends State<WorkoutPageWidget> {
                                                   fontSize: 12.0,
                                                   letterSpacing: 0.07,
                                                   fontWeight: FontWeight.w500,
-                                                  useGoogleFonts: GoogleFonts
-                                                          .asMap()
-                                                      .containsKey(
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .bodyMediumFamily),
                                                   lineHeight: 1.4,
+                                                  useGoogleFonts:
+                                                      !FlutterFlowTheme.of(
+                                                              context)
+                                                          .bodyMediumIsCustom,
                                                 ),
                                           ),
                                           maxLines: 1,
@@ -832,14 +813,14 @@ class _WorkoutPageWidgetState extends State<WorkoutPageWidget> {
                           if (((columnProgressRecord.workoutDone
                                           .where((e) =>
                                               e.workoutId ==
-                                              widget.workout?.reference.id)
+                                              widget!.workout?.reference.id)
                                           .toList()
                                           .length >
                                       0) &&
                                   (columnProgressRecord.workoutDone
                                           .where((e) =>
                                               e.workoutId ==
-                                              widget.workout?.reference.id)
+                                              widget!.workout?.reference.id)
                                           .toList()
                                           .length <
                                       3)) &&
@@ -847,7 +828,7 @@ class _WorkoutPageWidgetState extends State<WorkoutPageWidget> {
                                       functions.lastActivityWorkout(
                                           columnProgressRecord.workoutDone
                                               .toList(),
-                                          widget.workout!.reference.id),
+                                          widget!.workout!.reference.id),
                                       getCurrentTimestamp) <=
                                   1))
                             Container(
@@ -905,13 +886,11 @@ class _WorkoutPageWidgetState extends State<WorkoutPageWidget> {
                                                                 .bodyMediumFamily,
                                                         fontSize: 12.0,
                                                         letterSpacing: 0.07,
-                                                        useGoogleFonts: GoogleFonts
-                                                                .asMap()
-                                                            .containsKey(
-                                                                FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .bodyMediumFamily),
                                                         lineHeight: 1.4,
+                                                        useGoogleFonts:
+                                                            !FlutterFlowTheme
+                                                                    .of(context)
+                                                                .bodyMediumIsCustom,
                                                       ),
                                             ),
                                             TextSpan(
@@ -924,7 +903,7 @@ class _WorkoutPageWidgetState extends State<WorkoutPageWidget> {
                                                               columnProgressRecord
                                                                   .workoutDone
                                                                   .toList(),
-                                                              widget
+                                                              widget!
                                                                   .workout!
                                                                   .reference
                                                                   .id),
@@ -935,30 +914,27 @@ class _WorkoutPageWidgetState extends State<WorkoutPageWidget> {
                                                 ),
                                                 '-',
                                               ),
-                                              style:
-                                                  FlutterFlowTheme.of(context)
-                                                      .bodyMedium
-                                                      .override(
-                                                        fontFamily:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .bodyMediumFamily,
-                                                        color:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .pink,
-                                                        fontSize: 12.0,
-                                                        letterSpacing: 0.07,
-                                                        fontWeight:
-                                                            FontWeight.normal,
-                                                        useGoogleFonts: GoogleFonts
-                                                                .asMap()
-                                                            .containsKey(
-                                                                FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .bodyMediumFamily),
-                                                        lineHeight: 1.4,
-                                                      ),
+                                              style: FlutterFlowTheme.of(
+                                                      context)
+                                                  .bodyMedium
+                                                  .override(
+                                                    fontFamily:
+                                                        FlutterFlowTheme.of(
+                                                                context)
+                                                            .bodyMediumFamily,
+                                                    color: FlutterFlowTheme.of(
+                                                            context)
+                                                        .pink,
+                                                    fontSize: 12.0,
+                                                    letterSpacing: 0.07,
+                                                    fontWeight:
+                                                        FontWeight.normal,
+                                                    lineHeight: 1.4,
+                                                    useGoogleFonts:
+                                                        !FlutterFlowTheme.of(
+                                                                context)
+                                                            .bodyMediumIsCustom,
+                                                  ),
                                             )
                                           ],
                                           style: FlutterFlowTheme.of(context)
@@ -968,12 +944,10 @@ class _WorkoutPageWidgetState extends State<WorkoutPageWidget> {
                                                     FlutterFlowTheme.of(context)
                                                         .bodyMediumFamily,
                                                 letterSpacing: 0.0,
-                                                useGoogleFonts: GoogleFonts
-                                                        .asMap()
-                                                    .containsKey(
-                                                        FlutterFlowTheme.of(
-                                                                context)
-                                                            .bodyMediumFamily),
+                                                useGoogleFonts:
+                                                    !FlutterFlowTheme.of(
+                                                            context)
+                                                        .bodyMediumIsCustom,
                                               ),
                                         ),
                                       ),
@@ -1032,11 +1006,10 @@ class _WorkoutPageWidgetState extends State<WorkoutPageWidget> {
                                             fontSize: 12.0,
                                             letterSpacing: 0.07,
                                             fontWeight: FontWeight.normal,
-                                            useGoogleFonts: GoogleFonts.asMap()
-                                                .containsKey(
-                                                    FlutterFlowTheme.of(context)
-                                                        .bodyMediumFamily),
                                             lineHeight: 1.4,
+                                            useGoogleFonts:
+                                                !FlutterFlowTheme.of(context)
+                                                    .bodyMediumIsCustom,
                                           ),
                                     ),
                                   ),
@@ -1047,14 +1020,14 @@ class _WorkoutPageWidgetState extends State<WorkoutPageWidget> {
                           if (((columnProgressRecord.workoutDone
                                           .where((e) =>
                                               e.workoutId ==
-                                              widget.workout?.reference.id)
+                                              widget!.workout?.reference.id)
                                           .toList()
                                           .length >
                                       0) &&
                                   (columnProgressRecord.workoutDone
                                           .where((e) =>
                                               e.workoutId ==
-                                              widget.workout?.reference.id)
+                                              widget!.workout?.reference.id)
                                           .toList()
                                           .length <
                                       3)) &&
@@ -1062,7 +1035,7 @@ class _WorkoutPageWidgetState extends State<WorkoutPageWidget> {
                                       functions.lastActivityWorkout(
                                           columnProgressRecord.workoutDone
                                               .toList(),
-                                          widget.workout!.reference.id),
+                                          widget!.workout!.reference.id),
                                       getCurrentTimestamp) >
                                   2))
                             Container(
@@ -1118,13 +1091,10 @@ class _WorkoutPageWidgetState extends State<WorkoutPageWidget> {
                                               fontSize: 12.0,
                                               letterSpacing: 0.07,
                                               fontWeight: FontWeight.normal,
-                                              useGoogleFonts: GoogleFonts
-                                                      .asMap()
-                                                  .containsKey(
-                                                      FlutterFlowTheme.of(
-                                                              context)
-                                                          .bodyMediumFamily),
                                               lineHeight: 1.4,
+                                              useGoogleFonts:
+                                                  !FlutterFlowTheme.of(context)
+                                                      .bodyMediumIsCustom,
                                             ),
                                       ),
                                     ),
@@ -1138,9 +1108,12 @@ class _WorkoutPageWidgetState extends State<WorkoutPageWidget> {
                             hoverColor: Colors.transparent,
                             highlightColor: Colors.transparent,
                             onTap: () async {
+                              logFirebaseEvent(
+                                  'WORKOUT_PAGE_PAGE_Warmup_ON_TAP');
                               if (!(_model.trainingsDone.contains(1) &&
                                   _model.trainingsDone.contains(2) &&
                                   _model.trainingsDone.contains(3))) {
+                                logFirebaseEvent('Warmup_update_page_state');
                                 _model.trainingChoose = 1;
                                 safeSetState(() {});
                               }
@@ -1222,13 +1195,11 @@ class _WorkoutPageWidgetState extends State<WorkoutPageWidget> {
                                                     fontSize: 16.0,
                                                     letterSpacing: 0.07,
                                                     fontWeight: FontWeight.bold,
-                                                    useGoogleFonts: GoogleFonts
-                                                            .asMap()
-                                                        .containsKey(
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .bodyMediumFamily),
                                                     lineHeight: 1.4,
+                                                    useGoogleFonts:
+                                                        !FlutterFlowTheme.of(
+                                                                context)
+                                                            .bodyMediumIsCustom,
                                                   ),
                                             ),
                                           ),
@@ -1256,13 +1227,11 @@ class _WorkoutPageWidgetState extends State<WorkoutPageWidget> {
                                                           letterSpacing: 0.07,
                                                           fontWeight:
                                                               FontWeight.bold,
-                                                          useGoogleFonts: GoogleFonts
-                                                                  .asMap()
-                                                              .containsKey(
-                                                                  FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .bodyMediumFamily),
                                                           lineHeight: 1.4,
+                                                          useGoogleFonts:
+                                                              !FlutterFlowTheme
+                                                                      .of(context)
+                                                                  .bodyMediumIsCustom,
                                                         ),
                                               ),
                                               Builder(
@@ -1287,32 +1256,29 @@ class _WorkoutPageWidgetState extends State<WorkoutPageWidget> {
                                                             .getText(
                                                           'q9ykafwt' /* Done */,
                                                         ),
-                                                        style:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .bodyMedium
-                                                                .override(
-                                                                  fontFamily: FlutterFlowTheme.of(
+                                                        style: FlutterFlowTheme
+                                                                .of(context)
+                                                            .bodyMedium
+                                                            .override(
+                                                              fontFamily:
+                                                                  FlutterFlowTheme.of(
                                                                           context)
                                                                       .bodyMediumFamily,
-                                                                  color: FlutterFlowTheme.of(
+                                                              color: FlutterFlowTheme
+                                                                      .of(context)
+                                                                  .primaryText,
+                                                              fontSize: 14.0,
+                                                              letterSpacing:
+                                                                  0.07,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .normal,
+                                                              lineHeight: 1.4,
+                                                              useGoogleFonts:
+                                                                  !FlutterFlowTheme.of(
                                                                           context)
-                                                                      .primaryText,
-                                                                  fontSize:
-                                                                      14.0,
-                                                                  letterSpacing:
-                                                                      0.07,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .normal,
-                                                                  useGoogleFonts: GoogleFonts
-                                                                          .asMap()
-                                                                      .containsKey(
-                                                                          FlutterFlowTheme.of(context)
-                                                                              .bodyMediumFamily),
-                                                                  lineHeight:
-                                                                      1.4,
-                                                                ),
+                                                                      .bodyMediumIsCustom,
+                                                            ),
                                                       ),
                                                     );
                                                   } else {
@@ -1330,32 +1296,29 @@ class _WorkoutPageWidgetState extends State<WorkoutPageWidget> {
                                                             .getText(
                                                           'd4zh2xau' /* Select one of ours or do you o... */,
                                                         ),
-                                                        style:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .bodyMedium
-                                                                .override(
-                                                                  fontFamily: FlutterFlowTheme.of(
+                                                        style: FlutterFlowTheme
+                                                                .of(context)
+                                                            .bodyMedium
+                                                            .override(
+                                                              fontFamily:
+                                                                  FlutterFlowTheme.of(
                                                                           context)
                                                                       .bodyMediumFamily,
-                                                                  color: FlutterFlowTheme.of(
+                                                              color: FlutterFlowTheme
+                                                                      .of(context)
+                                                                  .primaryText,
+                                                              fontSize: 14.0,
+                                                              letterSpacing:
+                                                                  0.07,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .normal,
+                                                              lineHeight: 1.4,
+                                                              useGoogleFonts:
+                                                                  !FlutterFlowTheme.of(
                                                                           context)
-                                                                      .primaryText,
-                                                                  fontSize:
-                                                                      14.0,
-                                                                  letterSpacing:
-                                                                      0.07,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .normal,
-                                                                  useGoogleFonts: GoogleFonts
-                                                                          .asMap()
-                                                                      .containsKey(
-                                                                          FlutterFlowTheme.of(context)
-                                                                              .bodyMediumFamily),
-                                                                  lineHeight:
-                                                                      1.4,
-                                                                ),
+                                                                      .bodyMediumIsCustom,
+                                                            ),
                                                       ),
                                                     );
                                                   }
@@ -1370,64 +1333,42 @@ class _WorkoutPageWidgetState extends State<WorkoutPageWidget> {
                                       onPressed: (_model.trainingChoose != 1)
                                           ? null
                                           : () async {
+                                              logFirebaseEvent(
+                                                  'WORKOUT_PAGE_PAGE_Selectoneofours_ON_TAP');
+                                              logFirebaseEvent(
+                                                  'Selectoneofours_haptic_feedback');
                                               HapticFeedback.selectionClick();
-                                              if (currentUserEmail != '') {
-                                                showModalBottomSheet(
-                                                  isScrollControlled: true,
-                                                  backgroundColor:
-                                                      Colors.transparent,
-                                                  context: context,
-                                                  builder: (context) {
-                                                    return GestureDetector(
-                                                      onTap: () {
-                                                        FocusScope.of(context)
-                                                            .unfocus();
-                                                        FocusManager.instance
-                                                            .primaryFocus
-                                                            ?.unfocus();
-                                                      },
-                                                      child: Padding(
-                                                        padding: MediaQuery
-                                                            .viewInsetsOf(
-                                                                context),
-                                                        child:
-                                                            SelectWarmUpCoolDownDialogWidget(
-                                                          type: 1,
-                                                          workout:
-                                                              widget.workout!,
-                                                        ),
+                                              logFirebaseEvent(
+                                                  'Selectoneofours_bottom_sheet');
+                                              showModalBottomSheet(
+                                                isScrollControlled: true,
+                                                backgroundColor:
+                                                    Colors.transparent,
+                                                context: context,
+                                                builder: (context) {
+                                                  return GestureDetector(
+                                                    onTap: () {
+                                                      FocusScope.of(context)
+                                                          .unfocus();
+                                                      FocusManager
+                                                          .instance.primaryFocus
+                                                          ?.unfocus();
+                                                    },
+                                                    child: Padding(
+                                                      padding: MediaQuery
+                                                          .viewInsetsOf(
+                                                              context),
+                                                      child:
+                                                          SelectWarmUpCoolDownDialogWidget(
+                                                        type: 1,
+                                                        workout:
+                                                            widget!.workout!,
                                                       ),
-                                                    );
-                                                  },
-                                                ).then((value) =>
-                                                    safeSetState(() {}));
-                                              } else {
-                                                showModalBottomSheet(
-                                                  isScrollControlled: true,
-                                                  backgroundColor:
-                                                      Colors.transparent,
-                                                  context: context,
-                                                  builder: (context) {
-                                                    return GestureDetector(
-                                                      onTap: () {
-                                                        FocusScope.of(context)
-                                                            .unfocus();
-                                                        FocusManager.instance
-                                                            .primaryFocus
-                                                            ?.unfocus();
-                                                      },
-                                                      child: Padding(
-                                                        padding: MediaQuery
-                                                            .viewInsetsOf(
-                                                                context),
-                                                        child:
-                                                            GuestDialogWidget(),
-                                                      ),
-                                                    );
-                                                  },
-                                                ).then((value) =>
-                                                    safeSetState(() {}));
-                                              }
+                                                    ),
+                                                  );
+                                                },
+                                              ).then((value) =>
+                                                  safeSetState(() {}));
                                             },
                                       text: FFLocalizations.of(context).getText(
                                         'ao6mwsco' /* Select one of ours */,
@@ -1461,13 +1402,10 @@ class _WorkoutPageWidgetState extends State<WorkoutPageWidget> {
                                               ),
                                               fontSize: 14.0,
                                               letterSpacing: 0.07,
-                                              useGoogleFonts: GoogleFonts
-                                                      .asMap()
-                                                  .containsKey(
-                                                      FlutterFlowTheme.of(
-                                                              context)
-                                                          .titleSmallFamily),
                                               lineHeight: 1.4,
+                                              useGoogleFonts:
+                                                  !FlutterFlowTheme.of(context)
+                                                      .titleSmallIsCustom,
                                             ),
                                         elevation: 0.0,
                                         borderSide: BorderSide(
@@ -1489,44 +1427,22 @@ class _WorkoutPageWidgetState extends State<WorkoutPageWidget> {
                                       onPressed: (_model.trainingChoose != 1)
                                           ? null
                                           : () async {
+                                              logFirebaseEvent(
+                                                  'WORKOUT_PAGE_PAGE_Ididit_ON_TAP');
+                                              logFirebaseEvent(
+                                                  'Ididit_haptic_feedback');
                                               HapticFeedback.selectionClick();
-                                              if (currentUserEmail != '') {
-                                                if (!_model.trainingsDone
-                                                    .contains(1)) {
-                                                  _model.addToTrainingsDone(1);
-                                                  safeSetState(() {});
-                                                }
-                                                _model.trainingChoose = 2;
+                                              if (!_model.trainingsDone
+                                                  .contains(1)) {
+                                                logFirebaseEvent(
+                                                    'Ididit_update_page_state');
+                                                _model.addToTrainingsDone(1);
                                                 safeSetState(() {});
-                                              } else {
-                                                showModalBottomSheet(
-                                                  isScrollControlled: true,
-                                                  backgroundColor:
-                                                      Colors.transparent,
-                                                  context: context,
-                                                  builder: (context) {
-                                                    return GestureDetector(
-                                                      onTap: () {
-                                                        FocusScope.of(context)
-                                                            .unfocus();
-                                                        FocusManager.instance
-                                                            .primaryFocus
-                                                            ?.unfocus();
-                                                      },
-                                                      child: Padding(
-                                                        padding: MediaQuery
-                                                            .viewInsetsOf(
-                                                                context),
-                                                        child:
-                                                            GuestDialogWidget(),
-                                                      ),
-                                                    );
-                                                  },
-                                                ).then((value) =>
-                                                    safeSetState(() {}));
-
-                                                return;
                                               }
+                                              logFirebaseEvent(
+                                                  'Ididit_update_page_state');
+                                              _model.trainingChoose = 2;
+                                              safeSetState(() {});
                                             },
                                       text: FFLocalizations.of(context).getText(
                                         'rfuq6jtu' /* Done */,
@@ -1563,13 +1479,10 @@ class _WorkoutPageWidgetState extends State<WorkoutPageWidget> {
                                                       .primary,
                                               fontSize: 14.0,
                                               letterSpacing: 0.07,
-                                              useGoogleFonts: GoogleFonts
-                                                      .asMap()
-                                                  .containsKey(
-                                                      FlutterFlowTheme.of(
-                                                              context)
-                                                          .titleSmallFamily),
                                               lineHeight: 1.4,
+                                              useGoogleFonts:
+                                                  !FlutterFlowTheme.of(context)
+                                                      .titleSmallIsCustom,
                                             ),
                                         elevation: 0.0,
                                         borderSide: BorderSide(
@@ -1599,8 +1512,11 @@ class _WorkoutPageWidgetState extends State<WorkoutPageWidget> {
                             hoverColor: Colors.transparent,
                             highlightColor: Colors.transparent,
                             onTap: () async {
+                              logFirebaseEvent(
+                                  'WORKOUT_PAGE_PAGE_Warmup_ON_TAP');
                               if (_model.trainingsDone.contains(1) &&
                                   (_model.trainingsDone.length < 3)) {
+                                logFirebaseEvent('Warmup_update_page_state');
                                 _model.trainingChoose = 2;
                                 safeSetState(() {});
                               }
@@ -1682,13 +1598,11 @@ class _WorkoutPageWidgetState extends State<WorkoutPageWidget> {
                                                     fontSize: 16.0,
                                                     letterSpacing: 0.07,
                                                     fontWeight: FontWeight.bold,
-                                                    useGoogleFonts: GoogleFonts
-                                                            .asMap()
-                                                        .containsKey(
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .bodyMediumFamily),
                                                     lineHeight: 1.4,
+                                                    useGoogleFonts:
+                                                        !FlutterFlowTheme.of(
+                                                                context)
+                                                            .bodyMediumIsCustom,
                                                   ),
                                             ),
                                           ),
@@ -1716,13 +1630,11 @@ class _WorkoutPageWidgetState extends State<WorkoutPageWidget> {
                                                           letterSpacing: 0.07,
                                                           fontWeight:
                                                               FontWeight.bold,
-                                                          useGoogleFonts: GoogleFonts
-                                                                  .asMap()
-                                                              .containsKey(
-                                                                  FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .bodyMediumFamily),
                                                           lineHeight: 1.4,
+                                                          useGoogleFonts:
+                                                              !FlutterFlowTheme
+                                                                      .of(context)
+                                                                  .bodyMediumIsCustom,
                                                         ),
                                               ),
                                               Builder(
@@ -1747,32 +1659,29 @@ class _WorkoutPageWidgetState extends State<WorkoutPageWidget> {
                                                             .getText(
                                                           'kop4kqqr' /* Done */,
                                                         ),
-                                                        style:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .bodyMedium
-                                                                .override(
-                                                                  fontFamily: FlutterFlowTheme.of(
+                                                        style: FlutterFlowTheme
+                                                                .of(context)
+                                                            .bodyMedium
+                                                            .override(
+                                                              fontFamily:
+                                                                  FlutterFlowTheme.of(
                                                                           context)
                                                                       .bodyMediumFamily,
-                                                                  color: FlutterFlowTheme.of(
+                                                              color: FlutterFlowTheme
+                                                                      .of(context)
+                                                                  .primaryText,
+                                                              fontSize: 14.0,
+                                                              letterSpacing:
+                                                                  0.07,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .normal,
+                                                              lineHeight: 1.4,
+                                                              useGoogleFonts:
+                                                                  !FlutterFlowTheme.of(
                                                                           context)
-                                                                      .primaryText,
-                                                                  fontSize:
-                                                                      14.0,
-                                                                  letterSpacing:
-                                                                      0.07,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .normal,
-                                                                  useGoogleFonts: GoogleFonts
-                                                                          .asMap()
-                                                                      .containsKey(
-                                                                          FlutterFlowTheme.of(context)
-                                                                              .bodyMediumFamily),
-                                                                  lineHeight:
-                                                                      1.4,
-                                                                ),
+                                                                      .bodyMediumIsCustom,
+                                                            ),
                                                       ),
                                                     );
                                                   } else {
@@ -1790,32 +1699,29 @@ class _WorkoutPageWidgetState extends State<WorkoutPageWidget> {
                                                             .getText(
                                                           'ki4vgbte' /* Tap on the video to start */,
                                                         ),
-                                                        style:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .bodyMedium
-                                                                .override(
-                                                                  fontFamily: FlutterFlowTheme.of(
+                                                        style: FlutterFlowTheme
+                                                                .of(context)
+                                                            .bodyMedium
+                                                            .override(
+                                                              fontFamily:
+                                                                  FlutterFlowTheme.of(
                                                                           context)
                                                                       .bodyMediumFamily,
-                                                                  color: FlutterFlowTheme.of(
+                                                              color: FlutterFlowTheme
+                                                                      .of(context)
+                                                                  .primaryText,
+                                                              fontSize: 14.0,
+                                                              letterSpacing:
+                                                                  0.07,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .normal,
+                                                              lineHeight: 1.4,
+                                                              useGoogleFonts:
+                                                                  !FlutterFlowTheme.of(
                                                                           context)
-                                                                      .primaryText,
-                                                                  fontSize:
-                                                                      14.0,
-                                                                  letterSpacing:
-                                                                      0.07,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .normal,
-                                                                  useGoogleFonts: GoogleFonts
-                                                                          .asMap()
-                                                                      .containsKey(
-                                                                          FlutterFlowTheme.of(context)
-                                                                              .bodyMediumFamily),
-                                                                  lineHeight:
-                                                                      1.4,
-                                                                ),
+                                                                      .bodyMediumIsCustom,
+                                                            ),
                                                       ),
                                                     );
                                                   }
@@ -1832,25 +1738,39 @@ class _WorkoutPageWidgetState extends State<WorkoutPageWidget> {
                                       hoverColor: Colors.transparent,
                                       highlightColor: Colors.transparent,
                                       onTap: () async {
+                                        logFirebaseEvent(
+                                            'WORKOUT_Container_31lhq6kw_ON_TAP');
+                                        logFirebaseEvent(
+                                            'Container_haptic_feedback');
                                         HapticFeedback.mediumImpact();
-                                        if (currentUserEmail != '') {
+                                        if (currentUserEmail != null &&
+                                            currentUserEmail != '') {
                                           if (_model.trainingsDone
                                               .contains(1)) {
+                                            logFirebaseEvent(
+                                                'Container_update_page_state');
                                             _model.trainingChoose = 2;
                                             safeSetState(() {});
+                                            logFirebaseEvent(
+                                                'Container_navigate_to');
                                             unawaited(
                                               () async {
                                                 context.pushNamed(
                                                   VideoPageWidget.routeName,
                                                   queryParameters: {
                                                     'videoEn': serializeParam(
-                                                      widget
+                                                      widget!
                                                           .workout?.videoUrlEn,
                                                       ParamType.String,
                                                     ),
                                                     'videoDe': serializeParam(
-                                                      widget
+                                                      widget!
                                                           .workout?.videoUrlDe,
+                                                      ParamType.String,
+                                                    ),
+                                                    'videoJa': serializeParam(
+                                                      widget!
+                                                          .workout?.videoUrlJa,
                                                       ParamType.String,
                                                     ),
                                                   }.withoutNulls,
@@ -1862,6 +1782,8 @@ class _WorkoutPageWidgetState extends State<WorkoutPageWidget> {
                                             return;
                                           }
                                         } else {
+                                          logFirebaseEvent(
+                                              'Container_bottom_sheet');
                                           showModalBottomSheet(
                                             isScrollControlled: true,
                                             backgroundColor: Colors.transparent,
@@ -1901,7 +1823,7 @@ class _WorkoutPageWidgetState extends State<WorkoutPageWidget> {
                                             fit: BoxFit.cover,
                                             image: CachedNetworkImageProvider(
                                               valueOrDefault<String>(
-                                                widget.workout?.cover,
+                                                widget!.workout?.cover,
                                                 'https://firebasestorage.googleapis.com/v0/b/breakletics-9245d.appspot.com/o/image2_3x.webp?alt=media&token=f8d93e5d-90ee-476f-b7b1-388519177fe7',
                                               ),
                                             ),
@@ -1967,39 +1889,39 @@ class _WorkoutPageWidgetState extends State<WorkoutPageWidget> {
                                                           FFLocalizations.of(
                                                                   context)
                                                               .getVariableText(
-                                                            enText: widget
+                                                            enText: widget!
                                                                 .workout
                                                                 ?.titleEn,
-                                                            deText: widget
+                                                            deText: widget!
                                                                 .workout
                                                                 ?.titleDe,
+                                                            jaText: widget!
+                                                                .workout
+                                                                ?.titleJa,
                                                           ),
                                                           'Fit Fusion',
                                                         ),
                                                         maxLines: 2,
-                                                        style:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .bodyMedium
-                                                                .override(
-                                                                  fontFamily: FlutterFlowTheme.of(
+                                                        style: FlutterFlowTheme
+                                                                .of(context)
+                                                            .bodyMedium
+                                                            .override(
+                                                              fontFamily:
+                                                                  FlutterFlowTheme.of(
                                                                           context)
                                                                       .bodyMediumFamily,
-                                                                  fontSize:
-                                                                      24.0,
-                                                                  letterSpacing:
-                                                                      0.07,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .bold,
-                                                                  useGoogleFonts: GoogleFonts
-                                                                          .asMap()
-                                                                      .containsKey(
-                                                                          FlutterFlowTheme.of(context)
-                                                                              .bodyMediumFamily),
-                                                                  lineHeight:
-                                                                      1.4,
-                                                                ),
+                                                              fontSize: 24.0,
+                                                              letterSpacing:
+                                                                  0.07,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
+                                                              lineHeight: 1.4,
+                                                              useGoogleFonts:
+                                                                  !FlutterFlowTheme.of(
+                                                                          context)
+                                                                      .bodyMediumIsCustom,
+                                                            ),
                                                       ),
                                                     ),
                                                   ),
@@ -2008,10 +1930,12 @@ class _WorkoutPageWidgetState extends State<WorkoutPageWidget> {
                                                       FFLocalizations.of(
                                                               context)
                                                           .getVariableText(
-                                                        enText: widget
+                                                        enText: widget!
                                                             .workout?.duration,
-                                                        deText: widget.workout
+                                                        deText: widget!.workout
                                                             ?.durationDe,
+                                                        jaText: widget!.workout
+                                                            ?.durationJa,
                                                       ),
                                                       '-',
                                                     ),
@@ -2026,13 +1950,11 @@ class _WorkoutPageWidgetState extends State<WorkoutPageWidget> {
                                                                   .bodyMediumFamily,
                                                           fontSize: 12.0,
                                                           letterSpacing: 0.07,
-                                                          useGoogleFonts: GoogleFonts
-                                                                  .asMap()
-                                                              .containsKey(
-                                                                  FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .bodyMediumFamily),
                                                           lineHeight: 1.4,
+                                                          useGoogleFonts:
+                                                              !FlutterFlowTheme
+                                                                      .of(context)
+                                                                  .bodyMediumIsCustom,
                                                         ),
                                                   ),
                                                 ].divide(SizedBox(height: 4.0)),
@@ -2046,44 +1968,22 @@ class _WorkoutPageWidgetState extends State<WorkoutPageWidget> {
                                       onPressed: (_model.trainingChoose != 2)
                                           ? null
                                           : () async {
+                                              logFirebaseEvent(
+                                                  'WORKOUT_PAGE_PAGE_Ididit_ON_TAP');
+                                              logFirebaseEvent(
+                                                  'Ididit_haptic_feedback');
                                               HapticFeedback.selectionClick();
-                                              if (currentUserEmail != '') {
-                                                if (!_model.trainingsDone
-                                                    .contains(2)) {
-                                                  _model.addToTrainingsDone(2);
-                                                  safeSetState(() {});
-                                                }
-                                                _model.trainingChoose = 3;
+                                              if (!_model.trainingsDone
+                                                  .contains(2)) {
+                                                logFirebaseEvent(
+                                                    'Ididit_update_page_state');
+                                                _model.addToTrainingsDone(2);
                                                 safeSetState(() {});
-                                              } else {
-                                                showModalBottomSheet(
-                                                  isScrollControlled: true,
-                                                  backgroundColor:
-                                                      Colors.transparent,
-                                                  context: context,
-                                                  builder: (context) {
-                                                    return GestureDetector(
-                                                      onTap: () {
-                                                        FocusScope.of(context)
-                                                            .unfocus();
-                                                        FocusManager.instance
-                                                            .primaryFocus
-                                                            ?.unfocus();
-                                                      },
-                                                      child: Padding(
-                                                        padding: MediaQuery
-                                                            .viewInsetsOf(
-                                                                context),
-                                                        child:
-                                                            GuestDialogWidget(),
-                                                      ),
-                                                    );
-                                                  },
-                                                ).then((value) =>
-                                                    safeSetState(() {}));
-
-                                                return;
                                               }
+                                              logFirebaseEvent(
+                                                  'Ididit_update_page_state');
+                                              _model.trainingChoose = 3;
+                                              safeSetState(() {});
                                             },
                                       text: FFLocalizations.of(context).getText(
                                         'bd3xpxi8' /* Done */,
@@ -2120,13 +2020,10 @@ class _WorkoutPageWidgetState extends State<WorkoutPageWidget> {
                                                       .primary,
                                               fontSize: 14.0,
                                               letterSpacing: 0.07,
-                                              useGoogleFonts: GoogleFonts
-                                                      .asMap()
-                                                  .containsKey(
-                                                      FlutterFlowTheme.of(
-                                                              context)
-                                                          .titleSmallFamily),
                                               lineHeight: 1.4,
+                                              useGoogleFonts:
+                                                  !FlutterFlowTheme.of(context)
+                                                      .titleSmallIsCustom,
                                             ),
                                         elevation: 0.0,
                                         borderSide: BorderSide(
@@ -2156,8 +2053,11 @@ class _WorkoutPageWidgetState extends State<WorkoutPageWidget> {
                             hoverColor: Colors.transparent,
                             highlightColor: Colors.transparent,
                             onTap: () async {
+                              logFirebaseEvent(
+                                  'WORKOUT_PAGE_PAGE_Cooldown_ON_TAP');
                               if (_model.trainingsDone.contains(2) &&
                                   (_model.trainingsDone.length < 3)) {
+                                logFirebaseEvent('Cooldown_update_page_state');
                                 _model.trainingChoose = 3;
                                 safeSetState(() {});
                               }
@@ -2239,13 +2139,11 @@ class _WorkoutPageWidgetState extends State<WorkoutPageWidget> {
                                                     fontSize: 16.0,
                                                     letterSpacing: 0.07,
                                                     fontWeight: FontWeight.bold,
-                                                    useGoogleFonts: GoogleFonts
-                                                            .asMap()
-                                                        .containsKey(
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .bodyMediumFamily),
                                                     lineHeight: 1.4,
+                                                    useGoogleFonts:
+                                                        !FlutterFlowTheme.of(
+                                                                context)
+                                                            .bodyMediumIsCustom,
                                                   ),
                                             ),
                                           ),
@@ -2273,13 +2171,11 @@ class _WorkoutPageWidgetState extends State<WorkoutPageWidget> {
                                                           letterSpacing: 0.07,
                                                           fontWeight:
                                                               FontWeight.bold,
-                                                          useGoogleFonts: GoogleFonts
-                                                                  .asMap()
-                                                              .containsKey(
-                                                                  FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .bodyMediumFamily),
                                                           lineHeight: 1.4,
+                                                          useGoogleFonts:
+                                                              !FlutterFlowTheme
+                                                                      .of(context)
+                                                                  .bodyMediumIsCustom,
                                                         ),
                                               ),
                                               Builder(
@@ -2304,32 +2200,29 @@ class _WorkoutPageWidgetState extends State<WorkoutPageWidget> {
                                                             .getText(
                                                           'lr3dsez4' /* Done */,
                                                         ),
-                                                        style:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .bodyMedium
-                                                                .override(
-                                                                  fontFamily: FlutterFlowTheme.of(
+                                                        style: FlutterFlowTheme
+                                                                .of(context)
+                                                            .bodyMedium
+                                                            .override(
+                                                              fontFamily:
+                                                                  FlutterFlowTheme.of(
                                                                           context)
                                                                       .bodyMediumFamily,
-                                                                  color: FlutterFlowTheme.of(
+                                                              color: FlutterFlowTheme
+                                                                      .of(context)
+                                                                  .primaryText,
+                                                              fontSize: 14.0,
+                                                              letterSpacing:
+                                                                  0.07,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .normal,
+                                                              lineHeight: 1.4,
+                                                              useGoogleFonts:
+                                                                  !FlutterFlowTheme.of(
                                                                           context)
-                                                                      .primaryText,
-                                                                  fontSize:
-                                                                      14.0,
-                                                                  letterSpacing:
-                                                                      0.07,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .normal,
-                                                                  useGoogleFonts: GoogleFonts
-                                                                          .asMap()
-                                                                      .containsKey(
-                                                                          FlutterFlowTheme.of(context)
-                                                                              .bodyMediumFamily),
-                                                                  lineHeight:
-                                                                      1.4,
-                                                                ),
+                                                                      .bodyMediumIsCustom,
+                                                            ),
                                                       ),
                                                     );
                                                   } else {
@@ -2347,32 +2240,29 @@ class _WorkoutPageWidgetState extends State<WorkoutPageWidget> {
                                                             .getText(
                                                           'qqc0qxqz' /* Select one of ours or do you o... */,
                                                         ),
-                                                        style:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .bodyMedium
-                                                                .override(
-                                                                  fontFamily: FlutterFlowTheme.of(
+                                                        style: FlutterFlowTheme
+                                                                .of(context)
+                                                            .bodyMedium
+                                                            .override(
+                                                              fontFamily:
+                                                                  FlutterFlowTheme.of(
                                                                           context)
                                                                       .bodyMediumFamily,
-                                                                  color: FlutterFlowTheme.of(
+                                                              color: FlutterFlowTheme
+                                                                      .of(context)
+                                                                  .primaryText,
+                                                              fontSize: 14.0,
+                                                              letterSpacing:
+                                                                  0.07,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .normal,
+                                                              lineHeight: 1.4,
+                                                              useGoogleFonts:
+                                                                  !FlutterFlowTheme.of(
                                                                           context)
-                                                                      .primaryText,
-                                                                  fontSize:
-                                                                      14.0,
-                                                                  letterSpacing:
-                                                                      0.07,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .normal,
-                                                                  useGoogleFonts: GoogleFonts
-                                                                          .asMap()
-                                                                      .containsKey(
-                                                                          FlutterFlowTheme.of(context)
-                                                                              .bodyMediumFamily),
-                                                                  lineHeight:
-                                                                      1.4,
-                                                                ),
+                                                                      .bodyMediumIsCustom,
+                                                            ),
                                                       ),
                                                     );
                                                   }
@@ -2387,64 +2277,42 @@ class _WorkoutPageWidgetState extends State<WorkoutPageWidget> {
                                       onPressed: (_model.trainingChoose != 3)
                                           ? null
                                           : () async {
+                                              logFirebaseEvent(
+                                                  'WORKOUT_PAGE_PAGE_Selectoneofours_ON_TAP');
+                                              logFirebaseEvent(
+                                                  'Selectoneofours_haptic_feedback');
                                               HapticFeedback.selectionClick();
-                                              if (currentUserEmail != '') {
-                                                showModalBottomSheet(
-                                                  isScrollControlled: true,
-                                                  backgroundColor:
-                                                      Colors.transparent,
-                                                  context: context,
-                                                  builder: (context) {
-                                                    return GestureDetector(
-                                                      onTap: () {
-                                                        FocusScope.of(context)
-                                                            .unfocus();
-                                                        FocusManager.instance
-                                                            .primaryFocus
-                                                            ?.unfocus();
-                                                      },
-                                                      child: Padding(
-                                                        padding: MediaQuery
-                                                            .viewInsetsOf(
-                                                                context),
-                                                        child:
-                                                            SelectWarmUpCoolDownDialogWidget(
-                                                          type: 2,
-                                                          workout:
-                                                              widget.workout!,
-                                                        ),
+                                              logFirebaseEvent(
+                                                  'Selectoneofours_bottom_sheet');
+                                              showModalBottomSheet(
+                                                isScrollControlled: true,
+                                                backgroundColor:
+                                                    Colors.transparent,
+                                                context: context,
+                                                builder: (context) {
+                                                  return GestureDetector(
+                                                    onTap: () {
+                                                      FocusScope.of(context)
+                                                          .unfocus();
+                                                      FocusManager
+                                                          .instance.primaryFocus
+                                                          ?.unfocus();
+                                                    },
+                                                    child: Padding(
+                                                      padding: MediaQuery
+                                                          .viewInsetsOf(
+                                                              context),
+                                                      child:
+                                                          SelectWarmUpCoolDownDialogWidget(
+                                                        type: 2,
+                                                        workout:
+                                                            widget!.workout!,
                                                       ),
-                                                    );
-                                                  },
-                                                ).then((value) =>
-                                                    safeSetState(() {}));
-                                              } else {
-                                                showModalBottomSheet(
-                                                  isScrollControlled: true,
-                                                  backgroundColor:
-                                                      Colors.transparent,
-                                                  context: context,
-                                                  builder: (context) {
-                                                    return GestureDetector(
-                                                      onTap: () {
-                                                        FocusScope.of(context)
-                                                            .unfocus();
-                                                        FocusManager.instance
-                                                            .primaryFocus
-                                                            ?.unfocus();
-                                                      },
-                                                      child: Padding(
-                                                        padding: MediaQuery
-                                                            .viewInsetsOf(
-                                                                context),
-                                                        child:
-                                                            GuestDialogWidget(),
-                                                      ),
-                                                    );
-                                                  },
-                                                ).then((value) =>
-                                                    safeSetState(() {}));
-                                              }
+                                                    ),
+                                                  );
+                                                },
+                                              ).then((value) =>
+                                                  safeSetState(() {}));
                                             },
                                       text: FFLocalizations.of(context).getText(
                                         'kr5agtv7' /* Select one of ours */,
@@ -2478,13 +2346,10 @@ class _WorkoutPageWidgetState extends State<WorkoutPageWidget> {
                                               ),
                                               fontSize: 14.0,
                                               letterSpacing: 0.07,
-                                              useGoogleFonts: GoogleFonts
-                                                      .asMap()
-                                                  .containsKey(
-                                                      FlutterFlowTheme.of(
-                                                              context)
-                                                          .titleSmallFamily),
                                               lineHeight: 1.4,
+                                              useGoogleFonts:
+                                                  !FlutterFlowTheme.of(context)
+                                                      .titleSmallIsCustom,
                                             ),
                                         elevation: 0.0,
                                         borderSide: BorderSide(
@@ -2506,44 +2371,22 @@ class _WorkoutPageWidgetState extends State<WorkoutPageWidget> {
                                       onPressed: (_model.trainingChoose != 3)
                                           ? null
                                           : () async {
+                                              logFirebaseEvent(
+                                                  'WORKOUT_PAGE_PAGE_Ididit_ON_TAP');
+                                              logFirebaseEvent(
+                                                  'Ididit_haptic_feedback');
                                               HapticFeedback.selectionClick();
-                                              if (currentUserEmail != '') {
-                                                if (!_model.trainingsDone
-                                                    .contains(3)) {
-                                                  _model.addToTrainingsDone(3);
-                                                  safeSetState(() {});
-                                                }
-                                                _model.trainingChoose = 0;
+                                              if (!_model.trainingsDone
+                                                  .contains(3)) {
+                                                logFirebaseEvent(
+                                                    'Ididit_update_page_state');
+                                                _model.addToTrainingsDone(3);
                                                 safeSetState(() {});
-                                              } else {
-                                                showModalBottomSheet(
-                                                  isScrollControlled: true,
-                                                  backgroundColor:
-                                                      Colors.transparent,
-                                                  context: context,
-                                                  builder: (context) {
-                                                    return GestureDetector(
-                                                      onTap: () {
-                                                        FocusScope.of(context)
-                                                            .unfocus();
-                                                        FocusManager.instance
-                                                            .primaryFocus
-                                                            ?.unfocus();
-                                                      },
-                                                      child: Padding(
-                                                        padding: MediaQuery
-                                                            .viewInsetsOf(
-                                                                context),
-                                                        child:
-                                                            GuestDialogWidget(),
-                                                      ),
-                                                    );
-                                                  },
-                                                ).then((value) =>
-                                                    safeSetState(() {}));
-
-                                                return;
                                               }
+                                              logFirebaseEvent(
+                                                  'Ididit_update_page_state');
+                                              _model.trainingChoose = 0;
+                                              safeSetState(() {});
                                             },
                                       text: FFLocalizations.of(context).getText(
                                         'l4j7009c' /* Done */,
@@ -2580,13 +2423,10 @@ class _WorkoutPageWidgetState extends State<WorkoutPageWidget> {
                                                       .primary,
                                               fontSize: 14.0,
                                               letterSpacing: 0.07,
-                                              useGoogleFonts: GoogleFonts
-                                                      .asMap()
-                                                  .containsKey(
-                                                      FlutterFlowTheme.of(
-                                                              context)
-                                                          .titleSmallFamily),
                                               lineHeight: 1.4,
+                                              useGoogleFonts:
+                                                  !FlutterFlowTheme.of(context)
+                                                      .titleSmallIsCustom,
                                             ),
                                         elevation: 0.0,
                                         borderSide: BorderSide(
@@ -2614,197 +2454,79 @@ class _WorkoutPageWidgetState extends State<WorkoutPageWidget> {
                             onPressed: (_model.trainingsDone.length < 3)
                                 ? null
                                 : () async {
+                                    logFirebaseEvent(
+                                        'WORKOUT_PAGE_PAGE_Ididit_ON_TAP');
+                                    logFirebaseEvent('Ididit_haptic_feedback');
                                     HapticFeedback.selectionClick();
-                                    if (currentUserEmail != '') {
-                                      await columnProgressRecord.reference
-                                          .update({
-                                        ...mapToFirestore(
-                                          {
-                                            'workout_done':
-                                                FieldValue.arrayUnion([
-                                              getWorkoutStatisticFirestoreData(
-                                                updateWorkoutStatisticStruct(
-                                                  WorkoutStatisticStruct(
-                                                    seasonId: widget
-                                                        .season?.reference.id,
-                                                    level: valueOrDefault<int>(
-                                                      widget.season?.level,
-                                                      1,
+                                    logFirebaseEvent('Ididit_backend_call');
+                                    unawaited(
+                                      () async {
+                                        await columnProgressRecord.reference
+                                            .update({
+                                          ...mapToFirestore(
+                                            {
+                                              'workout_done':
+                                                  FieldValue.arrayUnion([
+                                                getWorkoutStatisticFirestoreData(
+                                                  updateWorkoutStatisticStruct(
+                                                    WorkoutStatisticStruct(
+                                                      seasonId: widget!
+                                                          .season?.reference.id,
+                                                      level:
+                                                          valueOrDefault<int>(
+                                                        widget!.season?.level,
+                                                        1,
+                                                      ),
+                                                      datetime:
+                                                          getCurrentTimestamp,
+                                                      warpmupPoints:
+                                                          valueOrDefault<int>(
+                                                        FFAppState()
+                                                            .warmupPoints,
+                                                        2,
+                                                      ),
+                                                      cooldownPoints:
+                                                          valueOrDefault<int>(
+                                                        FFAppState()
+                                                            .cooldownPoints,
+                                                        2,
+                                                      ),
+                                                      workoutPoints:
+                                                          valueOrDefault<int>(
+                                                        widget!.workout?.points,
+                                                        0,
+                                                      ),
+                                                      workoutId: widget!.workout
+                                                          ?.reference.id,
                                                     ),
-                                                    datetime:
-                                                        getCurrentTimestamp,
-                                                    warpmupPoints:
-                                                        valueOrDefault<int>(
-                                                      FFAppState().warmupPoints,
-                                                      2,
-                                                    ),
-                                                    cooldownPoints:
-                                                        valueOrDefault<int>(
-                                                      FFAppState()
-                                                          .cooldownPoints,
-                                                      2,
-                                                    ),
-                                                    workoutPoints:
-                                                        valueOrDefault<int>(
-                                                      widget.workout?.points,
-                                                      0,
-                                                    ),
-                                                    workoutId: widget
-                                                        .workout?.reference.id,
+                                                    clearUnsetFields: false,
                                                   ),
-                                                  clearUnsetFields: false,
-                                                ),
-                                                true,
-                                              )
-                                            ]),
-                                          },
-                                        ),
-                                      });
-                                      _model.trainingsDone = [];
-                                      _model.trainingChoose = 0;
-                                      safeSetState(() {});
-                                      if (columnProgressRecord.workoutDone
-                                              .where((e) =>
-                                                  e.workoutId ==
-                                                  widget.workout?.reference.id)
-                                              .toList()
-                                              .length ==
-                                          2) {
-                                        showModalBottomSheet(
-                                          isScrollControlled: true,
-                                          backgroundColor: Colors.transparent,
-                                          isDismissible: false,
-                                          enableDrag: false,
-                                          context: context,
-                                          builder: (context) {
-                                            return GestureDetector(
-                                              onTap: () {
-                                                FocusScope.of(context)
-                                                    .unfocus();
-                                                FocusManager
-                                                    .instance.primaryFocus
-                                                    ?.unfocus();
-                                              },
-                                              child: Padding(
-                                                padding:
-                                                    MediaQuery.viewInsetsOf(
-                                                        context),
-                                                child:
-                                                    WorkoutSuccess3timesDialogWidget(
-                                                  workoutDone:
-                                                      WorkoutStatisticStruct(
-                                                    seasonId: widget
-                                                        .season?.reference.id,
-                                                    level: valueOrDefault<int>(
-                                                      widget.season?.level,
-                                                      1,
-                                                    ),
-                                                    datetime:
-                                                        getCurrentTimestamp,
-                                                    warpmupPoints:
-                                                        valueOrDefault<int>(
-                                                      FFAppState().warmupPoints,
-                                                      2,
-                                                    ),
-                                                    cooldownPoints:
-                                                        valueOrDefault<int>(
-                                                      FFAppState()
-                                                          .cooldownPoints,
-                                                      2,
-                                                    ),
-                                                    workoutPoints:
-                                                        valueOrDefault<int>(
-                                                      widget.workout?.points,
-                                                      0,
-                                                    ),
-                                                    workoutId: widget
-                                                        .workout?.reference.id,
-                                                  ),
-                                                  workoutCount:
-                                                      valueOrDefault<int>(
-                                                    widget.workoutCount,
-                                                    0,
-                                                  ),
-                                                  season: widget.season!,
-                                                  progress: widget.progress!,
-                                                ),
-                                              ),
-                                            );
-                                          },
-                                        ).then((value) => safeSetState(() {}));
-                                      } else {
-                                        showModalBottomSheet(
-                                          isScrollControlled: true,
-                                          backgroundColor: Colors.transparent,
-                                          isDismissible: false,
-                                          enableDrag: false,
-                                          context: context,
-                                          builder: (context) {
-                                            return GestureDetector(
-                                              onTap: () {
-                                                FocusScope.of(context)
-                                                    .unfocus();
-                                                FocusManager
-                                                    .instance.primaryFocus
-                                                    ?.unfocus();
-                                              },
-                                              child: Padding(
-                                                padding:
-                                                    MediaQuery.viewInsetsOf(
-                                                        context),
-                                                child:
-                                                    WorkoutSuccessDialogWidget(
-                                                  workoutDone:
-                                                      WorkoutStatisticStruct(
-                                                    seasonId: widget
-                                                        .season?.reference.id,
-                                                    level: valueOrDefault<int>(
-                                                      widget.season?.level,
-                                                      1,
-                                                    ),
-                                                    datetime:
-                                                        getCurrentTimestamp,
-                                                    warpmupPoints:
-                                                        valueOrDefault<int>(
-                                                      FFAppState().warmupPoints,
-                                                      2,
-                                                    ),
-                                                    cooldownPoints:
-                                                        valueOrDefault<int>(
-                                                      FFAppState()
-                                                          .cooldownPoints,
-                                                      2,
-                                                    ),
-                                                    workoutPoints:
-                                                        valueOrDefault<int>(
-                                                      widget.workout?.points,
-                                                      0,
-                                                    ),
-                                                    workoutId: widget
-                                                        .workout?.reference.id,
-                                                  ),
-                                                  progress: columnProgressRecord
-                                                      .reference,
-                                                  season: widget.season!,
-                                                  wockoutCount:
-                                                      valueOrDefault<int>(
-                                                    widget.workoutCount,
-                                                    0,
-                                                  ),
-                                                ),
-                                              ),
-                                            );
-                                          },
-                                        ).then((value) => safeSetState(() {}));
-                                      }
-
-                                      FFAppState().warmupPoints = 2;
-                                      FFAppState().cooldownPoints = 2;
-                                      safeSetState(() {});
-                                    } else {
+                                                  true,
+                                                )
+                                              ]),
+                                            },
+                                          ),
+                                        });
+                                      }(),
+                                    );
+                                    logFirebaseEvent(
+                                        'Ididit_update_page_state');
+                                    _model.trainingsDone = [];
+                                    _model.trainingChoose = 0;
+                                    safeSetState(() {});
+                                    if (columnProgressRecord.workoutDone
+                                            .where((e) =>
+                                                e.workoutId ==
+                                                widget!.workout?.reference.id)
+                                            .toList()
+                                            .length ==
+                                        2) {
+                                      logFirebaseEvent('Ididit_bottom_sheet');
                                       showModalBottomSheet(
                                         isScrollControlled: true,
                                         backgroundColor: Colors.transparent,
+                                        isDismissible: false,
+                                        enableDrag: false,
                                         context: context,
                                         builder: (context) {
                                           return GestureDetector(
@@ -2816,15 +2538,179 @@ class _WorkoutPageWidgetState extends State<WorkoutPageWidget> {
                                             child: Padding(
                                               padding: MediaQuery.viewInsetsOf(
                                                   context),
-                                              child: GuestDialogWidget(),
+                                              child:
+                                                  WorkoutSuccess3timesDialogWidget(
+                                                workoutDone:
+                                                    WorkoutStatisticStruct(
+                                                  seasonId: widget!
+                                                      .season?.reference.id,
+                                                  level: valueOrDefault<int>(
+                                                    widget!.season?.level,
+                                                    1,
+                                                  ),
+                                                  datetime: getCurrentTimestamp,
+                                                  warpmupPoints:
+                                                      valueOrDefault<int>(
+                                                    FFAppState().warmupPoints,
+                                                    2,
+                                                  ),
+                                                  cooldownPoints:
+                                                      valueOrDefault<int>(
+                                                    FFAppState().cooldownPoints,
+                                                    2,
+                                                  ),
+                                                  workoutPoints:
+                                                      valueOrDefault<int>(
+                                                    widget!.workout?.points,
+                                                    0,
+                                                  ),
+                                                  workoutId: widget!
+                                                      .workout?.reference.id,
+                                                ),
+                                                workoutCount:
+                                                    valueOrDefault<int>(
+                                                  widget!.workoutCount,
+                                                  0,
+                                                ),
+                                                season: widget!.season!,
+                                                progress: widget!.progress!,
+                                                seasonNumber:
+                                                    widget!.seasonIndex,
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                      ).then((value) => safeSetState(() {}));
+                                    } else {
+                                      logFirebaseEvent('Ididit_bottom_sheet');
+                                      showModalBottomSheet(
+                                        isScrollControlled: true,
+                                        backgroundColor: Colors.transparent,
+                                        isDismissible: false,
+                                        enableDrag: false,
+                                        context: context,
+                                        builder: (context) {
+                                          return GestureDetector(
+                                            onTap: () {
+                                              FocusScope.of(context).unfocus();
+                                              FocusManager.instance.primaryFocus
+                                                  ?.unfocus();
+                                            },
+                                            child: Padding(
+                                              padding: MediaQuery.viewInsetsOf(
+                                                  context),
+                                              child: WorkoutSuccessDialogWidget(
+                                                workoutDone:
+                                                    WorkoutStatisticStruct(
+                                                  seasonId: widget!
+                                                      .season?.reference.id,
+                                                  level: valueOrDefault<int>(
+                                                    widget!.season?.level,
+                                                    1,
+                                                  ),
+                                                  datetime: getCurrentTimestamp,
+                                                  warpmupPoints:
+                                                      valueOrDefault<int>(
+                                                    FFAppState().warmupPoints,
+                                                    2,
+                                                  ),
+                                                  cooldownPoints:
+                                                      valueOrDefault<int>(
+                                                    FFAppState().cooldownPoints,
+                                                    2,
+                                                  ),
+                                                  workoutPoints:
+                                                      valueOrDefault<int>(
+                                                    widget!.workout?.points,
+                                                    0,
+                                                  ),
+                                                  workoutId: widget!
+                                                      .workout?.reference.id,
+                                                ),
+                                                progress: columnProgressRecord
+                                                    .reference,
+                                                season: widget!.season!,
+                                                wockoutCount:
+                                                    valueOrDefault<int>(
+                                                  widget!.workoutCount,
+                                                  0,
+                                                ),
+                                                seasonNumber:
+                                                    widget!.seasonIndex,
+                                              ),
                                             ),
                                           );
                                         },
                                       ).then((value) => safeSetState(() {}));
                                     }
+
+                                    logFirebaseEvent('Ididit_update_app_state');
+                                    FFAppState().warmupPoints = 2;
+                                    FFAppState().cooldownPoints = 2;
+                                    safeSetState(() {});
+                                    if (currentUserEmail != null &&
+                                        currentUserEmail != '') {
+                                      if (functions.newLevelAchieved(
+                                          columnProgressRecord.workoutDone
+                                              .toList(),
+                                          WorkoutStatisticStruct(
+                                            seasonId:
+                                                widget!.season?.reference.id,
+                                            level: valueOrDefault<int>(
+                                              widget!.season?.level,
+                                              1,
+                                            ),
+                                            datetime: getCurrentTimestamp,
+                                            warpmupPoints: valueOrDefault<int>(
+                                              FFAppState().warmupPoints,
+                                              2,
+                                            ),
+                                            cooldownPoints: valueOrDefault<int>(
+                                              FFAppState().cooldownPoints,
+                                              2,
+                                            ),
+                                            workoutPoints: valueOrDefault<int>(
+                                              widget!.workout?.points,
+                                              0,
+                                            ),
+                                            workoutId:
+                                                widget!.workout?.reference.id,
+                                          ),
+                                          functions.levels().toList())) {
+                                        logFirebaseEvent('Ididit_bottom_sheet');
+                                        showModalBottomSheet(
+                                          isScrollControlled: true,
+                                          backgroundColor: Colors.transparent,
+                                          context: context,
+                                          builder: (context) {
+                                            return GestureDetector(
+                                              onTap: () {
+                                                FocusScope.of(context)
+                                                    .unfocus();
+                                                FocusManager
+                                                    .instance.primaryFocus
+                                                    ?.unfocus();
+                                              },
+                                              child: Padding(
+                                                padding:
+                                                    MediaQuery.viewInsetsOf(
+                                                        context),
+                                                child:
+                                                    LevelSuccessDialogWidget(),
+                                              ),
+                                            );
+                                          },
+                                        ).then((value) => safeSetState(() {}));
+                                      }
+                                    } else {
+                                      logFirebaseEvent('Ididit_bottom_sheet');
+                                      unawaited(
+                                        () async {}(),
+                                      );
+                                    }
                                   },
                             text: FFLocalizations.of(context).getText(
-                              'pf7q4dog' /* Let’s Go! */,
+                              'pf7q4dog' /* Finish workout */,
                             ),
                             icon: Icon(
                               FFIcons.kflag24,
@@ -2851,11 +2737,10 @@ class _WorkoutPageWidgetState extends State<WorkoutPageWidget> {
                                     color: FlutterFlowTheme.of(context).primary,
                                     fontSize: 14.0,
                                     letterSpacing: 0.07,
-                                    useGoogleFonts: GoogleFonts.asMap()
-                                        .containsKey(
-                                            FlutterFlowTheme.of(context)
-                                                .titleSmallFamily),
                                     lineHeight: 1.4,
+                                    useGoogleFonts:
+                                        !FlutterFlowTheme.of(context)
+                                            .titleSmallIsCustom,
                                   ),
                               elevation: 0.0,
                               borderSide: BorderSide(

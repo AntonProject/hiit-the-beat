@@ -1,10 +1,13 @@
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
+import 'dart:ui';
 import '/index.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'success_subs_model.dart';
 export 'success_subs_model.dart';
 
@@ -87,10 +90,9 @@ class _SuccessSubsWidgetState extends State<SuccessSubsWidget> {
                               fontSize: 20.0,
                               letterSpacing: 0.07,
                               fontWeight: FontWeight.bold,
-                              useGoogleFonts: GoogleFonts.asMap().containsKey(
-                                  FlutterFlowTheme.of(context)
-                                      .bodyMediumFamily),
                               lineHeight: 1.4,
+                              useGoogleFonts: !FlutterFlowTheme.of(context)
+                                  .bodyMediumIsCustom,
                             ),
                       ),
                     ),
@@ -104,9 +106,9 @@ class _SuccessSubsWidgetState extends State<SuccessSubsWidget> {
                                 FlutterFlowTheme.of(context).bodyMediumFamily,
                             letterSpacing: 0.07,
                             fontWeight: FontWeight.normal,
-                            useGoogleFonts: GoogleFonts.asMap().containsKey(
-                                FlutterFlowTheme.of(context).bodyMediumFamily),
                             lineHeight: 1.4,
+                            useGoogleFonts: !FlutterFlowTheme.of(context)
+                                .bodyMediumIsCustom,
                           ),
                     ),
                   ].divide(SizedBox(height: 12.0)),
@@ -115,13 +117,17 @@ class _SuccessSubsWidgetState extends State<SuccessSubsWidget> {
             ),
             FFButtonWidget(
               onPressed: () async {
+                logFirebaseEvent('SUCCESS_SUBS_COMP_Letsgo_ON_TAP');
+                logFirebaseEvent('Letsgo_haptic_feedback');
                 HapticFeedback.selectionClick();
+                logFirebaseEvent('Letsgo_bottom_sheet');
                 Navigator.pop(context);
+                logFirebaseEvent('Letsgo_navigate_to');
 
                 context.goNamed(
                   HomePageWidget.routeName,
                   extra: <String, dynamic>{
-                    kTransitionInfoKey: TransitionInfo(
+                    '__transition_info__': TransitionInfo(
                       hasTransition: true,
                       transitionType: PageTransitionType.fade,
                       duration: Duration(milliseconds: 0),
@@ -143,9 +149,9 @@ class _SuccessSubsWidgetState extends State<SuccessSubsWidget> {
                       color: FlutterFlowTheme.of(context).primaryText,
                       fontSize: 14.0,
                       letterSpacing: 0.07,
-                      useGoogleFonts: GoogleFonts.asMap().containsKey(
-                          FlutterFlowTheme.of(context).titleSmallFamily),
                       lineHeight: 1.4,
+                      useGoogleFonts:
+                          !FlutterFlowTheme.of(context).titleSmallIsCustom,
                     ),
                 elevation: 0.0,
                 borderSide: BorderSide(

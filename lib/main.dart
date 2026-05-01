@@ -5,14 +5,19 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'auth/firebase_auth/firebase_user_provider.dart';
 import 'auth/firebase_auth/auth_util.dart';
 
 import 'backend/firebase/firebase_config.dart';
+import '/flutter_flow/flutter_flow_theme.dart';
 import 'flutter_flow/flutter_flow_util.dart';
 import 'flutter_flow/internationalization.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter/foundation.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'flutter_flow/nav/nav.dart';
+import 'index.dart';
 import 'flutter_flow/revenue_cat_util.dart' as revenue_cat;
 
 void main() async {
@@ -23,10 +28,12 @@ void main() async {
   await initFirebase();
 
   // Start initial custom actions code
-  await actions.changeStatusBarColor();
+  await actions.setStatusBarColor();
   await actions.lockLandscapeMode();
   await actions.facebook();
   // End initial custom actions code
+
+  await FlutterFlowTheme.initialize();
 
   await FFLocalizations.initialize();
 
@@ -42,6 +49,7 @@ void main() async {
   if (!kIsWeb) {
     FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
   }
+  await initializeFirebaseRemoteConfig();
 
   runApp(ChangeNotifierProvider(
     create: (context) => appState,
@@ -69,7 +77,8 @@ class MyAppScrollBehavior extends MaterialScrollBehavior {
 class _MyAppState extends State<MyApp> {
   Locale? _locale = FFLocalizations.getStoredLocale();
 
-  ThemeMode _themeMode = ThemeMode.system;
+  ThemeMode _themeMode = FlutterFlowTheme.themeMode;
+  double _textScaleFactor = 1.0;
 
   late AppStateNotifier _appStateNotifier;
   late GoRouter _router;
@@ -79,14 +88,13 @@ class _MyAppState extends State<MyApp> {
     final RouteMatchList matchList = lastMatch is ImperativeRouteMatch
         ? lastMatch.matches
         : _router.routerDelegate.currentConfiguration;
-    return matchList.uri.toString();
+    return matchList.uri.path;
   }
 
   List<String> getRouteStack() =>
       _router.routerDelegate.currentConfiguration.matches
           .map((e) => getRoute(e))
           .toList();
-
   late Stream<BaseAuthUser> userStream;
 
   final authUserSub = authenticatedUserStream.listen((user) {
@@ -124,7 +132,29 @@ class _MyAppState extends State<MyApp> {
 
   void setThemeMode(ThemeMode mode) => safeSetState(() {
         _themeMode = mode;
+        FlutterFlowTheme.saveThemeMode(mode);
       });
+
+  void setTextScaleFactor(double updatedFactor) {
+    if (updatedFactor < FlutterFlowTheme.minTextScaleFactor ||
+        updatedFactor > FlutterFlowTheme.maxTextScaleFactor) {
+      return;
+    }
+    safeSetState(() {
+      _textScaleFactor = updatedFactor;
+    });
+  }
+
+  void incrementTextScaleFactor(double incrementValue) {
+    final updatedFactor = _textScaleFactor + incrementValue;
+    if (updatedFactor < FlutterFlowTheme.minTextScaleFactor ||
+        updatedFactor > FlutterFlowTheme.maxTextScaleFactor) {
+      return;
+    }
+    safeSetState(() {
+      _textScaleFactor = updatedFactor;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -144,15 +174,31 @@ class _MyAppState extends State<MyApp> {
       supportedLocales: const [
         Locale('en'),
         Locale('de'),
+        Locale('ja'),
       ],
       theme: ThemeData(
         brightness: Brightness.light,
         scrollbarTheme: ScrollbarThemeData(
-          thumbColor: WidgetStateProperty.resolveWith((states) {
-            if (states.contains(WidgetState.dragged)) {
+          thumbColor: MaterialStateProperty.resolveWith((states) {
+            if (states.contains(MaterialState.dragged)) {
               return Color(4293263104);
             }
-            if (states.contains(WidgetState.hovered)) {
+            if (states.contains(MaterialState.hovered)) {
+              return Color(4293263104);
+            }
+            return Color(4293263104);
+          }),
+        ),
+        useMaterial3: false,
+      ),
+      darkTheme: ThemeData(
+        brightness: Brightness.dark,
+        scrollbarTheme: ScrollbarThemeData(
+          thumbColor: MaterialStateProperty.resolveWith((states) {
+            if (states.contains(MaterialState.dragged)) {
+              return Color(4293263104);
+            }
+            if (states.contains(MaterialState.hovered)) {
               return Color(4293263104);
             }
             return Color(4293263104);
@@ -164,10 +210,16 @@ class _MyAppState extends State<MyApp> {
       routerConfig: _router,
       builder: (_, child) => MediaQuery(
         data: MediaQuery.of(context).copyWith(
-          textScaler: MediaQuery.of(context).textScaler.clamp(
-                minScaleFactor: 1.0,
-                maxScaleFactor: 1.0,
-              ),
+          textScaler:
+              _textScaleFactor == FlutterFlowTheme.defaultTextScaleFactor
+                  ? MediaQuery.of(context).textScaler.clamp(
+                        minScaleFactor: FlutterFlowTheme.minTextScaleFactor,
+                        maxScaleFactor: FlutterFlowTheme.maxTextScaleFactor,
+                      )
+                  : TextScaler.linear(_textScaleFactor).clamp(
+                      minScaleFactor: FlutterFlowTheme.minTextScaleFactor,
+                      maxScaleFactor: FlutterFlowTheme.maxTextScaleFactor,
+                    ),
         ),
         child: child!,
       ),

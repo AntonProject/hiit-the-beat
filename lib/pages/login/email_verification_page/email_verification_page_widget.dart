@@ -6,12 +6,15 @@ import '/flutter_flow/flutter_flow_timer.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
 import '/flutter_flow/instant_timer.dart';
+import 'dart:ui';
 import '/index.dart';
 import 'package:stop_watch_timer/stop_watch_timer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'email_verification_page_model.dart';
 export 'email_verification_page_model.dart';
 
@@ -42,13 +45,20 @@ class _EmailVerificationPageWidgetState
     super.initState();
     _model = createModel(context, () => EmailVerificationPageModel());
 
+    logFirebaseEvent('screen_view',
+        parameters: {'screen_name': 'EmailVerificationPage'});
     // On page load action.
     SchedulerBinding.instance.addPostFrameCallback((_) async {
+      logFirebaseEvent('EMAIL_VERIFICATION_EmailVerificationPage');
       await authManager.refreshUser();
+      logFirebaseEvent('EmailVerificationPage_start_periodic_act');
       _model.instantTimer = InstantTimer.periodic(
         duration: Duration(milliseconds: 3000),
         callback: (timer) async {
           if (currentUserEmailVerified) {
+            logFirebaseEvent('EmailVerificationPage_stop_periodic_acti');
+            _model.instantTimer?.cancel();
+            logFirebaseEvent('EmailVerificationPage_bottom_sheet');
             showModalBottomSheet(
               isScrollControlled: true,
               backgroundColor: Colors.transparent,
@@ -113,6 +123,10 @@ class _EmailVerificationPageWidgetState
                     size: 24.0,
                   ),
                   onPressed: () async {
+                    logFirebaseEvent(
+                        'EMAIL_VERIFICATION_arrowLeft24_ICN_ON_TA');
+                    logFirebaseEvent('IconButton_navigate_to');
+
                     context.pushNamed(SignupPageWidget.routeName);
                   },
                 ),
@@ -126,7 +140,7 @@ class _EmailVerificationPageWidgetState
                     children: [
                       Text(
                         FFLocalizations.of(context).getText(
-                          '3ia1zkt2' /* We sent the link to the */,
+                          '3ia1zkt2' /* We sent the link to the  */,
                         ),
                         style: FlutterFlowTheme.of(context).bodyMedium.override(
                               fontFamily:
@@ -134,10 +148,9 @@ class _EmailVerificationPageWidgetState
                               fontSize: 24.0,
                               letterSpacing: 0.0,
                               fontWeight: FontWeight.bold,
-                              useGoogleFonts: GoogleFonts.asMap().containsKey(
-                                  FlutterFlowTheme.of(context)
-                                      .bodyMediumFamily),
                               lineHeight: 1.3,
+                              useGoogleFonts: !FlutterFlowTheme.of(context)
+                                  .bodyMediumIsCustom,
                             ),
                       ),
                       Padding(
@@ -145,7 +158,7 @@ class _EmailVerificationPageWidgetState
                             EdgeInsetsDirectional.fromSTEB(0.0, 12.0, 0.0, 0.0),
                         child: Text(
                           valueOrDefault<String>(
-                            widget.email,
+                            widget!.email,
                             'example@gmail.com',
                           ),
                           style: FlutterFlowTheme.of(context)
@@ -156,10 +169,9 @@ class _EmailVerificationPageWidgetState
                                 color: FlutterFlowTheme.of(context).secondary,
                                 letterSpacing: 0.07,
                                 fontWeight: FontWeight.w600,
-                                useGoogleFonts: GoogleFonts.asMap().containsKey(
-                                    FlutterFlowTheme.of(context)
-                                        .bodyMediumFamily),
                                 lineHeight: 1.4,
+                                useGoogleFonts: !FlutterFlowTheme.of(context)
+                                    .bodyMediumIsCustom,
                               ),
                         ),
                       ),
@@ -176,10 +188,9 @@ class _EmailVerificationPageWidgetState
                                 fontFamily: FlutterFlowTheme.of(context)
                                     .bodyMediumFamily,
                                 letterSpacing: 0.07,
-                                useGoogleFonts: GoogleFonts.asMap().containsKey(
-                                    FlutterFlowTheme.of(context)
-                                        .bodyMediumFamily),
                                 lineHeight: 1.4,
+                                useGoogleFonts: !FlutterFlowTheme.of(context)
+                                    .bodyMediumIsCustom,
                               ),
                         ),
                       ),
@@ -189,21 +200,36 @@ class _EmailVerificationPageWidgetState
               ),
               if (!_model.timer)
                 FFButtonWidget(
-                  onPressed: (widget.email == null || widget.email == '')
+                  onPressed: (widget!.email == null || widget!.email == '')
                       ? null
                       : () async {
+                          logFirebaseEvent('EMAIL_VERIFICATION_resend_ON_TAP');
+                          logFirebaseEvent('resend_haptic_feedback');
                           HapticFeedback.selectionClick();
+                          logFirebaseEvent('resend_wait__delay');
                           await Future.delayed(
-                              const Duration(milliseconds: 500));
+                            Duration(
+                              milliseconds: 500,
+                            ),
+                          );
+                          logFirebaseEvent('resend_timer');
                           _model.timerController.onResetTimer();
 
+                          logFirebaseEvent('resend_update_page_state');
                           _model.timer = true;
                           safeSetState(() {});
+                          logFirebaseEvent('resend_wait__delay');
                           await Future.delayed(
-                              const Duration(milliseconds: 500));
+                            Duration(
+                              milliseconds: 500,
+                            ),
+                          );
+                          logFirebaseEvent('resend_timer');
                           _model.timerController.onStartTimer();
+                          logFirebaseEvent('resend_update_page_state');
 
                           safeSetState(() {});
+                          logFirebaseEvent('resend_auth');
                           await authManager.sendEmailVerification();
                         },
                   text: FFLocalizations.of(context).getText(
@@ -221,9 +247,9 @@ class _EmailVerificationPageWidgetState
                           color: FlutterFlowTheme.of(context).secondary,
                           fontSize: 14.0,
                           letterSpacing: 0.07,
-                          useGoogleFonts: GoogleFonts.asMap().containsKey(
-                              FlutterFlowTheme.of(context).titleSmallFamily),
                           lineHeight: 1.4,
+                          useGoogleFonts:
+                              !FlutterFlowTheme.of(context).titleSmallIsCustom,
                         ),
                     elevation: 0.0,
                     borderSide: BorderSide(
@@ -248,9 +274,9 @@ class _EmailVerificationPageWidgetState
                             color: FlutterFlowTheme.of(context).gray,
                             letterSpacing: 0.07,
                             fontWeight: FontWeight.w600,
-                            useGoogleFonts: GoogleFonts.asMap().containsKey(
-                                FlutterFlowTheme.of(context).bodyMediumFamily),
                             lineHeight: 1.4,
+                            useGoogleFonts: !FlutterFlowTheme.of(context)
+                                .bodyMediumIsCustom,
                           ),
                     ),
                     FlutterFlowTimer(
@@ -268,10 +294,14 @@ class _EmailVerificationPageWidgetState
                         if (shouldUpdate) safeSetState(() {});
                       },
                       onEnded: () async {
+                        logFirebaseEvent(
+                            'EMAIL_VERIFICATION_Timer_03ibyi5z_ON_TIM');
                         await authManager.refreshUser();
+                        logFirebaseEvent('Timer_update_page_state');
                         _model.timer = false;
                         safeSetState(() {});
                         if (currentUserEmailVerified) {
+                          logFirebaseEvent('Timer_bottom_sheet');
                           showModalBottomSheet(
                             isScrollControlled: true,
                             backgroundColor: Colors.transparent,
@@ -302,10 +332,9 @@ class _EmailVerificationPageWidgetState
                                 fontSize: 14.0,
                                 letterSpacing: 0.0,
                                 fontWeight: FontWeight.w600,
-                                useGoogleFonts: GoogleFonts.asMap().containsKey(
-                                    FlutterFlowTheme.of(context)
-                                        .headlineSmallFamily),
                                 lineHeight: 1.4,
+                                useGoogleFonts: !FlutterFlowTheme.of(context)
+                                    .headlineSmallIsCustom,
                               ),
                     ),
                   ].divide(SizedBox(width: 4.0)),

@@ -1,8 +1,27 @@
 import '/admin/admin_components/admin_nav_bar/admin_nav_bar_widget.dart';
+import '/admin/admin_components/admin_save_dialog/admin_save_dialog_widget.dart';
+import '/auth/firebase_auth/auth_util.dart';
+import '/backend/backend.dart';
+import '/backend/firebase_storage/storage.dart';
+import '/flutter_flow/flutter_flow_icon_button.dart';
+import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
+import '/flutter_flow/flutter_flow_video_player.dart';
+import '/flutter_flow/flutter_flow_widgets.dart';
+import '/flutter_flow/upload_data.dart';
+import 'dart:async';
+import 'dart:ui';
+import '/custom_code/actions/index.dart' as actions;
 import '/index.dart';
 import 'admin_add_workout_widget.dart' show AdminAddWorkoutWidget;
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:easy_debounce/easy_debounce.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
 class AdminAddWorkoutModel extends FlutterFlowModel<AdminAddWorkoutWidget> {
   ///  Local state fields for this page.
@@ -12,6 +31,8 @@ class AdminAddWorkoutModel extends FlutterFlowModel<AdminAddWorkoutWidget> {
   String? videoEn;
 
   String? videoDe;
+
+  String? videoJa;
 
   ///  State fields for stateful widgets in this page.
 
@@ -35,6 +56,8 @@ class AdminAddWorkoutModel extends FlutterFlowModel<AdminAddWorkoutWidget> {
   TabController? tabBarController;
   int get tabBarCurrentIndex =>
       tabBarController != null ? tabBarController!.index : 0;
+  int get tabBarPreviousIndex =>
+      tabBarController != null ? tabBarController!.previousIndex : 0;
 
   // State field(s) for textEn widget.
   FocusNode? textEnFocusNode;
@@ -44,15 +67,15 @@ class AdminAddWorkoutModel extends FlutterFlowModel<AdminAddWorkoutWidget> {
   FocusNode? durationEnFocusNode;
   TextEditingController? durationEnTextController;
   String? Function(BuildContext, String?)? durationEnTextControllerValidator;
-  bool isDataUploading1 = false;
-  FFUploadedFile uploadedLocalFile1 =
-      FFUploadedFile(bytes: Uint8List.fromList([]));
-  String uploadedFileUrl1 = '';
+  bool isDataUploading_uploadDataCoverAddwork = false;
+  FFUploadedFile uploadedLocalFile_uploadDataCoverAddwork =
+      FFUploadedFile(bytes: Uint8List.fromList([]), originalFilename: '');
+  String uploadedFileUrl_uploadDataCoverAddwork = '';
 
-  bool isDataUploading2 = false;
-  FFUploadedFile uploadedLocalFile2 =
-      FFUploadedFile(bytes: Uint8List.fromList([]));
-  String uploadedFileUrl2 = '';
+  bool isDataUploading_uploadDataVideoEnAddwork = false;
+  FFUploadedFile uploadedLocalFile_uploadDataVideoEnAddwork =
+      FFUploadedFile(bytes: Uint8List.fromList([]), originalFilename: '');
+  String uploadedFileUrl_uploadDataVideoEnAddwork = '';
 
   // State field(s) for textDe widget.
   FocusNode? textDeFocusNode;
@@ -62,10 +85,23 @@ class AdminAddWorkoutModel extends FlutterFlowModel<AdminAddWorkoutWidget> {
   FocusNode? durationDEFocusNode;
   TextEditingController? durationDETextController;
   String? Function(BuildContext, String?)? durationDETextControllerValidator;
-  bool isDataUploading3 = false;
-  FFUploadedFile uploadedLocalFile3 =
-      FFUploadedFile(bytes: Uint8List.fromList([]));
-  String uploadedFileUrl3 = '';
+  bool isDataUploading_uploadDataVideoDeAddwork = false;
+  FFUploadedFile uploadedLocalFile_uploadDataVideoDeAddwork =
+      FFUploadedFile(bytes: Uint8List.fromList([]), originalFilename: '');
+  String uploadedFileUrl_uploadDataVideoDeAddwork = '';
+
+  // State field(s) for textJa widget.
+  FocusNode? textJaFocusNode;
+  TextEditingController? textJaTextController;
+  String? Function(BuildContext, String?)? textJaTextControllerValidator;
+  // State field(s) for durationJa widget.
+  FocusNode? durationJaFocusNode;
+  TextEditingController? durationJaTextController;
+  String? Function(BuildContext, String?)? durationJaTextControllerValidator;
+  bool isDataUploading_uploadDataVideoJaAddwork = false;
+  FFUploadedFile uploadedLocalFile_uploadDataVideoJaAddwork =
+      FFUploadedFile(bytes: Uint8List.fromList([]), originalFilename: '');
+  String uploadedFileUrl_uploadDataVideoJaAddwork = '';
 
   @override
   void initState(BuildContext context) {
@@ -96,5 +132,11 @@ class AdminAddWorkoutModel extends FlutterFlowModel<AdminAddWorkoutWidget> {
 
     durationDEFocusNode?.dispose();
     durationDETextController?.dispose();
+
+    textJaFocusNode?.dispose();
+    textJaTextController?.dispose();
+
+    durationJaFocusNode?.dispose();
+    durationJaTextController?.dispose();
   }
 }

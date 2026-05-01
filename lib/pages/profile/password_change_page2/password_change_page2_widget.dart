@@ -6,12 +6,16 @@ import '/flutter_flow/flutter_flow_timer.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
 import 'dart:async';
+import 'dart:ui';
 import '/custom_code/actions/index.dart' as actions;
+import '/index.dart';
 import 'package:stop_watch_timer/stop_watch_timer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'password_change_page2_model.dart';
 export 'password_change_page2_model.dart';
 
@@ -41,11 +45,21 @@ class _PasswordChangePage2WidgetState extends State<PasswordChangePage2Widget> {
     super.initState();
     _model = createModel(context, () => PasswordChangePage2Model());
 
+    logFirebaseEvent('screen_view',
+        parameters: {'screen_name': 'PasswordChangePage2'});
     // On page load action.
     SchedulerBinding.instance.addPostFrameCallback((_) async {
+      logFirebaseEvent('PASSWORD_CHANGE_PAGE2_PasswordChangePage');
+      logFirebaseEvent('PasswordChangePage2_custom_action');
       unawaited(
         () async {
           await actions.lockLandscapeMode();
+        }(),
+      );
+      logFirebaseEvent('PasswordChangePage2_custom_action');
+      unawaited(
+        () async {
+          await actions.setStatusBarColor();
         }(),
       );
     });
@@ -89,6 +103,9 @@ class _PasswordChangePage2WidgetState extends State<PasswordChangePage2Widget> {
                     size: 24.0,
                   ),
                   onPressed: () async {
+                    logFirebaseEvent(
+                        'PASSWORD_CHANGE_PAGE2_arrowLeft24_ICN_ON');
+                    logFirebaseEvent('IconButton_navigate_back');
                     context.safePop();
                   },
                 ),
@@ -110,10 +127,9 @@ class _PasswordChangePage2WidgetState extends State<PasswordChangePage2Widget> {
                               fontSize: 24.0,
                               letterSpacing: 0.0,
                               fontWeight: FontWeight.bold,
-                              useGoogleFonts: GoogleFonts.asMap().containsKey(
-                                  FlutterFlowTheme.of(context)
-                                      .bodyMediumFamily),
                               lineHeight: 1.3,
+                              useGoogleFonts: !FlutterFlowTheme.of(context)
+                                  .bodyMediumIsCustom,
                             ),
                       ),
                       Padding(
@@ -121,7 +137,7 @@ class _PasswordChangePage2WidgetState extends State<PasswordChangePage2Widget> {
                             EdgeInsetsDirectional.fromSTEB(0.0, 12.0, 0.0, 0.0),
                         child: Text(
                           valueOrDefault<String>(
-                            widget.email,
+                            widget!.email,
                             'example@gmail.com',
                           ),
                           style: FlutterFlowTheme.of(context)
@@ -132,10 +148,9 @@ class _PasswordChangePage2WidgetState extends State<PasswordChangePage2Widget> {
                                 color: FlutterFlowTheme.of(context).secondary,
                                 letterSpacing: 0.07,
                                 fontWeight: FontWeight.w600,
-                                useGoogleFonts: GoogleFonts.asMap().containsKey(
-                                    FlutterFlowTheme.of(context)
-                                        .bodyMediumFamily),
                                 lineHeight: 1.4,
+                                useGoogleFonts: !FlutterFlowTheme.of(context)
+                                    .bodyMediumIsCustom,
                               ),
                         ),
                       ),
@@ -152,10 +167,9 @@ class _PasswordChangePage2WidgetState extends State<PasswordChangePage2Widget> {
                                 fontFamily: FlutterFlowTheme.of(context)
                                     .bodyMediumFamily,
                                 letterSpacing: 0.07,
-                                useGoogleFonts: GoogleFonts.asMap().containsKey(
-                                    FlutterFlowTheme.of(context)
-                                        .bodyMediumFamily),
                                 lineHeight: 1.4,
+                                useGoogleFonts: !FlutterFlowTheme.of(context)
+                                    .bodyMediumIsCustom,
                               ),
                         ),
                       ),
@@ -165,22 +179,38 @@ class _PasswordChangePage2WidgetState extends State<PasswordChangePage2Widget> {
               ),
               if (!_model.timer)
                 FFButtonWidget(
-                  onPressed: (widget.email == null || widget.email == '')
+                  onPressed: (widget!.email == null || widget!.email == '')
                       ? null
                       : () async {
+                          logFirebaseEvent(
+                              'PASSWORD_CHANGE_PAGE2_PAGE_resend_ON_TAP');
+                          logFirebaseEvent('resend_haptic_feedback');
                           HapticFeedback.selectionClick();
+                          logFirebaseEvent('resend_wait__delay');
                           await Future.delayed(
-                              const Duration(milliseconds: 500));
+                            Duration(
+                              milliseconds: 500,
+                            ),
+                          );
+                          logFirebaseEvent('resend_timer');
                           _model.timerController.onResetTimer();
 
+                          logFirebaseEvent('resend_update_page_state');
                           _model.timer = true;
                           safeSetState(() {});
+                          logFirebaseEvent('resend_wait__delay');
                           await Future.delayed(
-                              const Duration(milliseconds: 500));
+                            Duration(
+                              milliseconds: 500,
+                            ),
+                          );
+                          logFirebaseEvent('resend_timer');
                           _model.timerController.onStartTimer();
+                          logFirebaseEvent('resend_update_page_state');
 
                           safeSetState(() {});
-                          if (widget.email!.isEmpty) {
+                          logFirebaseEvent('resend_auth');
+                          if (widget!.email!.isEmpty) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Text(
@@ -193,7 +223,7 @@ class _PasswordChangePage2WidgetState extends State<PasswordChangePage2Widget> {
                             return;
                           }
                           await authManager.resetPassword(
-                            email: widget.email!,
+                            email: widget!.email!,
                             context: context,
                           );
                         },
@@ -212,9 +242,9 @@ class _PasswordChangePage2WidgetState extends State<PasswordChangePage2Widget> {
                           color: FlutterFlowTheme.of(context).secondary,
                           fontSize: 14.0,
                           letterSpacing: 0.07,
-                          useGoogleFonts: GoogleFonts.asMap().containsKey(
-                              FlutterFlowTheme.of(context).titleSmallFamily),
                           lineHeight: 1.4,
+                          useGoogleFonts:
+                              !FlutterFlowTheme.of(context).titleSmallIsCustom,
                         ),
                     elevation: 0.0,
                     borderSide: BorderSide(
@@ -239,9 +269,9 @@ class _PasswordChangePage2WidgetState extends State<PasswordChangePage2Widget> {
                             color: FlutterFlowTheme.of(context).gray,
                             letterSpacing: 0.07,
                             fontWeight: FontWeight.w600,
-                            useGoogleFonts: GoogleFonts.asMap().containsKey(
-                                FlutterFlowTheme.of(context).bodyMediumFamily),
                             lineHeight: 1.4,
+                            useGoogleFonts: !FlutterFlowTheme.of(context)
+                                .bodyMediumIsCustom,
                           ),
                     ),
                     FlutterFlowTimer(
@@ -259,9 +289,13 @@ class _PasswordChangePage2WidgetState extends State<PasswordChangePage2Widget> {
                         if (shouldUpdate) safeSetState(() {});
                       },
                       onEnded: () async {
+                        logFirebaseEvent(
+                            'PASSWORD_CHANGE_PAGE2_Timer_hg4sntki_ON_');
+                        logFirebaseEvent('Timer_update_page_state');
                         _model.timer = false;
                         safeSetState(() {});
-                        if (widget.email == currentUserEmail) {
+                        if (widget!.email == currentUserEmail) {
+                          logFirebaseEvent('Timer_bottom_sheet');
                           showModalBottomSheet(
                             isScrollControlled: true,
                             backgroundColor: Colors.transparent,
@@ -292,10 +326,9 @@ class _PasswordChangePage2WidgetState extends State<PasswordChangePage2Widget> {
                                 fontSize: 14.0,
                                 letterSpacing: 0.0,
                                 fontWeight: FontWeight.w600,
-                                useGoogleFonts: GoogleFonts.asMap().containsKey(
-                                    FlutterFlowTheme.of(context)
-                                        .headlineSmallFamily),
                                 lineHeight: 1.4,
+                                useGoogleFonts: !FlutterFlowTheme.of(context)
+                                    .headlineSmallIsCustom,
                               ),
                     ),
                   ].divide(SizedBox(width: 4.0)),

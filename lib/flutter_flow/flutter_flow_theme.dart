@@ -3,6 +3,12 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'package:shared_preferences/shared_preferences.dart';
+
+const kThemeModeKey = '__theme_mode__';
+
+SharedPreferences? _prefs;
+
 enum DeviceSize {
   mobile,
   tablet,
@@ -12,9 +18,31 @@ enum DeviceSize {
 abstract class FlutterFlowTheme {
   static DeviceSize deviceSize = DeviceSize.mobile;
 
+  static Future initialize() async =>
+      _prefs = await SharedPreferences.getInstance();
+
+  static ThemeMode get themeMode {
+    final darkMode = _prefs?.getBool(kThemeModeKey);
+    return darkMode == null
+        ? ThemeMode.system
+        : darkMode
+            ? ThemeMode.dark
+            : ThemeMode.light;
+  }
+
+  static void saveThemeMode(ThemeMode mode) => mode == ThemeMode.system
+      ? _prefs?.remove(kThemeModeKey)
+      : _prefs?.setBool(kThemeModeKey, mode == ThemeMode.dark);
+
+  static const double minTextScaleFactor = 1.0;
+  static const double maxTextScaleFactor = 1.0;
+  static const double defaultTextScaleFactor = 1.0;
+
   static FlutterFlowTheme of(BuildContext context) {
     deviceSize = getDeviceSize(context);
-    return LightModeTheme();
+    return Theme.of(context).brightness == Brightness.dark
+        ? DarkModeTheme()
+        : LightModeTheme();
   }
 
   @Deprecated('Use primary instead')
@@ -58,6 +86,8 @@ abstract class FlutterFlowTheme {
   late Color ukFlag;
   late Color customColor1;
 
+  FFDesignTokens get designToken => FFDesignTokens(this);
+
   @Deprecated('Use displaySmallFamily instead')
   String get title1Family => displaySmallFamily;
   @Deprecated('Use displaySmall instead')
@@ -88,34 +118,49 @@ abstract class FlutterFlowTheme {
   TextStyle get bodyText2 => typography.bodySmall;
 
   String get displayLargeFamily => typography.displayLargeFamily;
+  bool get displayLargeIsCustom => typography.displayLargeIsCustom;
   TextStyle get displayLarge => typography.displayLarge;
   String get displayMediumFamily => typography.displayMediumFamily;
+  bool get displayMediumIsCustom => typography.displayMediumIsCustom;
   TextStyle get displayMedium => typography.displayMedium;
   String get displaySmallFamily => typography.displaySmallFamily;
+  bool get displaySmallIsCustom => typography.displaySmallIsCustom;
   TextStyle get displaySmall => typography.displaySmall;
   String get headlineLargeFamily => typography.headlineLargeFamily;
+  bool get headlineLargeIsCustom => typography.headlineLargeIsCustom;
   TextStyle get headlineLarge => typography.headlineLarge;
   String get headlineMediumFamily => typography.headlineMediumFamily;
+  bool get headlineMediumIsCustom => typography.headlineMediumIsCustom;
   TextStyle get headlineMedium => typography.headlineMedium;
   String get headlineSmallFamily => typography.headlineSmallFamily;
+  bool get headlineSmallIsCustom => typography.headlineSmallIsCustom;
   TextStyle get headlineSmall => typography.headlineSmall;
   String get titleLargeFamily => typography.titleLargeFamily;
+  bool get titleLargeIsCustom => typography.titleLargeIsCustom;
   TextStyle get titleLarge => typography.titleLarge;
   String get titleMediumFamily => typography.titleMediumFamily;
+  bool get titleMediumIsCustom => typography.titleMediumIsCustom;
   TextStyle get titleMedium => typography.titleMedium;
   String get titleSmallFamily => typography.titleSmallFamily;
+  bool get titleSmallIsCustom => typography.titleSmallIsCustom;
   TextStyle get titleSmall => typography.titleSmall;
   String get labelLargeFamily => typography.labelLargeFamily;
+  bool get labelLargeIsCustom => typography.labelLargeIsCustom;
   TextStyle get labelLarge => typography.labelLarge;
   String get labelMediumFamily => typography.labelMediumFamily;
+  bool get labelMediumIsCustom => typography.labelMediumIsCustom;
   TextStyle get labelMedium => typography.labelMedium;
   String get labelSmallFamily => typography.labelSmallFamily;
+  bool get labelSmallIsCustom => typography.labelSmallIsCustom;
   TextStyle get labelSmall => typography.labelSmall;
   String get bodyLargeFamily => typography.bodyLargeFamily;
+  bool get bodyLargeIsCustom => typography.bodyLargeIsCustom;
   TextStyle get bodyLarge => typography.bodyLarge;
   String get bodyMediumFamily => typography.bodyMediumFamily;
+  bool get bodyMediumIsCustom => typography.bodyMediumIsCustom;
   TextStyle get bodyMedium => typography.bodyMedium;
   String get bodySmallFamily => typography.bodySmallFamily;
+  bool get bodySmallIsCustom => typography.bodySmallIsCustom;
   TextStyle get bodySmall => typography.bodySmall;
 
   Typography get typography => {
@@ -161,54 +206,69 @@ class LightModeTheme extends FlutterFlowTheme {
   late Color error = const Color(0xFFFF85A5);
   late Color info = const Color(0xFFFFFFFF);
 
-  late Color white = Color(0xFFFFFFFF);
-  late Color black = Color(0xFF161616);
-  late Color darkGray = Color(0xFF212121);
-  late Color middleGray = Color(0xFF2E2E2E);
-  late Color gray = Color(0xFF777777);
-  late Color lightGray = Color(0x4CE0E0E0);
-  late Color blue = Color(0xFF24759B);
-  late Color green = Color(0xFFE5FF00);
-  late Color middleGreen = Color(0xFF8E9D11);
-  late Color darkGreen = Color(0xFF2C3006);
-  late Color red = Color(0xFF952D4F);
-  late Color pink = Color(0xFFFF85A5);
-  late Color gray30 = Color(0xFFE0E0E0);
-  late Color black30 = Color(0x4C000000);
-  late Color ukFlag = Color(0xFF1A47B8);
-  late Color customColor1 = Color(0xFFFE766D);
+  late Color white = const Color(0xFFFFFFFF);
+  late Color black = const Color(0xFF161616);
+  late Color darkGray = const Color(0xFF212121);
+  late Color middleGray = const Color(0xFF2E2E2E);
+  late Color gray = const Color(0xFF777777);
+  late Color lightGray = const Color(0x4CE0E0E0);
+  late Color blue = const Color(0xFF24759B);
+  late Color green = const Color(0xFFE5FF00);
+  late Color middleGreen = const Color(0xFF8E9D11);
+  late Color darkGreen = const Color(0xFF2C3006);
+  late Color red = const Color(0xFF952D4F);
+  late Color pink = const Color(0xFFFF85A5);
+  late Color gray30 = const Color(0xFFE0E0E0);
+  late Color black30 = const Color(0x4C000000);
+  late Color ukFlag = const Color(0xFF1A47B8);
+  late Color customColor1 = const Color(0xFFFE766D);
 }
 
 abstract class Typography {
   String get displayLargeFamily;
+  bool get displayLargeIsCustom;
   TextStyle get displayLarge;
   String get displayMediumFamily;
+  bool get displayMediumIsCustom;
   TextStyle get displayMedium;
   String get displaySmallFamily;
+  bool get displaySmallIsCustom;
   TextStyle get displaySmall;
   String get headlineLargeFamily;
+  bool get headlineLargeIsCustom;
   TextStyle get headlineLarge;
   String get headlineMediumFamily;
+  bool get headlineMediumIsCustom;
   TextStyle get headlineMedium;
   String get headlineSmallFamily;
+  bool get headlineSmallIsCustom;
   TextStyle get headlineSmall;
   String get titleLargeFamily;
+  bool get titleLargeIsCustom;
   TextStyle get titleLarge;
   String get titleMediumFamily;
+  bool get titleMediumIsCustom;
   TextStyle get titleMedium;
   String get titleSmallFamily;
+  bool get titleSmallIsCustom;
   TextStyle get titleSmall;
   String get labelLargeFamily;
+  bool get labelLargeIsCustom;
   TextStyle get labelLarge;
   String get labelMediumFamily;
+  bool get labelMediumIsCustom;
   TextStyle get labelMedium;
   String get labelSmallFamily;
+  bool get labelSmallIsCustom;
   TextStyle get labelSmall;
   String get bodyLargeFamily;
+  bool get bodyLargeIsCustom;
   TextStyle get bodyLarge;
   String get bodyMediumFamily;
+  bool get bodyMediumIsCustom;
   TextStyle get bodyMedium;
   String get bodySmallFamily;
+  bool get bodySmallIsCustom;
   TextStyle get bodySmall;
 }
 
@@ -218,106 +278,106 @@ class MobileTypography extends Typography {
   final FlutterFlowTheme theme;
 
   String get displayLargeFamily => 'Urbanist';
-  TextStyle get displayLarge => GoogleFonts.getFont(
-        'Urbanist',
+  bool get displayLargeIsCustom => false;
+  TextStyle get displayLarge => GoogleFonts.urbanist(
         color: theme.white,
         fontWeight: FontWeight.bold,
         fontSize: 24.0,
       );
   String get displayMediumFamily => 'Urbanist';
-  TextStyle get displayMedium => GoogleFonts.getFont(
-        'Urbanist',
+  bool get displayMediumIsCustom => false;
+  TextStyle get displayMedium => GoogleFonts.urbanist(
         color: theme.white,
         fontWeight: FontWeight.bold,
         fontSize: 20.0,
       );
   String get displaySmallFamily => 'Urbanist';
-  TextStyle get displaySmall => GoogleFonts.getFont(
-        'Urbanist',
+  bool get displaySmallIsCustom => false;
+  TextStyle get displaySmall => GoogleFonts.urbanist(
         color: theme.white,
         fontWeight: FontWeight.bold,
         fontSize: 16.0,
       );
   String get headlineLargeFamily => 'Urbanist';
-  TextStyle get headlineLarge => GoogleFonts.getFont(
-        'Urbanist',
+  bool get headlineLargeIsCustom => false;
+  TextStyle get headlineLarge => GoogleFonts.urbanist(
         color: theme.white,
         fontWeight: FontWeight.w600,
         fontSize: 14.0,
       );
   String get headlineMediumFamily => 'Urbanist';
-  TextStyle get headlineMedium => GoogleFonts.getFont(
-        'Urbanist',
+  bool get headlineMediumIsCustom => false;
+  TextStyle get headlineMedium => GoogleFonts.urbanist(
         color: theme.white,
         fontWeight: FontWeight.normal,
         fontSize: 14.0,
       );
   String get headlineSmallFamily => 'Urbanist';
-  TextStyle get headlineSmall => GoogleFonts.getFont(
-        'Urbanist',
+  bool get headlineSmallIsCustom => false;
+  TextStyle get headlineSmall => GoogleFonts.urbanist(
         color: theme.white,
         fontWeight: FontWeight.w500,
         fontSize: 12.0,
       );
   String get titleLargeFamily => 'Urbanist';
-  TextStyle get titleLarge => GoogleFonts.getFont(
-        'Urbanist',
+  bool get titleLargeIsCustom => false;
+  TextStyle get titleLarge => GoogleFonts.urbanist(
         color: theme.white,
         fontWeight: FontWeight.normal,
         fontSize: 12.0,
       );
   String get titleMediumFamily => 'Urbanist';
-  TextStyle get titleMedium => GoogleFonts.getFont(
-        'Urbanist',
+  bool get titleMediumIsCustom => false;
+  TextStyle get titleMedium => GoogleFonts.urbanist(
         color: theme.white,
         fontWeight: FontWeight.w600,
         fontSize: 10.0,
       );
   String get titleSmallFamily => 'Urbanist';
-  TextStyle get titleSmall => GoogleFonts.getFont(
-        'Urbanist',
+  bool get titleSmallIsCustom => false;
+  TextStyle get titleSmall => GoogleFonts.urbanist(
         color: theme.primaryText,
         fontWeight: FontWeight.w600,
         fontSize: 16.0,
       );
   String get labelLargeFamily => 'Urbanist';
-  TextStyle get labelLarge => GoogleFonts.getFont(
-        'Urbanist',
+  bool get labelLargeIsCustom => false;
+  TextStyle get labelLarge => GoogleFonts.urbanist(
         color: theme.secondaryText,
         fontWeight: FontWeight.normal,
         fontSize: 16.0,
       );
   String get labelMediumFamily => 'Urbanist';
-  TextStyle get labelMedium => GoogleFonts.getFont(
-        'Urbanist',
+  bool get labelMediumIsCustom => false;
+  TextStyle get labelMedium => GoogleFonts.urbanist(
         color: theme.secondaryText,
         fontWeight: FontWeight.normal,
         fontSize: 14.0,
       );
   String get labelSmallFamily => 'Urbanist';
-  TextStyle get labelSmall => GoogleFonts.getFont(
-        'Urbanist',
+  bool get labelSmallIsCustom => false;
+  TextStyle get labelSmall => GoogleFonts.urbanist(
         color: theme.secondaryText,
         fontWeight: FontWeight.normal,
         fontSize: 12.0,
       );
   String get bodyLargeFamily => 'Urbanist';
-  TextStyle get bodyLarge => GoogleFonts.getFont(
-        'Urbanist',
+  bool get bodyLargeIsCustom => false;
+  TextStyle get bodyLarge => GoogleFonts.urbanist(
         color: theme.primaryText,
         fontWeight: FontWeight.normal,
         fontSize: 16.0,
       );
   String get bodyMediumFamily => 'Urbanist';
-  TextStyle get bodyMedium => GoogleFonts.getFont(
-        'Urbanist',
+  bool get bodyMediumIsCustom => false;
+  TextStyle get bodyMedium => GoogleFonts.urbanist(
         color: theme.primaryText,
         fontWeight: FontWeight.normal,
         fontSize: 14.0,
       );
   String get bodySmallFamily => 'Urbanist';
-  TextStyle get bodySmall => GoogleFonts.getFont(
-        'Urbanist',
+  bool get bodySmallIsCustom => false;
+  TextStyle get bodySmall => GoogleFonts.urbanist(
         color: theme.primaryText,
         fontWeight: FontWeight.normal,
         fontSize: 12.0,
@@ -330,106 +390,106 @@ class TabletTypography extends Typography {
   final FlutterFlowTheme theme;
 
   String get displayLargeFamily => 'Urbanist';
-  TextStyle get displayLarge => GoogleFonts.getFont(
-        'Urbanist',
+  bool get displayLargeIsCustom => false;
+  TextStyle get displayLarge => GoogleFonts.urbanist(
         color: theme.white,
         fontWeight: FontWeight.bold,
         fontSize: 24.0,
       );
   String get displayMediumFamily => 'Urbanist';
-  TextStyle get displayMedium => GoogleFonts.getFont(
-        'Urbanist',
+  bool get displayMediumIsCustom => false;
+  TextStyle get displayMedium => GoogleFonts.urbanist(
         color: theme.white,
         fontWeight: FontWeight.bold,
         fontSize: 20.0,
       );
   String get displaySmallFamily => 'Urbanist';
-  TextStyle get displaySmall => GoogleFonts.getFont(
-        'Urbanist',
+  bool get displaySmallIsCustom => false;
+  TextStyle get displaySmall => GoogleFonts.urbanist(
         color: theme.white,
         fontWeight: FontWeight.bold,
         fontSize: 16.0,
       );
   String get headlineLargeFamily => 'Urbanist';
-  TextStyle get headlineLarge => GoogleFonts.getFont(
-        'Urbanist',
+  bool get headlineLargeIsCustom => false;
+  TextStyle get headlineLarge => GoogleFonts.urbanist(
         color: theme.white,
         fontWeight: FontWeight.w600,
         fontSize: 14.0,
       );
   String get headlineMediumFamily => 'Urbanist';
-  TextStyle get headlineMedium => GoogleFonts.getFont(
-        'Urbanist',
+  bool get headlineMediumIsCustom => false;
+  TextStyle get headlineMedium => GoogleFonts.urbanist(
         color: theme.white,
         fontWeight: FontWeight.normal,
         fontSize: 14.0,
       );
   String get headlineSmallFamily => 'Urbanist';
-  TextStyle get headlineSmall => GoogleFonts.getFont(
-        'Urbanist',
+  bool get headlineSmallIsCustom => false;
+  TextStyle get headlineSmall => GoogleFonts.urbanist(
         color: theme.white,
         fontWeight: FontWeight.w500,
         fontSize: 12.0,
       );
   String get titleLargeFamily => 'Urbanist';
-  TextStyle get titleLarge => GoogleFonts.getFont(
-        'Urbanist',
+  bool get titleLargeIsCustom => false;
+  TextStyle get titleLarge => GoogleFonts.urbanist(
         color: theme.white,
         fontWeight: FontWeight.normal,
         fontSize: 12.0,
       );
   String get titleMediumFamily => 'Urbanist';
-  TextStyle get titleMedium => GoogleFonts.getFont(
-        'Urbanist',
+  bool get titleMediumIsCustom => false;
+  TextStyle get titleMedium => GoogleFonts.urbanist(
         color: theme.white,
         fontWeight: FontWeight.w600,
         fontSize: 10.0,
       );
   String get titleSmallFamily => 'Urbanist';
-  TextStyle get titleSmall => GoogleFonts.getFont(
-        'Urbanist',
+  bool get titleSmallIsCustom => false;
+  TextStyle get titleSmall => GoogleFonts.urbanist(
         color: theme.primaryText,
         fontWeight: FontWeight.w600,
         fontSize: 16.0,
       );
   String get labelLargeFamily => 'Urbanist';
-  TextStyle get labelLarge => GoogleFonts.getFont(
-        'Urbanist',
+  bool get labelLargeIsCustom => false;
+  TextStyle get labelLarge => GoogleFonts.urbanist(
         color: theme.secondaryText,
         fontWeight: FontWeight.normal,
         fontSize: 16.0,
       );
   String get labelMediumFamily => 'Urbanist';
-  TextStyle get labelMedium => GoogleFonts.getFont(
-        'Urbanist',
+  bool get labelMediumIsCustom => false;
+  TextStyle get labelMedium => GoogleFonts.urbanist(
         color: theme.secondaryText,
         fontWeight: FontWeight.normal,
         fontSize: 14.0,
       );
   String get labelSmallFamily => 'Urbanist';
-  TextStyle get labelSmall => GoogleFonts.getFont(
-        'Urbanist',
+  bool get labelSmallIsCustom => false;
+  TextStyle get labelSmall => GoogleFonts.urbanist(
         color: theme.secondaryText,
         fontWeight: FontWeight.normal,
         fontSize: 12.0,
       );
   String get bodyLargeFamily => 'Urbanist';
-  TextStyle get bodyLarge => GoogleFonts.getFont(
-        'Urbanist',
+  bool get bodyLargeIsCustom => false;
+  TextStyle get bodyLarge => GoogleFonts.urbanist(
         color: theme.primaryText,
         fontWeight: FontWeight.normal,
         fontSize: 16.0,
       );
   String get bodyMediumFamily => 'Urbanist';
-  TextStyle get bodyMedium => GoogleFonts.getFont(
-        'Urbanist',
+  bool get bodyMediumIsCustom => false;
+  TextStyle get bodyMedium => GoogleFonts.urbanist(
         color: theme.primaryText,
         fontWeight: FontWeight.normal,
         fontSize: 14.0,
       );
   String get bodySmallFamily => 'Urbanist';
-  TextStyle get bodySmall => GoogleFonts.getFont(
-        'Urbanist',
+  bool get bodySmallIsCustom => false;
+  TextStyle get bodySmall => GoogleFonts.urbanist(
         color: theme.primaryText,
         fontWeight: FontWeight.normal,
         fontSize: 12.0,
@@ -442,146 +502,248 @@ class DesktopTypography extends Typography {
   final FlutterFlowTheme theme;
 
   String get displayLargeFamily => 'Urbanist';
-  TextStyle get displayLarge => GoogleFonts.getFont(
-        'Urbanist',
+  bool get displayLargeIsCustom => false;
+  TextStyle get displayLarge => GoogleFonts.urbanist(
         color: theme.white,
         fontWeight: FontWeight.bold,
         fontSize: 24.0,
       );
   String get displayMediumFamily => 'Urbanist';
-  TextStyle get displayMedium => GoogleFonts.getFont(
-        'Urbanist',
+  bool get displayMediumIsCustom => false;
+  TextStyle get displayMedium => GoogleFonts.urbanist(
         color: theme.white,
         fontWeight: FontWeight.bold,
         fontSize: 20.0,
       );
   String get displaySmallFamily => 'Urbanist';
-  TextStyle get displaySmall => GoogleFonts.getFont(
-        'Urbanist',
+  bool get displaySmallIsCustom => false;
+  TextStyle get displaySmall => GoogleFonts.urbanist(
         color: theme.white,
         fontWeight: FontWeight.bold,
         fontSize: 16.0,
       );
   String get headlineLargeFamily => 'Urbanist';
-  TextStyle get headlineLarge => GoogleFonts.getFont(
-        'Urbanist',
+  bool get headlineLargeIsCustom => false;
+  TextStyle get headlineLarge => GoogleFonts.urbanist(
         color: theme.white,
         fontWeight: FontWeight.w600,
         fontSize: 14.0,
       );
   String get headlineMediumFamily => 'Urbanist';
-  TextStyle get headlineMedium => GoogleFonts.getFont(
-        'Urbanist',
+  bool get headlineMediumIsCustom => false;
+  TextStyle get headlineMedium => GoogleFonts.urbanist(
         color: theme.white,
         fontWeight: FontWeight.normal,
         fontSize: 14.0,
       );
   String get headlineSmallFamily => 'Urbanist';
-  TextStyle get headlineSmall => GoogleFonts.getFont(
-        'Urbanist',
+  bool get headlineSmallIsCustom => false;
+  TextStyle get headlineSmall => GoogleFonts.urbanist(
         color: theme.white,
         fontWeight: FontWeight.w500,
         fontSize: 12.0,
       );
   String get titleLargeFamily => 'Urbanist';
-  TextStyle get titleLarge => GoogleFonts.getFont(
-        'Urbanist',
+  bool get titleLargeIsCustom => false;
+  TextStyle get titleLarge => GoogleFonts.urbanist(
         color: theme.white,
         fontWeight: FontWeight.normal,
         fontSize: 12.0,
       );
   String get titleMediumFamily => 'Urbanist';
-  TextStyle get titleMedium => GoogleFonts.getFont(
-        'Urbanist',
+  bool get titleMediumIsCustom => false;
+  TextStyle get titleMedium => GoogleFonts.urbanist(
         color: theme.white,
         fontWeight: FontWeight.w600,
         fontSize: 10.0,
       );
   String get titleSmallFamily => 'Urbanist';
-  TextStyle get titleSmall => GoogleFonts.getFont(
-        'Urbanist',
+  bool get titleSmallIsCustom => false;
+  TextStyle get titleSmall => GoogleFonts.urbanist(
         color: theme.primaryText,
         fontWeight: FontWeight.w600,
         fontSize: 16.0,
       );
   String get labelLargeFamily => 'Urbanist';
-  TextStyle get labelLarge => GoogleFonts.getFont(
-        'Urbanist',
+  bool get labelLargeIsCustom => false;
+  TextStyle get labelLarge => GoogleFonts.urbanist(
         color: theme.secondaryText,
         fontWeight: FontWeight.normal,
         fontSize: 16.0,
       );
   String get labelMediumFamily => 'Urbanist';
-  TextStyle get labelMedium => GoogleFonts.getFont(
-        'Urbanist',
+  bool get labelMediumIsCustom => false;
+  TextStyle get labelMedium => GoogleFonts.urbanist(
         color: theme.secondaryText,
         fontWeight: FontWeight.normal,
         fontSize: 14.0,
       );
   String get labelSmallFamily => 'Urbanist';
-  TextStyle get labelSmall => GoogleFonts.getFont(
-        'Urbanist',
+  bool get labelSmallIsCustom => false;
+  TextStyle get labelSmall => GoogleFonts.urbanist(
         color: theme.secondaryText,
         fontWeight: FontWeight.normal,
         fontSize: 12.0,
       );
   String get bodyLargeFamily => 'Urbanist';
-  TextStyle get bodyLarge => GoogleFonts.getFont(
-        'Urbanist',
+  bool get bodyLargeIsCustom => false;
+  TextStyle get bodyLarge => GoogleFonts.urbanist(
         color: theme.primaryText,
         fontWeight: FontWeight.normal,
         fontSize: 16.0,
       );
   String get bodyMediumFamily => 'Urbanist';
-  TextStyle get bodyMedium => GoogleFonts.getFont(
-        'Urbanist',
+  bool get bodyMediumIsCustom => false;
+  TextStyle get bodyMedium => GoogleFonts.urbanist(
         color: theme.primaryText,
         fontWeight: FontWeight.normal,
         fontSize: 14.0,
       );
   String get bodySmallFamily => 'Urbanist';
-  TextStyle get bodySmall => GoogleFonts.getFont(
-        'Urbanist',
+  bool get bodySmallIsCustom => false;
+  TextStyle get bodySmall => GoogleFonts.urbanist(
         color: theme.primaryText,
         fontWeight: FontWeight.normal,
         fontSize: 12.0,
       );
 }
 
+class DarkModeTheme extends FlutterFlowTheme {
+  @Deprecated('Use primary instead')
+  Color get primaryColor => primary;
+  @Deprecated('Use secondary instead')
+  Color get secondaryColor => secondary;
+  @Deprecated('Use tertiary instead')
+  Color get tertiaryColor => tertiary;
+
+  late Color primary = const Color(0xFF161616);
+  late Color secondary = const Color(0xFFE5FF00);
+  late Color tertiary = const Color(0xFFEE8B60);
+  late Color alternate = const Color(0xFFE0E0E0);
+  late Color primaryText = const Color(0xFFE0E0E0);
+  late Color secondaryText = const Color(0xFF57636C);
+  late Color primaryBackground = const Color(0xFF161616);
+  late Color secondaryBackground = const Color(0xFF212121);
+  late Color accent1 = const Color(0xFF24759B);
+  late Color accent2 = const Color(0x4D39D2C0);
+  late Color accent3 = const Color(0x4DEE8B60);
+  late Color accent4 = const Color(0xCCFFFFFF);
+  late Color success = const Color(0xFF249689);
+  late Color warning = const Color(0xFFF9CF58);
+  late Color error = const Color(0xFFFF85A5);
+  late Color info = const Color(0xFFFFFFFF);
+
+  late Color white = const Color(0xFFFFFFFF);
+  late Color black = const Color(0xFF161616);
+  late Color darkGray = const Color(0xFF212121);
+  late Color middleGray = const Color(0xFF2E2E2E);
+  late Color gray = const Color(0xFF777777);
+  late Color lightGray = const Color(0x4CE0E0E0);
+  late Color blue = const Color(0xFF24759B);
+  late Color green = const Color(0xFFE5FF00);
+  late Color middleGreen = const Color(0xFF8E9D11);
+  late Color darkGreen = const Color(0xFF2C3006);
+  late Color red = const Color(0xFF952D4F);
+  late Color pink = const Color(0xFFFF85A5);
+  late Color gray30 = const Color(0xFFE0E0E0);
+  late Color black30 = const Color(0x4C000000);
+  late Color ukFlag = const Color(0xFF1A47B8);
+  late Color customColor1 = const Color(0xFFFE766D);
+}
+
+class FFDesignTokens {
+  const FFDesignTokens(this.theme);
+  final FlutterFlowTheme theme;
+  FFSpacing get spacing => const FFSpacing();
+  FFRadius get radius => const FFRadius();
+  FFShadows get shadow => FFShadows(theme);
+}
+
+class FFSpacing {
+  const FFSpacing();
+  double get xs => 4.0;
+  double get sm => 8.0;
+  double get md => 16.0;
+  double get lg => 24.0;
+  double get xl => 32.0;
+}
+
+class FFRadius {
+  const FFRadius();
+  double get sm => 8.0;
+  double get md => 16.0;
+  double get lg => 24.0;
+  double get full => 9999.0;
+}
+
+class FFShadows {
+  const FFShadows(this.theme);
+  final FlutterFlowTheme theme;
+  BoxShadow get sm => const BoxShadow(
+      blurRadius: 3.0,
+      color: const Color(0x1A000000),
+      offset: const Offset(0.0, 1.0),
+      spreadRadius: 0.0);
+  BoxShadow get md => const BoxShadow(
+      blurRadius: 6.0,
+      color: const Color(0x1A000000),
+      offset: const Offset(0.0, 3.0),
+      spreadRadius: 0.0);
+  BoxShadow get lg => const BoxShadow(
+      blurRadius: 15.0,
+      color: const Color(0x1A000000),
+      offset: const Offset(0.0, 8.0),
+      spreadRadius: 0.0);
+  BoxShadow get xl => const BoxShadow(
+      blurRadius: 25.0,
+      color: const Color(0x1A000000),
+      offset: const Offset(0.0, 16.0),
+      spreadRadius: 0.0);
+}
+
 extension TextStyleHelper on TextStyle {
   TextStyle override({
+    TextStyle? font,
     String? fontFamily,
     Color? color,
     double? fontSize,
     FontWeight? fontWeight,
     double? letterSpacing,
     FontStyle? fontStyle,
-    bool useGoogleFonts = true,
+    bool useGoogleFonts = false,
     TextDecoration? decoration,
     double? lineHeight,
     List<Shadow>? shadows,
-  }) =>
-      useGoogleFonts
-          ? GoogleFonts.getFont(
-              fontFamily!,
-              color: color ?? this.color,
-              fontSize: fontSize ?? this.fontSize,
-              letterSpacing: letterSpacing ?? this.letterSpacing,
-              fontWeight: fontWeight ?? this.fontWeight,
-              fontStyle: fontStyle ?? this.fontStyle,
-              decoration: decoration,
-              height: lineHeight,
-              shadows: shadows,
-            )
-          : copyWith(
-              fontFamily: fontFamily,
-              color: color,
-              fontSize: fontSize,
-              letterSpacing: letterSpacing,
-              fontWeight: fontWeight,
-              fontStyle: fontStyle,
-              decoration: decoration,
-              height: lineHeight,
-              shadows: shadows,
-            );
+    String? package,
+  }) {
+    if (useGoogleFonts && fontFamily != null) {
+      font = GoogleFonts.getFont(fontFamily,
+          fontWeight: fontWeight ?? this.fontWeight,
+          fontStyle: fontStyle ?? this.fontStyle);
+    }
+
+    return font != null
+        ? font.copyWith(
+            color: color ?? this.color,
+            fontSize: fontSize ?? this.fontSize,
+            letterSpacing: letterSpacing ?? this.letterSpacing,
+            fontWeight: fontWeight ?? this.fontWeight,
+            fontStyle: fontStyle ?? this.fontStyle,
+            decoration: decoration,
+            height: lineHeight,
+            shadows: shadows,
+          )
+        : copyWith(
+            fontFamily: fontFamily,
+            package: package,
+            color: color,
+            fontSize: fontSize,
+            letterSpacing: letterSpacing,
+            fontWeight: fontWeight,
+            fontStyle: fontStyle,
+            decoration: decoration,
+            height: lineHeight,
+            shadows: shadows,
+          );
+  }
 }

@@ -7,9 +7,12 @@ import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
 import 'dart:async';
+import 'dart:math';
+import 'dart:ui';
 import '/custom_code/actions/index.dart' as actions;
 import '/flutter_flow/custom_functions.dart' as functions;
 import '/index.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:easy_debounce/easy_debounce.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -17,7 +20,9 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'signup_page_model.dart';
 export 'signup_page_model.dart';
 
@@ -46,15 +51,20 @@ class _SignupPageWidgetState extends State<SignupPageWidget>
     super.initState();
     _model = createModel(context, () => SignupPageModel());
 
+    logFirebaseEvent('screen_view', parameters: {'screen_name': 'SignupPage'});
     // On page load action.
     SchedulerBinding.instance.addPostFrameCallback((_) async {
-      GoRouter.of(context).prepareAuthEvent();
-      await authManager.signOut();
-      GoRouter.of(context).clearRedirectLocation();
-
+      logFirebaseEvent('SIGNUP_SignupPage_ON_INIT_STATE');
+      logFirebaseEvent('SignupPage_custom_action');
       unawaited(
         () async {
           await actions.lockLandscapeMode();
+        }(),
+      );
+      logFirebaseEvent('SignupPage_custom_action');
+      unawaited(
+        () async {
+          await actions.setStatusBarColor();
         }(),
       );
     });
@@ -160,78 +170,107 @@ class _SignupPageWidgetState extends State<SignupPageWidget>
                       size: 24.0,
                     ),
                     onPressed: () async {
+                      logFirebaseEvent(
+                          'SIGNUP_PAGE_PAGE_arrowLeft24_ICN_ON_TAP');
+                      logFirebaseEvent('IconButton_navigate_to');
+
                       context.pushNamed(AuthPageWidget.routeName);
                     },
                   ),
-                  InkWell(
-                    splashColor: Colors.transparent,
-                    focusColor: Colors.transparent,
-                    hoverColor: Colors.transparent,
-                    highlightColor: Colors.transparent,
-                    onTap: () async {
-                      HapticFeedback.selectionClick();
-                      showModalBottomSheet(
-                        isScrollControlled: true,
-                        backgroundColor: Colors.transparent,
-                        context: context,
-                        builder: (context) {
-                          return GestureDetector(
-                            onTap: () {
-                              FocusScope.of(context).unfocus();
-                              FocusManager.instance.primaryFocus?.unfocus();
-                            },
-                            child: Padding(
-                              padding: MediaQuery.viewInsetsOf(context),
-                              child: LanguageSelectDialogWidget(),
-                            ),
-                          );
-                        },
-                      ).then((value) => safeSetState(() {}));
-                    },
-                    child: Container(
-                      width: 40.0,
-                      height: 40.0,
-                      decoration: BoxDecoration(),
-                      child: Builder(
-                        builder: (context) {
-                          if (FFLocalizations.of(context).languageCode ==
-                              'en') {
-                            return Align(
-                              alignment: AlignmentDirectional(0.0, 0.0),
-                              child: Container(
-                                width: 32.0,
-                                height: 24.0,
-                                decoration: BoxDecoration(
-                                  color: FlutterFlowTheme.of(context).ukFlag,
-                                  image: DecorationImage(
-                                    fit: BoxFit.cover,
-                                    image: Image.asset(
-                                      'assets/images/Element.png',
-                                    ).image,
-                                  ),
-                                  borderRadius: BorderRadius.circular(2.0),
-                                ),
+                  Opacity(
+                    opacity: 0.0,
+                    child: InkWell(
+                      splashColor: Colors.transparent,
+                      focusColor: Colors.transparent,
+                      hoverColor: Colors.transparent,
+                      highlightColor: Colors.transparent,
+                      onTap: () async {
+                        logFirebaseEvent('SIGNUP_Container_xd949yly_ON_TAP');
+                        logFirebaseEvent('Container_haptic_feedback');
+                        HapticFeedback.selectionClick();
+                        logFirebaseEvent('Container_bottom_sheet');
+                        showModalBottomSheet(
+                          isScrollControlled: true,
+                          backgroundColor: Colors.transparent,
+                          context: context,
+                          builder: (context) {
+                            return GestureDetector(
+                              onTap: () {
+                                FocusScope.of(context).unfocus();
+                                FocusManager.instance.primaryFocus?.unfocus();
+                              },
+                              child: Padding(
+                                padding: MediaQuery.viewInsetsOf(context),
+                                child: LanguageSelectDialogWidget(),
                               ),
                             );
-                          } else {
-                            return Align(
-                              alignment: AlignmentDirectional(0.0, 0.0),
-                              child: Container(
-                                width: 32.0,
-                                height: 24.0,
-                                decoration: BoxDecoration(
-                                  image: DecorationImage(
-                                    fit: BoxFit.cover,
-                                    image: Image.asset(
-                                      'assets/images/Rounded.png',
-                                    ).image,
+                          },
+                        ).then((value) => safeSetState(() {}));
+                      },
+                      child: Container(
+                        width: 40.0,
+                        height: 40.0,
+                        decoration: BoxDecoration(),
+                        child: Builder(
+                          builder: (context) {
+                            if (FFLocalizations.of(context).languageCode ==
+                                'en') {
+                              return Align(
+                                alignment: AlignmentDirectional(0.0, 0.0),
+                                child: Container(
+                                  width: 32.0,
+                                  height: 24.0,
+                                  decoration: BoxDecoration(
+                                    color: FlutterFlowTheme.of(context).ukFlag,
+                                    image: DecorationImage(
+                                      fit: BoxFit.cover,
+                                      image: Image.asset(
+                                        'assets/images/Element.png',
+                                      ).image,
+                                    ),
+                                    borderRadius: BorderRadius.circular(2.0),
                                   ),
-                                  borderRadius: BorderRadius.circular(2.0),
                                 ),
-                              ),
-                            );
-                          }
-                        },
+                              );
+                            } else if (FFLocalizations.of(context)
+                                    .languageCode ==
+                                'de') {
+                              return Align(
+                                alignment: AlignmentDirectional(0.0, 0.0),
+                                child: Container(
+                                  width: 32.0,
+                                  height: 24.0,
+                                  decoration: BoxDecoration(
+                                    image: DecorationImage(
+                                      fit: BoxFit.cover,
+                                      image: Image.asset(
+                                        'assets/images/Rounded.png',
+                                      ).image,
+                                    ),
+                                    borderRadius: BorderRadius.circular(2.0),
+                                  ),
+                                ),
+                              );
+                            } else {
+                              return Align(
+                                alignment: AlignmentDirectional(0.0, 0.0),
+                                child: Container(
+                                  width: 32.0,
+                                  height: 24.0,
+                                  decoration: BoxDecoration(
+                                    image: DecorationImage(
+                                      fit: BoxFit.cover,
+                                      image: Image.asset(
+                                        'assets/images/Flag_of_Japan.svg.png',
+                                      ).image,
+                                    ),
+                                    borderRadius: BorderRadius.circular(2.0),
+                                  ),
+                                ),
+                              );
+                            }
+                          },
+                        ),
                       ),
                     ),
                   ),
@@ -253,10 +292,9 @@ class _SignupPageWidgetState extends State<SignupPageWidget>
                               fontSize: 24.0,
                               letterSpacing: 0.0,
                               fontWeight: FontWeight.bold,
-                              useGoogleFonts: GoogleFonts.asMap().containsKey(
-                                  FlutterFlowTheme.of(context)
-                                      .bodyMediumFamily),
                               lineHeight: 1.3,
+                              useGoogleFonts: !FlutterFlowTheme.of(context)
+                                  .bodyMediumIsCustom,
                             ),
                       ),
                       Padding(
@@ -274,10 +312,9 @@ class _SignupPageWidgetState extends State<SignupPageWidget>
                                 fontSize: 12.0,
                                 letterSpacing: 0.0,
                                 fontWeight: FontWeight.w500,
-                                useGoogleFonts: GoogleFonts.asMap().containsKey(
-                                    FlutterFlowTheme.of(context)
-                                        .bodyMediumFamily),
                                 lineHeight: 1.3,
+                                useGoogleFonts: !FlutterFlowTheme.of(context)
+                                    .bodyMediumIsCustom,
                               ),
                         ),
                       ),
@@ -306,15 +343,16 @@ class _SignupPageWidgetState extends State<SignupPageWidget>
                                     color: FlutterFlowTheme.of(context).gray,
                                     letterSpacing: 0.07,
                                     fontWeight: FontWeight.w600,
-                                    useGoogleFonts: GoogleFonts.asMap()
-                                        .containsKey(
-                                            FlutterFlowTheme.of(context)
-                                                .bodyMediumFamily),
                                     lineHeight: 1.4,
+                                    useGoogleFonts:
+                                        !FlutterFlowTheme.of(context)
+                                            .bodyMediumIsCustom,
                                   ),
                               enabledBorder: OutlineInputBorder(
                                 borderSide: BorderSide(
                                   color: (_model.emailTextController.text !=
+                                                  null &&
+                                              _model.emailTextController.text !=
                                                   '') &&
                                           !functions.emailFormatCheck(
                                               _model.emailTextController.text)
@@ -359,10 +397,9 @@ class _SignupPageWidgetState extends State<SignupPageWidget>
                                       .bodyMediumFamily,
                                   letterSpacing: 0.07,
                                   fontWeight: FontWeight.w600,
-                                  useGoogleFonts: GoogleFonts.asMap()
-                                      .containsKey(FlutterFlowTheme.of(context)
-                                          .bodyMediumFamily),
                                   lineHeight: 1.4,
+                                  useGoogleFonts: !FlutterFlowTheme.of(context)
+                                      .bodyMediumIsCustom,
                                 ),
                             maxLength: 50,
                             maxLengthEnforcement: MaxLengthEnforcement.none,
@@ -379,7 +416,8 @@ class _SignupPageWidgetState extends State<SignupPageWidget>
                           ),
                         ),
                       ),
-                      if ((_model.emailTextController.text != '') &&
+                      if ((_model.emailTextController.text != null &&
+                              _model.emailTextController.text != '') &&
                           !functions.emailFormatCheck(
                               _model.emailTextController.text))
                         Padding(
@@ -398,10 +436,9 @@ class _SignupPageWidgetState extends State<SignupPageWidget>
                                   fontSize: 12.0,
                                   letterSpacing: 0.0,
                                   fontWeight: FontWeight.w500,
-                                  useGoogleFonts: GoogleFonts.asMap()
-                                      .containsKey(FlutterFlowTheme.of(context)
-                                          .bodyMediumFamily),
                                   lineHeight: 1.3,
+                                  useGoogleFonts: !FlutterFlowTheme.of(context)
+                                      .bodyMediumIsCustom,
                                 ),
                           ),
                         ),
@@ -420,10 +457,9 @@ class _SignupPageWidgetState extends State<SignupPageWidget>
                                 fontSize: 12.0,
                                 letterSpacing: 0.0,
                                 fontWeight: FontWeight.w500,
-                                useGoogleFonts: GoogleFonts.asMap().containsKey(
-                                    FlutterFlowTheme.of(context)
-                                        .bodyMediumFamily),
                                 lineHeight: 1.3,
+                                useGoogleFonts: !FlutterFlowTheme.of(context)
+                                    .bodyMediumIsCustom,
                               ),
                         ),
                       ),
@@ -452,23 +488,25 @@ class _SignupPageWidgetState extends State<SignupPageWidget>
                                     color: FlutterFlowTheme.of(context).gray,
                                     letterSpacing: 0.07,
                                     fontWeight: FontWeight.w600,
-                                    useGoogleFonts: GoogleFonts.asMap()
-                                        .containsKey(
-                                            FlutterFlowTheme.of(context)
-                                                .bodyMediumFamily),
                                     lineHeight: 1.4,
+                                    useGoogleFonts:
+                                        !FlutterFlowTheme.of(context)
+                                            .bodyMediumIsCustom,
                                   ),
                               enabledBorder: OutlineInputBorder(
                                 borderSide: BorderSide(
-                                  color: ((_model.passwordTextController
+                                  color: ((_model.passwordTextController.text != null &&
+                                                  _model.passwordTextController
                                                           .text !=
                                                       '') &&
-                                              (_model.passwordConfirmTextController.text !=
+                                              (_model.passwordConfirmTextController.text != null &&
+                                                  _model.passwordConfirmTextController.text !=
                                                       '') &&
                                               (_model.passwordConfirmTextController.text !=
                                                   _model.passwordTextController
                                                       .text)) ||
-                                          ((_model.passwordTextController.text !=
+                                          ((_model.passwordTextController.text != null &&
+                                                  _model.passwordTextController.text !=
                                                       '') &&
                                               (functions.passCheckupProgress(
                                                       _model.passwordTextController.text)! <
@@ -507,10 +545,10 @@ class _SignupPageWidgetState extends State<SignupPageWidget>
                               contentPadding: EdgeInsetsDirectional.fromSTEB(
                                   16.0, 12.0, 16.0, 12.0),
                               suffixIcon: InkWell(
-                                onTap: () => safeSetState(
-                                  () => _model.passwordVisibility =
-                                      !_model.passwordVisibility,
-                                ),
+                                onTap: () async {
+                                  safeSetState(() => _model.passwordVisibility =
+                                      !_model.passwordVisibility);
+                                },
                                 focusNode: FocusNode(skipTraversal: true),
                                 child: Icon(
                                   _model.passwordVisibility
@@ -529,10 +567,9 @@ class _SignupPageWidgetState extends State<SignupPageWidget>
                                       .bodyMediumFamily,
                                   letterSpacing: 0.07,
                                   fontWeight: FontWeight.w600,
-                                  useGoogleFonts: GoogleFonts.asMap()
-                                      .containsKey(FlutterFlowTheme.of(context)
-                                          .bodyMediumFamily),
                                   lineHeight: 1.4,
+                                  useGoogleFonts: !FlutterFlowTheme.of(context)
+                                      .bodyMediumIsCustom,
                                 ),
                             maxLength: 50,
                             maxLengthEnforcement: MaxLengthEnforcement.none,
@@ -549,7 +586,8 @@ class _SignupPageWidgetState extends State<SignupPageWidget>
                           ),
                         ),
                       ),
-                      if ((_model.passwordTextController.text != '') &&
+                      if ((_model.passwordTextController.text != null &&
+                              _model.passwordTextController.text != '') &&
                           (functions.passCheckupProgress(
                                   _model.passwordTextController.text)! <
                               1.0))
@@ -569,10 +607,9 @@ class _SignupPageWidgetState extends State<SignupPageWidget>
                                   fontSize: 12.0,
                                   letterSpacing: 0.0,
                                   fontWeight: FontWeight.w500,
-                                  useGoogleFonts: GoogleFonts.asMap()
-                                      .containsKey(FlutterFlowTheme.of(context)
-                                          .bodyMediumFamily),
                                   lineHeight: 1.3,
+                                  useGoogleFonts: !FlutterFlowTheme.of(context)
+                                      .bodyMediumIsCustom,
                                 ),
                           ),
                         ),
@@ -591,10 +628,9 @@ class _SignupPageWidgetState extends State<SignupPageWidget>
                                 fontSize: 12.0,
                                 letterSpacing: 0.0,
                                 fontWeight: FontWeight.w500,
-                                useGoogleFonts: GoogleFonts.asMap().containsKey(
-                                    FlutterFlowTheme.of(context)
-                                        .bodyMediumFamily),
                                 lineHeight: 1.3,
+                                useGoogleFonts: !FlutterFlowTheme.of(context)
+                                    .bodyMediumIsCustom,
                               ),
                         ),
                       ),
@@ -626,23 +662,25 @@ class _SignupPageWidgetState extends State<SignupPageWidget>
                                     color: FlutterFlowTheme.of(context).gray,
                                     letterSpacing: 0.07,
                                     fontWeight: FontWeight.w600,
-                                    useGoogleFonts: GoogleFonts.asMap()
-                                        .containsKey(
-                                            FlutterFlowTheme.of(context)
-                                                .bodyMediumFamily),
                                     lineHeight: 1.4,
+                                    useGoogleFonts:
+                                        !FlutterFlowTheme.of(context)
+                                            .bodyMediumIsCustom,
                                   ),
                               enabledBorder: OutlineInputBorder(
                                 borderSide: BorderSide(
-                                  color: ((_model.passwordTextController
+                                  color: ((_model.passwordTextController.text != null &&
+                                                  _model.passwordTextController
                                                           .text !=
                                                       '') &&
-                                              (_model.passwordConfirmTextController.text !=
+                                              (_model.passwordConfirmTextController.text != null &&
+                                                  _model.passwordConfirmTextController.text !=
                                                       '') &&
                                               (_model.passwordConfirmTextController.text !=
                                                   _model.passwordTextController
                                                       .text)) ||
-                                          ((_model.passwordConfirmTextController.text !=
+                                          ((_model.passwordConfirmTextController.text != null &&
+                                                  _model.passwordConfirmTextController.text !=
                                                       '') &&
                                               (functions.passCheckupProgress(
                                                       _model.passwordConfirmTextController.text)! <
@@ -681,10 +719,11 @@ class _SignupPageWidgetState extends State<SignupPageWidget>
                               contentPadding: EdgeInsetsDirectional.fromSTEB(
                                   16.0, 12.0, 16.0, 12.0),
                               suffixIcon: InkWell(
-                                onTap: () => safeSetState(
-                                  () => _model.passwordConfirmVisibility =
-                                      !_model.passwordConfirmVisibility,
-                                ),
+                                onTap: () async {
+                                  safeSetState(() =>
+                                      _model.passwordConfirmVisibility =
+                                          !_model.passwordConfirmVisibility);
+                                },
                                 focusNode: FocusNode(skipTraversal: true),
                                 child: Icon(
                                   _model.passwordConfirmVisibility
@@ -703,10 +742,9 @@ class _SignupPageWidgetState extends State<SignupPageWidget>
                                       .bodyMediumFamily,
                                   letterSpacing: 0.07,
                                   fontWeight: FontWeight.w600,
-                                  useGoogleFonts: GoogleFonts.asMap()
-                                      .containsKey(FlutterFlowTheme.of(context)
-                                          .bodyMediumFamily),
                                   lineHeight: 1.4,
+                                  useGoogleFonts: !FlutterFlowTheme.of(context)
+                                      .bodyMediumIsCustom,
                                 ),
                             maxLength: 50,
                             maxLengthEnforcement: MaxLengthEnforcement.none,
@@ -724,8 +762,10 @@ class _SignupPageWidgetState extends State<SignupPageWidget>
                           ),
                         ),
                       ),
-                      if ((_model.passwordTextController.text != '') &&
-                          (_model.passwordConfirmTextController.text !=
+                      if ((_model.passwordTextController.text != null &&
+                              _model.passwordTextController.text != '') &&
+                          (_model.passwordConfirmTextController.text != null &&
+                              _model.passwordConfirmTextController.text !=
                                   '') &&
                           (_model.passwordConfirmTextController.text !=
                               _model.passwordTextController.text))
@@ -745,10 +785,9 @@ class _SignupPageWidgetState extends State<SignupPageWidget>
                                   fontSize: 12.0,
                                   letterSpacing: 0.0,
                                   fontWeight: FontWeight.w500,
-                                  useGoogleFonts: GoogleFonts.asMap()
-                                      .containsKey(FlutterFlowTheme.of(context)
-                                          .bodyMediumFamily),
                                   lineHeight: 1.3,
+                                  useGoogleFonts: !FlutterFlowTheme.of(context)
+                                      .bodyMediumIsCustom,
                                 ),
                           ),
                         ),
@@ -756,18 +795,31 @@ class _SignupPageWidgetState extends State<SignupPageWidget>
                         padding:
                             EdgeInsetsDirectional.fromSTEB(0.0, 32.0, 0.0, 0.0),
                         child: FFButtonWidget(
-                          onPressed: ((_model.emailTextController.text == '') &&
-                                  (_model.passwordTextController.text ==
+                          onPressed: ((_model.emailTextController.text ==
+                                          null ||
+                                      _model.emailTextController.text == '') &&
+                                  (_model.passwordTextController.text == null ||
+                                      _model.passwordTextController.text ==
                                           '') &&
-                                  (_model.passwordConfirmTextController
+                                  (_model.passwordConfirmTextController.text ==
+                                          null ||
+                                      _model.passwordConfirmTextController
                                               .text ==
                                           ''))
                               ? null
                               : () async {
+                                  logFirebaseEvent(
+                                      'SIGNUP_PAGE_PAGE_login_ON_TAP');
+                                  logFirebaseEvent('login_haptic_feedback');
                                   HapticFeedback.selectionClick();
                                   if ((_model.passwordTextController.text !=
+                                              null &&
+                                          _model.passwordTextController.text !=
                                               '') &&
                                       (_model.passwordConfirmTextController
+                                                  .text !=
+                                              null &&
+                                          _model.passwordConfirmTextController
                                                   .text !=
                                               '') &&
                                       (_model.passwordConfirmTextController
@@ -778,10 +830,12 @@ class _SignupPageWidgetState extends State<SignupPageWidget>
                                                   .passwordConfirmTextController
                                                   .text) ==
                                           1.0) &&
-                                      (_model.emailTextController.text !=
+                                      (_model.emailTextController.text != null &&
+                                          _model.emailTextController.text !=
                                               '') &&
                                       functions.emailFormatCheck(
                                           _model.emailTextController.text)) {
+                                    logFirebaseEvent('login_auth');
                                     GoRouter.of(context).prepareAuthEvent();
                                     if (_model.passwordTextController.text !=
                                         _model.passwordConfirmTextController
@@ -817,7 +871,9 @@ class _SignupPageWidgetState extends State<SignupPageWidget>
                                           createdTime: getCurrentTimestamp,
                                         ));
 
+                                    logFirebaseEvent('login_auth');
                                     await authManager.sendEmailVerification();
+                                    logFirebaseEvent('login_navigate_to');
 
                                     context.goNamedAuth(
                                       EmailVerificationPageWidget.routeName,
@@ -829,7 +885,7 @@ class _SignupPageWidgetState extends State<SignupPageWidget>
                                         ),
                                       }.withoutNulls,
                                       extra: <String, dynamic>{
-                                        kTransitionInfoKey: TransitionInfo(
+                                        '__transition_info__': TransitionInfo(
                                           hasTransition: true,
                                           transitionType:
                                               PageTransitionType.fade,
@@ -838,15 +894,47 @@ class _SignupPageWidgetState extends State<SignupPageWidget>
                                       },
                                     );
 
-                                    unawaited(
-                                      () async {
-                                        await currentUserReference!
-                                            .update(createUsersRecordData(
-                                          plusmember: false,
-                                        ));
-                                      }(),
-                                    );
+                                    if (FFLocalizations.of(context)
+                                            .languageCode ==
+                                        'de') {
+                                      logFirebaseEvent(
+                                          'login_set_app_language');
+                                      setAppLanguage(context, 'de');
+                                      logFirebaseEvent('login_backend_call');
+                                      unawaited(
+                                        () async {
+                                          await currentUserReference!
+                                              .update(createUsersRecordData(
+                                            language: 'de',
+                                            plusmember: false,
+                                          ));
+                                        }(),
+                                      );
+                                      logFirebaseEvent(
+                                          'login_update_app_state');
+                                      FFAppState().seasonFilter = 'de';
+                                      FFAppState().update(() {});
+                                    } else {
+                                      logFirebaseEvent(
+                                          'login_set_app_language');
+                                      setAppLanguage(context, 'en');
+                                      logFirebaseEvent('login_backend_call');
+                                      unawaited(
+                                        () async {
+                                          await currentUserReference!
+                                              .update(createUsersRecordData(
+                                            language: 'en',
+                                            plusmember: false,
+                                          ));
+                                        }(),
+                                      );
+                                      logFirebaseEvent(
+                                          'login_update_app_state');
+                                      FFAppState().seasonFilter = 'en';
+                                      FFAppState().update(() {});
+                                    }
                                   } else {
+                                    logFirebaseEvent('login_haptic_feedback');
                                     HapticFeedback.vibrate();
                                     return;
                                   }
@@ -870,10 +958,9 @@ class _SignupPageWidgetState extends State<SignupPageWidget>
                                   color: FlutterFlowTheme.of(context).primary,
                                   fontSize: 14.0,
                                   letterSpacing: 0.07,
-                                  useGoogleFonts: GoogleFonts.asMap()
-                                      .containsKey(FlutterFlowTheme.of(context)
-                                          .titleSmallFamily),
                                   lineHeight: 1.4,
+                                  useGoogleFonts: !FlutterFlowTheme.of(context)
+                                      .titleSmallIsCustom,
                                 ),
                             elevation: 0.0,
                             borderSide: BorderSide(
@@ -903,11 +990,10 @@ class _SignupPageWidgetState extends State<SignupPageWidget>
                                       color: FlutterFlowTheme.of(context).gray,
                                       fontSize: 12.0,
                                       letterSpacing: 0.07,
-                                      useGoogleFonts: GoogleFonts.asMap()
-                                          .containsKey(
-                                              FlutterFlowTheme.of(context)
-                                                  .bodyMediumFamily),
                                       lineHeight: 1.4,
+                                      useGoogleFonts:
+                                          !FlutterFlowTheme.of(context)
+                                              .bodyMediumIsCustom,
                                     ),
                               ),
                               TextSpan(
@@ -924,17 +1010,20 @@ class _SignupPageWidgetState extends State<SignupPageWidget>
                                       fontSize: 12.0,
                                       letterSpacing: 0.07,
                                       fontWeight: FontWeight.normal,
-                                      useGoogleFonts: GoogleFonts.asMap()
-                                          .containsKey(
-                                              FlutterFlowTheme.of(context)
-                                                  .bodyMediumFamily),
                                       lineHeight: 1.4,
+                                      useGoogleFonts:
+                                          !FlutterFlowTheme.of(context)
+                                              .bodyMediumIsCustom,
                                     ),
                                 mouseCursor: SystemMouseCursors.click,
                                 recognizer: TapGestureRecognizer()
                                   ..onTap = () async {
-                                    context
-                                        .pushNamed(PolicyPageWidget.routeName);
+                                    logFirebaseEvent(
+                                        'SIGNUP_RichTextSpan_qau489sv_ON_TAP');
+                                    logFirebaseEvent(
+                                        'RichTextSpan_launch_u_r_l');
+                                    await launchURL(
+                                        'https://www.hiit-the-beat.com/app/privacy-policy');
                                   },
                               ),
                               TextSpan(
@@ -949,11 +1038,10 @@ class _SignupPageWidgetState extends State<SignupPageWidget>
                                       color: FlutterFlowTheme.of(context).gray,
                                       fontSize: 12.0,
                                       letterSpacing: 0.07,
-                                      useGoogleFonts: GoogleFonts.asMap()
-                                          .containsKey(
-                                              FlutterFlowTheme.of(context)
-                                                  .bodyMediumFamily),
                                       lineHeight: 1.4,
+                                      useGoogleFonts:
+                                          !FlutterFlowTheme.of(context)
+                                              .bodyMediumIsCustom,
                                     ),
                               ),
                               TextSpan(
@@ -969,25 +1057,27 @@ class _SignupPageWidgetState extends State<SignupPageWidget>
                                           .middleGreen,
                                       fontSize: 12.0,
                                       letterSpacing: 0.07,
-                                      useGoogleFonts: GoogleFonts.asMap()
-                                          .containsKey(
-                                              FlutterFlowTheme.of(context)
-                                                  .bodyMediumFamily),
                                       lineHeight: 1.4,
+                                      useGoogleFonts:
+                                          !FlutterFlowTheme.of(context)
+                                              .bodyMediumIsCustom,
                                     ),
                                 mouseCursor: SystemMouseCursors.click,
                                 recognizer: TapGestureRecognizer()
                                   ..onTap = () async {
-                                    context
-                                        .pushNamed(TermsPageWidget.routeName);
+                                    logFirebaseEvent(
+                                        'SIGNUP_RichTextSpan_wimfjceq_ON_TAP');
+                                    logFirebaseEvent(
+                                        'RichTextSpan_launch_u_r_l');
+                                    await launchURL(
+                                        'https://www.hiit-the-beat.com/app/terms-and-conditions');
                                   },
                               ),
                               TextSpan(
                                 text: FFLocalizations.of(context).getText(
                                   'zekj8yvj' /*   */,
                                 ),
-                                style: GoogleFonts.getFont(
-                                  'Urbanist',
+                                style: GoogleFonts.urbanist(
                                   color: FlutterFlowTheme.of(context).gray,
                                   fontSize: 12.0,
                                   height: 1.4,
@@ -1000,9 +1090,8 @@ class _SignupPageWidgetState extends State<SignupPageWidget>
                                   fontFamily: FlutterFlowTheme.of(context)
                                       .bodyMediumFamily,
                                   letterSpacing: 0.0,
-                                  useGoogleFonts: GoogleFonts.asMap()
-                                      .containsKey(FlutterFlowTheme.of(context)
-                                          .bodyMediumFamily),
+                                  useGoogleFonts: !FlutterFlowTheme.of(context)
+                                      .bodyMediumIsCustom,
                                 ),
                           ),
                         ),
@@ -1053,10 +1142,9 @@ class _SignupPageWidgetState extends State<SignupPageWidget>
                                       .bodyMediumFamily,
                                   letterSpacing: 0.07,
                                   fontWeight: FontWeight.w600,
-                                  useGoogleFonts: GoogleFonts.asMap()
-                                      .containsKey(FlutterFlowTheme.of(context)
-                                          .bodyMediumFamily),
                                   lineHeight: 1.4,
+                                  useGoogleFonts: !FlutterFlowTheme.of(context)
+                                      .bodyMediumIsCustom,
                                 ),
                           ),
                         ]
@@ -1067,19 +1155,23 @@ class _SignupPageWidgetState extends State<SignupPageWidget>
                     ),
                     FFButtonWidget(
                       onPressed: () async {
+                        logFirebaseEvent('SIGNUP_PAGE_PAGE_googleLogin_ON_TAP');
+                        logFirebaseEvent('googleLogin_haptic_feedback');
                         HapticFeedback.selectionClick();
+                        logFirebaseEvent('googleLogin_auth');
                         GoRouter.of(context).prepareAuthEvent();
                         final user =
                             await authManager.signInWithGoogle(context);
                         if (user == null) {
                           return;
                         }
+                        logFirebaseEvent('googleLogin_navigate_to');
 
                         context.goNamedAuth(
                           StartPageWidget.routeName,
                           context.mounted,
                           extra: <String, dynamic>{
-                            kTransitionInfoKey: TransitionInfo(
+                            '__transition_info__': TransitionInfo(
                               hasTransition: true,
                               transitionType: PageTransitionType.fade,
                               duration: Duration(milliseconds: 0),
@@ -1106,10 +1198,9 @@ class _SignupPageWidgetState extends State<SignupPageWidget>
                               color: Colors.transparent,
                               fontSize: 0.0,
                               letterSpacing: 0.07,
-                              useGoogleFonts: GoogleFonts.asMap().containsKey(
-                                  FlutterFlowTheme.of(context)
-                                      .titleSmallFamily),
                               lineHeight: 1.4,
+                              useGoogleFonts: !FlutterFlowTheme.of(context)
+                                  .titleSmallIsCustom,
                             ),
                         elevation: 0.0,
                         borderSide: BorderSide(
@@ -1165,10 +1256,9 @@ class _SignupPageWidgetState extends State<SignupPageWidget>
                                       .bodyMediumFamily,
                                   letterSpacing: 0.07,
                                   fontWeight: FontWeight.w600,
-                                  useGoogleFonts: GoogleFonts.asMap()
-                                      .containsKey(FlutterFlowTheme.of(context)
-                                          .bodyMediumFamily),
                                   lineHeight: 1.4,
+                                  useGoogleFonts: !FlutterFlowTheme.of(context)
+                                      .bodyMediumIsCustom,
                                 ),
                           ),
                         ]
@@ -1181,19 +1271,24 @@ class _SignupPageWidgetState extends State<SignupPageWidget>
                         ? Container()
                         : FFButtonWidget(
                             onPressed: () async {
+                              logFirebaseEvent(
+                                  'SIGNUP_PAGE_PAGE_appleLogin_ON_TAP');
+                              logFirebaseEvent('appleLogin_haptic_feedback');
                               HapticFeedback.selectionClick();
+                              logFirebaseEvent('appleLogin_auth');
                               GoRouter.of(context).prepareAuthEvent();
                               final user =
                                   await authManager.signInWithApple(context);
                               if (user == null) {
                                 return;
                               }
+                              logFirebaseEvent('appleLogin_navigate_to');
 
                               context.goNamedAuth(
                                 StartPageWidget.routeName,
                                 context.mounted,
                                 extra: <String, dynamic>{
-                                  kTransitionInfoKey: TransitionInfo(
+                                  '__transition_info__': TransitionInfo(
                                     hasTransition: true,
                                     transitionType: PageTransitionType.fade,
                                     duration: Duration(milliseconds: 0),
@@ -1220,11 +1315,10 @@ class _SignupPageWidgetState extends State<SignupPageWidget>
                                     color: Colors.transparent,
                                     fontSize: 0.0,
                                     letterSpacing: 0.07,
-                                    useGoogleFonts: GoogleFonts.asMap()
-                                        .containsKey(
-                                            FlutterFlowTheme.of(context)
-                                                .titleSmallFamily),
                                     lineHeight: 1.4,
+                                    useGoogleFonts:
+                                        !FlutterFlowTheme.of(context)
+                                            .titleSmallIsCustom,
                                   ),
                               elevation: 0.0,
                               borderSide: BorderSide(
@@ -1255,15 +1349,17 @@ class _SignupPageWidgetState extends State<SignupPageWidget>
                                   FlutterFlowTheme.of(context).bodyMediumFamily,
                               color: FlutterFlowTheme.of(context).gray,
                               letterSpacing: 0.07,
-                              useGoogleFonts: GoogleFonts.asMap().containsKey(
-                                  FlutterFlowTheme.of(context)
-                                      .bodyMediumFamily),
                               lineHeight: 1.4,
+                              useGoogleFonts: !FlutterFlowTheme.of(context)
+                                  .bodyMediumIsCustom,
                             ),
                       ),
                       FFButtonWidget(
                         onPressed: () async {
+                          logFirebaseEvent('SIGNUP_PAGE_PAGE_login_ON_TAP');
+                          logFirebaseEvent('login_haptic_feedback');
                           HapticFeedback.selectionClick();
+                          logFirebaseEvent('login_navigate_to');
 
                           context.pushNamed(LoginPageWidget.routeName);
                         },
@@ -1284,10 +1380,9 @@ class _SignupPageWidgetState extends State<SignupPageWidget>
                                 color: FlutterFlowTheme.of(context).primaryText,
                                 fontSize: 14.0,
                                 letterSpacing: 0.07,
-                                useGoogleFonts: GoogleFonts.asMap().containsKey(
-                                    FlutterFlowTheme.of(context)
-                                        .titleSmallFamily),
                                 lineHeight: 1.4,
+                                useGoogleFonts: !FlutterFlowTheme.of(context)
+                                    .titleSmallIsCustom,
                               ),
                           elevation: 0.0,
                           borderSide: BorderSide(

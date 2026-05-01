@@ -2,7 +2,9 @@ import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'navbar_active_button_model.dart';
 export 'navbar_active_button_model.dart';
 
@@ -51,8 +53,8 @@ class _NavbarActiveButtonWidgetState extends State<NavbarActiveButtonWidget> {
       onPressed: () {
         print('homeButton pressed ...');
       },
-      text: widget.text!,
-      icon: widget.icon,
+      text: widget!.text!,
+      icon: widget!.icon,
       options: FFButtonOptions(
         height: 40.0,
         padding: EdgeInsetsDirectional.fromSTEB(12.0, 0.0, 12.0, 0.0),
@@ -64,9 +66,8 @@ class _NavbarActiveButtonWidgetState extends State<NavbarActiveButtonWidget> {
               fontSize: 12.0,
               letterSpacing: 0.07,
               fontWeight: FontWeight.w500,
-              useGoogleFonts: GoogleFonts.asMap()
-                  .containsKey(FlutterFlowTheme.of(context).titleSmallFamily),
               lineHeight: 1.4,
+              useGoogleFonts: !FlutterFlowTheme.of(context).titleSmallIsCustom,
             ),
         elevation: 0.0,
         borderSide: BorderSide(

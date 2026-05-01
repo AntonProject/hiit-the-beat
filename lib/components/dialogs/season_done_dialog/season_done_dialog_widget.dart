@@ -1,16 +1,27 @@
+import '/auth/firebase_auth/auth_util.dart';
 import '/backend/backend.dart';
 import '/components/dialogs/advanced_seasons_done_dialog/advanced_seasons_done_dialog_widget.dart';
 import '/components/dialogs/beginner_seasons_done_dialog/beginner_seasons_done_dialog_widget.dart';
 import '/components/dialogs/expert_seasons_done_dialog/expert_seasons_done_dialog_widget.dart';
+import '/components/dialogs/gos_mode_seasons_done_dialog/gos_mode_seasons_done_dialog_widget.dart';
 import '/flutter_flow/flutter_flow_animations.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
+import 'dart:math';
+import 'dart:ui';
+import '/custom_code/actions/index.dart' as actions;
 import '/index.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:collection/collection.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'season_done_dialog_model.dart';
 export 'season_done_dialog_model.dart';
 
@@ -19,10 +30,12 @@ class SeasonDoneDialogWidget extends StatefulWidget {
     super.key,
     required this.season,
     required this.progress,
+    required this.seasonNumber,
   });
 
   final SeasonsRecord? season;
   final DocumentReference? progress;
+  final int? seasonNumber;
 
   @override
   State<SeasonDoneDialogWidget> createState() => _SeasonDoneDialogWidgetState();
@@ -91,6 +104,8 @@ class _SeasonDoneDialogWidgetState extends State<SeasonDoneDialogWidget>
 
   @override
   Widget build(BuildContext context) {
+    context.watch<FFAppState>();
+
     return Align(
       alignment: AlignmentDirectional(0.0, -1.0),
       child: Stack(
@@ -171,17 +186,20 @@ class _SeasonDoneDialogWidgetState extends State<SeasonDoneDialogWidget>
                                     fontSize: 24.0,
                                     letterSpacing: 0.07,
                                     fontWeight: FontWeight.bold,
-                                    useGoogleFonts: GoogleFonts.asMap()
-                                        .containsKey(
-                                            FlutterFlowTheme.of(context)
-                                                .bodyMediumFamily),
                                     lineHeight: 1.4,
+                                    useGoogleFonts:
+                                        !FlutterFlowTheme.of(context)
+                                            .bodyMediumIsCustom,
                                   ),
                             ),
                             TextSpan(
                               text: valueOrDefault<String>(
                                 formatNumber(
-                                  widget.season?.number,
+                                  valueOrDefault<int>(
+                                        widget!.seasonNumber,
+                                        0,
+                                      ) +
+                                      1,
                                   formatType: FormatType.custom,
                                   format: ' 0 ',
                                   locale: '',
@@ -196,11 +214,10 @@ class _SeasonDoneDialogWidgetState extends State<SeasonDoneDialogWidget>
                                     fontSize: 24.0,
                                     letterSpacing: 0.07,
                                     fontWeight: FontWeight.bold,
-                                    useGoogleFonts: GoogleFonts.asMap()
-                                        .containsKey(
-                                            FlutterFlowTheme.of(context)
-                                                .bodyMediumFamily),
                                     lineHeight: 1.4,
+                                    useGoogleFonts:
+                                        !FlutterFlowTheme.of(context)
+                                            .bodyMediumIsCustom,
                                   ),
                             ),
                             TextSpan(
@@ -215,11 +232,10 @@ class _SeasonDoneDialogWidgetState extends State<SeasonDoneDialogWidget>
                                     fontSize: 24.0,
                                     letterSpacing: 0.07,
                                     fontWeight: FontWeight.bold,
-                                    useGoogleFonts: GoogleFonts.asMap()
-                                        .containsKey(
-                                            FlutterFlowTheme.of(context)
-                                                .bodyMediumFamily),
                                     lineHeight: 1.4,
+                                    useGoogleFonts:
+                                        !FlutterFlowTheme.of(context)
+                                            .bodyMediumIsCustom,
                                   ),
                             )
                           ],
@@ -231,10 +247,9 @@ class _SeasonDoneDialogWidgetState extends State<SeasonDoneDialogWidget>
                                 fontSize: 24.0,
                                 letterSpacing: 0.07,
                                 fontWeight: FontWeight.bold,
-                                useGoogleFonts: GoogleFonts.asMap().containsKey(
-                                    FlutterFlowTheme.of(context)
-                                        .bodyMediumFamily),
                                 lineHeight: 1.4,
+                                useGoogleFonts: !FlutterFlowTheme.of(context)
+                                    .bodyMediumIsCustom,
                               ),
                         ),
                         textAlign: TextAlign.center,
@@ -252,9 +267,9 @@ class _SeasonDoneDialogWidgetState extends State<SeasonDoneDialogWidget>
                             color: FlutterFlowTheme.of(context).primaryText,
                             letterSpacing: 0.07,
                             fontWeight: FontWeight.w600,
-                            useGoogleFonts: GoogleFonts.asMap().containsKey(
-                                FlutterFlowTheme.of(context).bodyMediumFamily),
                             lineHeight: 1.4,
+                            useGoogleFonts: !FlutterFlowTheme.of(context)
+                                .bodyMediumIsCustom,
                           ),
                     ),
                     Padding(
@@ -262,27 +277,35 @@ class _SeasonDoneDialogWidgetState extends State<SeasonDoneDialogWidget>
                           EdgeInsetsDirectional.fromSTEB(0.0, 32.0, 0.0, 0.0),
                       child: FFButtonWidget(
                         onPressed: () async {
+                          logFirebaseEvent(
+                              'SEASON_DONE_DIALOG_Gotonextseason_ON_TAP');
+                          logFirebaseEvent('Gotonextseason_haptic_feedback');
                           HapticFeedback.selectionClick();
+                          logFirebaseEvent('Gotonextseason_backend_call');
                           _model.progress =
                               await ProgressRecord.getDocumentOnce(
-                                  widget.progress!);
-                          _model.seasonLvlCount = await querySeasonsRecordCount(
-                            queryBuilder: (seasonsRecord) =>
-                                seasonsRecord.where(
-                              'level',
-                              isEqualTo: valueOrDefault<int>(
-                                widget.season?.level,
-                                1,
-                              ),
+                                  widget!.progress!);
+                          logFirebaseEvent('Gotonextseason_custom_action');
+                          _model.allSeasonDone =
+                              await actions.allSeasonDoneByLevel(
+                            valueOrDefault<int>(
+                              valueOrDefault(
+                                  currentUserDocument?.currentLevel, 0),
+                              1,
+                            ),
+                            _model.progress?.seasonDone?.toList(),
+                            valueOrDefault<String>(
+                              FFAppState().seasonFilter,
+                              'de',
+                            ),
+                            valueOrDefault<bool>(
+                              FFAppState().hideCompleted,
+                              false,
                             ),
                           );
-                          if (_model.progress?.seasonDone
-                                  .where((e) =>
-                                      e.seasonLevel == widget.season?.level)
-                                  .toList()
-                                  .length ==
-                              _model.seasonLvlCount) {
-                            if (widget.season?.level == 1) {
+                          if (_model.allSeasonDone!) {
+                            if (widget!.season?.level == 1) {
+                              logFirebaseEvent('Gotonextseason_bottom_sheet');
                               showModalBottomSheet(
                                 isScrollControlled: true,
                                 backgroundColor: Colors.transparent,
@@ -296,7 +319,8 @@ class _SeasonDoneDialogWidgetState extends State<SeasonDoneDialogWidget>
                                   );
                                 },
                               ).then((value) => safeSetState(() {}));
-                            } else if (widget.season?.level == 2) {
+                            } else if (widget!.season?.level == 2) {
+                              logFirebaseEvent('Gotonextseason_bottom_sheet');
                               showModalBottomSheet(
                                 isScrollControlled: true,
                                 backgroundColor: Colors.transparent,
@@ -310,7 +334,8 @@ class _SeasonDoneDialogWidgetState extends State<SeasonDoneDialogWidget>
                                   );
                                 },
                               ).then((value) => safeSetState(() {}));
-                            } else if (widget.season?.level == 3) {
+                            } else if (widget!.season?.level == 3) {
+                              logFirebaseEvent('Gotonextseason_bottom_sheet');
                               showModalBottomSheet(
                                 isScrollControlled: true,
                                 backgroundColor: Colors.transparent,
@@ -324,14 +349,75 @@ class _SeasonDoneDialogWidgetState extends State<SeasonDoneDialogWidget>
                                   );
                                 },
                               ).then((value) => safeSetState(() {}));
+                            } else if (widget!.season?.level == 4) {
+                              logFirebaseEvent('Gotonextseason_bottom_sheet');
+                              showModalBottomSheet(
+                                isScrollControlled: true,
+                                backgroundColor: Colors.transparent,
+                                isDismissible: false,
+                                enableDrag: false,
+                                context: context,
+                                builder: (context) {
+                                  return Padding(
+                                    padding: MediaQuery.viewInsetsOf(context),
+                                    child: GosModeSeasonsDoneDialogWidget(),
+                                  );
+                                },
+                              ).then((value) => safeSetState(() {}));
                             }
                           } else {
+                            logFirebaseEvent('Gotonextseason_custom_action');
+                            _model.nextSeason = await actions.seasonIdNext(
+                              _model.progress?.workoutDone?.toList(),
+                              valueOrDefault<int>(
+                                valueOrDefault(
+                                    currentUserDocument?.currentLevel, 0),
+                                1,
+                              ),
+                              valueOrDefault<String>(
+                                FFAppState().seasonFilter,
+                                'de',
+                              ),
+                              valueOrDefault<bool>(
+                                FFAppState().hideCompleted,
+                                false,
+                              ),
+                              _model.progress?.seasonDone?.toList(),
+                            );
+                            logFirebaseEvent('Gotonextseason_firestore_query');
+                            _model.countNext = await queryWorkoutsRecordCount(
+                              queryBuilder: (workoutsRecord) =>
+                                  workoutsRecord.where(
+                                'season_id',
+                                isEqualTo: _model.nextSeason?.reference.id,
+                              ),
+                            );
+                            logFirebaseEvent('Gotonextseason_bottom_sheet');
                             Navigator.pop(context);
+                            logFirebaseEvent('Gotonextseason_navigate_to');
 
-                            context.goNamed(
-                              SeasonWorkoutPageWidget.routeName,
+                            context.pushNamed(
+                              SeasonPageWidget.routeName,
+                              queryParameters: {
+                                'season': serializeParam(
+                                  _model.nextSeason,
+                                  ParamType.Document,
+                                ),
+                                'workoutCount': serializeParam(
+                                  _model.countNext,
+                                  ParamType.int,
+                                ),
+                                'seasonIndex': serializeParam(
+                                  valueOrDefault<int>(
+                                    _model.nextSeason?.number,
+                                    0,
+                                  ),
+                                  ParamType.int,
+                                ),
+                              }.withoutNulls,
                               extra: <String, dynamic>{
-                                kTransitionInfoKey: TransitionInfo(
+                                'season': _model.nextSeason,
+                                '__transition_info__': TransitionInfo(
                                   hasTransition: true,
                                   transitionType: PageTransitionType.fade,
                                   duration: Duration(milliseconds: 0),
@@ -361,10 +447,9 @@ class _SeasonDoneDialogWidgetState extends State<SeasonDoneDialogWidget>
                                 color: FlutterFlowTheme.of(context).primary,
                                 fontSize: 14.0,
                                 letterSpacing: 0.07,
-                                useGoogleFonts: GoogleFonts.asMap().containsKey(
-                                    FlutterFlowTheme.of(context)
-                                        .titleSmallFamily),
                                 lineHeight: 1.4,
+                                useGoogleFonts: !FlutterFlowTheme.of(context)
+                                    .titleSmallIsCustom,
                               ),
                           elevation: 0.0,
                           borderSide: BorderSide(

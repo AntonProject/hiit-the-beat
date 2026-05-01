@@ -2,9 +2,12 @@ import '/auth/firebase_auth/auth_util.dart';
 import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
+import '/flutter_flow/flutter_flow_widgets.dart';
 import 'dart:async';
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'h_i_i_tthe_beat_shop_model.dart';
@@ -53,7 +56,10 @@ class _HIITtheBeatShopWidgetState extends State<HIITtheBeatShopWidget> {
         hoverColor: Colors.transparent,
         highlightColor: Colors.transparent,
         onTap: () async {
+          logFirebaseEvent('H_I_I_TTHE_BEAT_SHOP_HIITtheBeatShop_ON_');
+          logFirebaseEvent('HIITtheBeatShop_haptic_feedback');
           HapticFeedback.mediumImpact();
+          logFirebaseEvent('HIITtheBeatShop_launch_u_r_l');
           unawaited(
             () async {
               await launchURL(FFAppConstants.shopURL);
@@ -107,10 +113,9 @@ class _HIITtheBeatShopWidgetState extends State<HIITtheBeatShopWidget> {
                                   FlutterFlowTheme.of(context).bodyMediumFamily,
                               letterSpacing: 0.07,
                               fontWeight: FontWeight.w600,
-                              useGoogleFonts: GoogleFonts.asMap().containsKey(
-                                  FlutterFlowTheme.of(context)
-                                      .bodyMediumFamily),
                               lineHeight: 1.4,
+                              useGoogleFonts: !FlutterFlowTheme.of(context)
+                                  .bodyMediumIsCustom,
                             ),
                       ),
                       Padding(
@@ -129,17 +134,16 @@ class _HIITtheBeatShopWidgetState extends State<HIITtheBeatShopWidget> {
                                 fontSize: 12.0,
                                 letterSpacing: 0.07,
                                 fontWeight: FontWeight.normal,
-                                useGoogleFonts: GoogleFonts.asMap().containsKey(
-                                    FlutterFlowTheme.of(context)
-                                        .bodyMediumFamily),
                                 lineHeight: 1.4,
+                                useGoogleFonts: !FlutterFlowTheme.of(context)
+                                    .bodyMediumIsCustom,
                               ),
                         ),
                       ),
                     ],
                   ),
                 ),
-                if (currentUserEmail != '')
+                if (currentUserEmail != null && currentUserEmail != '')
                   FlutterFlowIconButton(
                     borderColor: FlutterFlowTheme.of(context).middleGray,
                     borderRadius: 12.0,
@@ -152,6 +156,9 @@ class _HIITtheBeatShopWidgetState extends State<HIITtheBeatShopWidget> {
                       size: 24.0,
                     ),
                     onPressed: () async {
+                      logFirebaseEvent(
+                          'H_I_I_TTHE_BEAT_SHOP_close24_ICN_ON_TAP');
+                      logFirebaseEvent('IconButton_update_app_state');
                       FFAppState().addToHideBanners('hiit');
                       safeSetState(() {});
                     },

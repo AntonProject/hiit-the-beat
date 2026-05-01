@@ -1,5 +1,6 @@
 import '/admin/admin_components/admin_nav_bar/admin_nav_bar_widget.dart';
 import '/admin/admin_components/admin_save_dialog/admin_save_dialog_widget.dart';
+import '/auth/firebase_auth/auth_util.dart';
 import '/backend/backend.dart';
 import '/backend/firebase_storage/storage.dart';
 import '/flutter_flow/flutter_flow_icon_button.dart';
@@ -8,13 +9,19 @@ import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_video_player.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
 import '/flutter_flow/upload_data.dart';
+import 'dart:async';
+import 'dart:ui';
+import '/custom_code/actions/index.dart' as actions;
 import '/index.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:easy_debounce/easy_debounce.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'admin_add_addit_model.dart';
 export 'admin_add_addit_model.dart';
 
@@ -44,14 +51,28 @@ class _AdminAddAdditWidgetState extends State<AdminAddAdditWidget>
     super.initState();
     _model = createModel(context, () => AdminAddAdditModel());
 
+    logFirebaseEvent('screen_view',
+        parameters: {'screen_name': 'AdminAddAddit'});
+    // On page load action.
+    SchedulerBinding.instance.addPostFrameCallback((_) async {
+      logFirebaseEvent('ADMIN_ADD_ADDIT_AdminAddAddit_ON_INIT_ST');
+      logFirebaseEvent('AdminAddAddit_custom_action');
+      unawaited(
+        () async {
+          await actions.setStatusBarColor();
+        }(),
+      );
+    });
+
     _model.indexFocusNode ??= FocusNode();
 
-    _model.switchValue = false;
+    _model.switchValue = true;
     _model.tabBarController = TabController(
       vsync: this,
-      length: 2,
+      length: 3,
       initialIndex: 0,
     )..addListener(() => safeSetState(() {}));
+
     _model.textEnTextController ??= TextEditingController();
     _model.textEnFocusNode ??= FocusNode();
 
@@ -64,6 +85,12 @@ class _AdminAddAdditWidgetState extends State<AdminAddAdditWidget>
     _model.durationDETextController ??= TextEditingController();
     _model.durationDEFocusNode ??= FocusNode();
 
+    _model.textJaTextController ??= TextEditingController();
+    _model.textJaFocusNode ??= FocusNode();
+
+    _model.durationJaTextController ??= TextEditingController();
+    _model.durationJaFocusNode ??= FocusNode();
+
     WidgetsBinding.instance.addPostFrameCallback((_) => safeSetState(() {
           _model.durationENTextController?.text =
               FFLocalizations.of(context).getText(
@@ -72,6 +99,10 @@ class _AdminAddAdditWidgetState extends State<AdminAddAdditWidget>
           _model.durationDETextController?.text =
               FFLocalizations.of(context).getText(
             'yaaty63b' /* 1 min */,
+          );
+          _model.durationJaTextController?.text =
+              FFLocalizations.of(context).getText(
+            'g324p8h0' /* 1 min */,
           );
         }));
   }
@@ -99,7 +130,9 @@ class _AdminAddAdditWidgetState extends State<AdminAddAdditWidget>
             wrapWithModel(
               model: _model.adminNavBarModel,
               updateCallback: () => safeSetState(() {}),
-              child: AdminNavBarWidget(),
+              child: AdminNavBarWidget(
+                pageNum: 3,
+              ),
             ),
             Expanded(
               child: Padding(
@@ -123,6 +156,9 @@ class _AdminAddAdditWidgetState extends State<AdminAddAdditWidget>
                             size: 24.0,
                           ),
                           onPressed: () async {
+                            logFirebaseEvent(
+                                'ADMIN_ADD_ADDIT_arrowLeft24_ICN_ON_TAP');
+                            logFirebaseEvent('IconButton_bottom_sheet');
                             showModalBottomSheet(
                               isScrollControlled: true,
                               backgroundColor: Colors.transparent,
@@ -141,6 +177,8 @@ class _AdminAddAdditWidgetState extends State<AdminAddAdditWidget>
                                     padding: MediaQuery.viewInsetsOf(context),
                                     child: AdminSaveDialogWidget(
                                       actionTrue: () async {
+                                        logFirebaseEvent('_backend_call');
+
                                         await AdditionalsRecord.collection
                                             .doc()
                                             .set(createAdditionalsRecordData(
@@ -149,7 +187,7 @@ class _AdminAddAdditWidgetState extends State<AdminAddAdditWidget>
                                                   .textEnTextController.text,
                                               titleDe: _model
                                                   .textDeTextController.text,
-                                              typeIndex: widget.type,
+                                              typeIndex: widget!.type,
                                               index: int.tryParse(_model
                                                   .indexTextController.text),
                                               videoUrlEn: _model.videoEn,
@@ -164,12 +202,21 @@ class _AdminAddAdditWidgetState extends State<AdminAddAdditWidget>
                                               free: _model.switchValue,
                                               en: _model.en,
                                               de: _model.de,
+                                              ja: _model.ja,
+                                              videoUrlJa: _model.videoJa,
+                                              titleJa: _model
+                                                  .textJaTextController.text,
+                                              durationJa: _model
+                                                  .durationJaTextController
+                                                  .text,
                                             ));
+                                        logFirebaseEvent('_navigate_to');
 
                                         context.pushNamed(
                                           AdminAdditionalWidget.routeName,
                                           extra: <String, dynamic>{
-                                            kTransitionInfoKey: TransitionInfo(
+                                            '__transition_info__':
+                                                TransitionInfo(
                                               hasTransition: true,
                                               transitionType:
                                                   PageTransitionType.fade,
@@ -179,13 +226,23 @@ class _AdminAddAdditWidgetState extends State<AdminAddAdditWidget>
                                           },
                                         );
 
+                                        logFirebaseEvent('_bottom_sheet');
                                         Navigator.pop(context);
+                                        logFirebaseEvent('_update_app_state');
+                                        FFAppState().refreshDate =
+                                            getCurrentTimestamp;
+                                        safeSetState(() {});
+                                        logFirebaseEvent('_clear_query_cache');
+                                        FFAppState().clearAddCache();
                                       },
                                       actionFalse: () async {
+                                        logFirebaseEvent('_navigate_to');
+
                                         context.pushNamed(
                                           AdminAdditionalWidget.routeName,
                                           extra: <String, dynamic>{
-                                            kTransitionInfoKey: TransitionInfo(
+                                            '__transition_info__':
+                                                TransitionInfo(
                                               hasTransition: true,
                                               transitionType:
                                                   PageTransitionType.fade,
@@ -195,6 +252,7 @@ class _AdminAddAdditWidgetState extends State<AdminAddAdditWidget>
                                           },
                                         );
 
+                                        logFirebaseEvent('_bottom_sheet');
                                         Navigator.pop(context);
                                       },
                                     ),
@@ -204,7 +262,7 @@ class _AdminAddAdditWidgetState extends State<AdminAddAdditWidget>
                             ).then((value) => safeSetState(() {}));
                           },
                         ),
-                        if (widget.type == 1)
+                        if (widget!.type == 1)
                           Expanded(
                             child: Text(
                               FFLocalizations.of(context).getText(
@@ -218,14 +276,13 @@ class _AdminAddAdditWidgetState extends State<AdminAddAdditWidget>
                                     fontSize: 24.0,
                                     letterSpacing: 0.0,
                                     fontWeight: FontWeight.w500,
-                                    useGoogleFonts: GoogleFonts.asMap()
-                                        .containsKey(
-                                            FlutterFlowTheme.of(context)
-                                                .bodyMediumFamily),
+                                    useGoogleFonts:
+                                        !FlutterFlowTheme.of(context)
+                                            .bodyMediumIsCustom,
                                   ),
                             ),
                           ),
-                        if (widget.type == 2)
+                        if (widget!.type == 2)
                           Expanded(
                             child: Text(
                               FFLocalizations.of(context).getText(
@@ -239,22 +296,25 @@ class _AdminAddAdditWidgetState extends State<AdminAddAdditWidget>
                                     fontSize: 24.0,
                                     letterSpacing: 0.0,
                                     fontWeight: FontWeight.w500,
-                                    useGoogleFonts: GoogleFonts.asMap()
-                                        .containsKey(
-                                            FlutterFlowTheme.of(context)
-                                                .bodyMediumFamily),
+                                    useGoogleFonts:
+                                        !FlutterFlowTheme.of(context)
+                                            .bodyMediumIsCustom,
                                   ),
                             ),
                           ),
                         FFButtonWidget(
                           onPressed: () async {
+                            logFirebaseEvent(
+                                'ADMIN_ADD_ADDIT_PAGE_Save_ON_TAP');
+                            logFirebaseEvent('Save_backend_call');
+
                             await AdditionalsRecord.collection
                                 .doc()
                                 .set(createAdditionalsRecordData(
                                   cover: _model.cover,
                                   titleEn: _model.textEnTextController.text,
                                   titleDe: _model.textDeTextController.text,
-                                  typeIndex: widget.type,
+                                  typeIndex: widget!.type,
                                   index: int.tryParse(
                                       _model.indexTextController.text),
                                   videoUrlEn: _model.videoEn,
@@ -267,18 +327,30 @@ class _AdminAddAdditWidgetState extends State<AdminAddAdditWidget>
                                   free: _model.switchValue,
                                   en: _model.en,
                                   de: _model.de,
+                                  ja: _model.ja,
+                                  titleJa: _model.textJaTextController.text,
+                                  videoUrlJa: _model.videoJa,
+                                  durationJa:
+                                      _model.durationJaTextController.text,
                                 ));
+                            logFirebaseEvent('Save_navigate_to');
 
                             context.pushNamed(
                               AdminAdditionalWidget.routeName,
                               extra: <String, dynamic>{
-                                kTransitionInfoKey: TransitionInfo(
+                                '__transition_info__': TransitionInfo(
                                   hasTransition: true,
                                   transitionType: PageTransitionType.fade,
                                   duration: Duration(milliseconds: 0),
                                 ),
                               },
                             );
+
+                            logFirebaseEvent('Save_update_app_state');
+                            FFAppState().refreshDate = getCurrentTimestamp;
+                            safeSetState(() {});
+                            logFirebaseEvent('Save_clear_query_cache');
+                            FFAppState().clearAddCache();
                           },
                           text: FFLocalizations.of(context).getText(
                             'w04vo6u2' /* Create */,
@@ -300,10 +372,9 @@ class _AdminAddAdditWidgetState extends State<AdminAddAdditWidget>
                                   fontSize: 12.0,
                                   letterSpacing: 0.07,
                                   fontWeight: FontWeight.normal,
-                                  useGoogleFonts: GoogleFonts.asMap()
-                                      .containsKey(FlutterFlowTheme.of(context)
-                                          .titleSmallFamily),
                                   lineHeight: 1.4,
+                                  useGoogleFonts: !FlutterFlowTheme.of(context)
+                                      .titleSmallIsCustom,
                                 ),
                             elevation: 0.0,
                             borderSide: BorderSide(
@@ -334,10 +405,9 @@ class _AdminAddAdditWidgetState extends State<AdminAddAdditWidget>
                                       fontFamily: FlutterFlowTheme.of(context)
                                           .bodyMediumFamily,
                                       letterSpacing: 0.0,
-                                      useGoogleFonts: GoogleFonts.asMap()
-                                          .containsKey(
-                                              FlutterFlowTheme.of(context)
-                                                  .bodyMediumFamily),
+                                      useGoogleFonts:
+                                          !FlutterFlowTheme.of(context)
+                                              .bodyMediumIsCustom,
                                     ),
                               ),
                             ),
@@ -399,11 +469,10 @@ class _AdminAddAdditWidgetState extends State<AdminAddAdditWidget>
                                                 .gray,
                                             letterSpacing: 0.07,
                                             fontWeight: FontWeight.w600,
-                                            useGoogleFonts: GoogleFonts.asMap()
-                                                .containsKey(
-                                                    FlutterFlowTheme.of(context)
-                                                        .bodyMediumFamily),
                                             lineHeight: 1.4,
+                                            useGoogleFonts:
+                                                !FlutterFlowTheme.of(context)
+                                                    .bodyMediumIsCustom,
                                           ),
                                       enabledBorder: OutlineInputBorder(
                                         borderSide: BorderSide(
@@ -456,11 +525,10 @@ class _AdminAddAdditWidgetState extends State<AdminAddAdditWidget>
                                                   .bodyMediumFamily,
                                           letterSpacing: 0.07,
                                           fontWeight: FontWeight.w600,
-                                          useGoogleFonts: GoogleFonts.asMap()
-                                              .containsKey(
-                                                  FlutterFlowTheme.of(context)
-                                                      .bodyMediumFamily),
                                           lineHeight: 1.4,
+                                          useGoogleFonts:
+                                              !FlutterFlowTheme.of(context)
+                                                  .bodyMediumIsCustom,
                                         ),
                                     maxLines: null,
                                     keyboardType: TextInputType.multiline,
@@ -481,7 +549,11 @@ class _AdminAddAdditWidgetState extends State<AdminAddAdditWidget>
                                 children: [
                                   FFButtonWidget(
                                     onPressed: () async {
+                                      logFirebaseEvent(
+                                          'ADMIN_ADD_ADDIT_PAGE_EN_ON_TAP');
+                                      logFirebaseEvent('EN_haptic_feedback');
                                       HapticFeedback.selectionClick();
+                                      logFirebaseEvent('EN_update_page_state');
                                       _model.en = !_model.en;
                                       safeSetState(() {});
                                     },
@@ -522,11 +594,10 @@ class _AdminAddAdditWidgetState extends State<AdminAddAdditWidget>
                                             ),
                                             fontSize: 14.0,
                                             letterSpacing: 0.07,
-                                            useGoogleFonts: GoogleFonts.asMap()
-                                                .containsKey(
-                                                    FlutterFlowTheme.of(context)
-                                                        .titleSmallFamily),
                                             lineHeight: 1.4,
+                                            useGoogleFonts:
+                                                !FlutterFlowTheme.of(context)
+                                                    .titleSmallIsCustom,
                                           ),
                                       elevation: 0.0,
                                       borderSide: BorderSide(
@@ -547,7 +618,11 @@ class _AdminAddAdditWidgetState extends State<AdminAddAdditWidget>
                                   ),
                                   FFButtonWidget(
                                     onPressed: () async {
+                                      logFirebaseEvent(
+                                          'ADMIN_ADD_ADDIT_PAGE_DE_ON_TAP');
+                                      logFirebaseEvent('DE_haptic_feedback');
                                       HapticFeedback.selectionClick();
+                                      logFirebaseEvent('DE_update_page_state');
                                       _model.de = !_model.de;
                                       safeSetState(() {});
                                     },
@@ -588,16 +663,84 @@ class _AdminAddAdditWidgetState extends State<AdminAddAdditWidget>
                                             ),
                                             fontSize: 14.0,
                                             letterSpacing: 0.07,
-                                            useGoogleFonts: GoogleFonts.asMap()
-                                                .containsKey(
-                                                    FlutterFlowTheme.of(context)
-                                                        .titleSmallFamily),
                                             lineHeight: 1.4,
+                                            useGoogleFonts:
+                                                !FlutterFlowTheme.of(context)
+                                                    .titleSmallIsCustom,
                                           ),
                                       elevation: 0.0,
                                       borderSide: BorderSide(
                                         color: valueOrDefault<Color>(
                                           _model.de
+                                              ? FlutterFlowTheme.of(context)
+                                                  .primaryText
+                                              : FlutterFlowTheme.of(context)
+                                                  .middleGray,
+                                          FlutterFlowTheme.of(context)
+                                              .primaryText,
+                                        ),
+                                        width: 1.0,
+                                      ),
+                                      borderRadius: BorderRadius.circular(12.0),
+                                    ),
+                                    showLoadingIndicator: false,
+                                  ),
+                                  FFButtonWidget(
+                                    onPressed: () async {
+                                      logFirebaseEvent(
+                                          'ADMIN_ADD_ADDIT_PAGE_JA_ON_TAP');
+                                      logFirebaseEvent('JA_haptic_feedback');
+                                      HapticFeedback.selectionClick();
+                                      logFirebaseEvent('JA_update_page_state');
+                                      _model.ja = !_model.ja;
+                                      safeSetState(() {});
+                                    },
+                                    text: FFLocalizations.of(context).getText(
+                                      'dv4szfnm' /* JA */,
+                                    ),
+                                    options: FFButtonOptions(
+                                      width: 100.0,
+                                      height: 40.0,
+                                      padding: EdgeInsetsDirectional.fromSTEB(
+                                          16.0, 0.0, 16.0, 0.0),
+                                      iconPadding:
+                                          EdgeInsetsDirectional.fromSTEB(
+                                              0.0, 0.0, 0.0, 0.0),
+                                      color: valueOrDefault<Color>(
+                                        _model.ja
+                                            ? FlutterFlowTheme.of(context)
+                                                .primaryText
+                                            : FlutterFlowTheme.of(context)
+                                                .primary,
+                                        FlutterFlowTheme.of(context)
+                                            .primaryText,
+                                      ),
+                                      textStyle: FlutterFlowTheme.of(context)
+                                          .titleSmall
+                                          .override(
+                                            fontFamily:
+                                                FlutterFlowTheme.of(context)
+                                                    .titleSmallFamily,
+                                            color: valueOrDefault<Color>(
+                                              _model.ja
+                                                  ? FlutterFlowTheme.of(context)
+                                                      .primary
+                                                  : FlutterFlowTheme.of(context)
+                                                      .primaryText,
+                                              FlutterFlowTheme.of(context)
+                                                  .primary,
+                                            ),
+                                            fontSize: 14.0,
+                                            letterSpacing: 0.07,
+                                            lineHeight: 1.4,
+                                            useGoogleFonts:
+                                                !FlutterFlowTheme.of(context)
+                                                    .titleSmallIsCustom,
+                                          ),
+                                      elevation: 0.0,
+                                      borderSide: BorderSide(
+                                        color: valueOrDefault<Color>(
+                                          _model.ja
                                               ? FlutterFlowTheme.of(context)
                                                   .primaryText
                                               : FlutterFlowTheme.of(context)
@@ -632,17 +775,16 @@ class _AdminAddAdditWidgetState extends State<AdminAddAdditWidget>
                                                   .bodyMediumFamily,
                                           letterSpacing: 0.0,
                                           fontWeight: FontWeight.w600,
-                                          useGoogleFonts: GoogleFonts.asMap()
-                                              .containsKey(
-                                                  FlutterFlowTheme.of(context)
-                                                      .bodyMediumFamily),
+                                          useGoogleFonts:
+                                              !FlutterFlowTheme.of(context)
+                                                  .bodyMediumIsCustom,
                                         ),
                                   ),
                                   Switch.adaptive(
                                     value: _model.switchValue!,
                                     onChanged: (newValue) async {
                                       safeSetState(
-                                          () => _model.switchValue = newValue);
+                                          () => _model.switchValue = newValue!);
                                     },
                                     activeColor:
                                         FlutterFlowTheme.of(context).secondary,
@@ -680,31 +822,24 @@ class _AdminAddAdditWidgetState extends State<AdminAddAdditWidget>
                                               fontSize: 20.0,
                                               letterSpacing: 0.0,
                                               fontWeight: FontWeight.bold,
-                                              useGoogleFonts: GoogleFonts
-                                                      .asMap()
-                                                  .containsKey(
-                                                      FlutterFlowTheme.of(
-                                                              context)
-                                                          .titleMediumFamily),
+                                              useGoogleFonts:
+                                                  !FlutterFlowTheme.of(context)
+                                                      .titleMediumIsCustom,
                                             ),
-                                        unselectedLabelStyle:
-                                            FlutterFlowTheme.of(context)
-                                                .titleMedium
-                                                .override(
-                                                  fontFamily:
-                                                      FlutterFlowTheme.of(
-                                                              context)
-                                                          .titleMediumFamily,
-                                                  fontSize: 20.0,
-                                                  letterSpacing: 0.0,
-                                                  fontWeight: FontWeight.w500,
-                                                  useGoogleFonts: GoogleFonts
-                                                          .asMap()
-                                                      .containsKey(
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .titleMediumFamily),
-                                                ),
+                                        unselectedLabelStyle: FlutterFlowTheme
+                                                .of(context)
+                                            .titleMedium
+                                            .override(
+                                              fontFamily:
+                                                  FlutterFlowTheme.of(context)
+                                                      .titleMediumFamily,
+                                              fontSize: 20.0,
+                                              letterSpacing: 0.0,
+                                              fontWeight: FontWeight.w500,
+                                              useGoogleFonts:
+                                                  !FlutterFlowTheme.of(context)
+                                                      .titleMediumIsCustom,
+                                            ),
                                         indicatorColor:
                                             FlutterFlowTheme.of(context)
                                                 .primary,
@@ -721,10 +856,20 @@ class _AdminAddAdditWidgetState extends State<AdminAddAdditWidget>
                                               'ts9sj1ff' /* German */,
                                             ),
                                           ),
+                                          Tab(
+                                            text: FFLocalizations.of(context)
+                                                .getText(
+                                              'xou4ors3' /* Japanese */,
+                                            ),
+                                          ),
                                         ],
                                         controller: _model.tabBarController,
                                         onTap: (i) async {
-                                          [() async {}, () async {}][i]();
+                                          [
+                                            () async {},
+                                            () async {},
+                                            () async {}
+                                          ][i]();
                                         },
                                       ),
                                     ),
@@ -742,7 +887,7 @@ class _AdminAddAdditWidgetState extends State<AdminAddAdditWidget>
                                                   mainAxisSize:
                                                       MainAxisSize.max,
                                                   children: [
-                                                    if (widget.type == 1)
+                                                    if (widget!.type == 1)
                                                       Text(
                                                         FFLocalizations.of(
                                                                 context)
@@ -759,14 +904,13 @@ class _AdminAddAdditWidgetState extends State<AdminAddAdditWidget>
                                                                       .bodyMediumFamily,
                                                                   letterSpacing:
                                                                       0.0,
-                                                                  useGoogleFonts: GoogleFonts
-                                                                          .asMap()
-                                                                      .containsKey(
-                                                                          FlutterFlowTheme.of(context)
-                                                                              .bodyMediumFamily),
+                                                                  useGoogleFonts:
+                                                                      !FlutterFlowTheme.of(
+                                                                              context)
+                                                                          .bodyMediumIsCustom,
                                                                 ),
                                                       ),
-                                                    if (widget.type == 2)
+                                                    if (widget!.type == 2)
                                                       Text(
                                                         FFLocalizations.of(
                                                                 context)
@@ -783,11 +927,10 @@ class _AdminAddAdditWidgetState extends State<AdminAddAdditWidget>
                                                                       .bodyMediumFamily,
                                                                   letterSpacing:
                                                                       0.0,
-                                                                  useGoogleFonts: GoogleFonts
-                                                                          .asMap()
-                                                                      .containsKey(
-                                                                          FlutterFlowTheme.of(context)
-                                                                              .bodyMediumFamily),
+                                                                  useGoogleFonts:
+                                                                      !FlutterFlowTheme.of(
+                                                                              context)
+                                                                          .bodyMediumIsCustom,
                                                                 ),
                                                       ),
                                                   ].divide(
@@ -833,12 +976,11 @@ class _AdminAddAdditWidgetState extends State<AdminAddAdditWidget>
                                                                 fontWeight:
                                                                     FontWeight
                                                                         .w600,
-                                                                useGoogleFonts: GoogleFonts
-                                                                        .asMap()
-                                                                    .containsKey(
-                                                                        FlutterFlowTheme.of(context)
-                                                                            .bodyMediumFamily),
                                                                 lineHeight: 1.4,
+                                                                useGoogleFonts:
+                                                                    !FlutterFlowTheme.of(
+                                                                            context)
+                                                                        .bodyMediumIsCustom,
                                                               ),
                                                       enabledBorder:
                                                           OutlineInputBorder(
@@ -912,13 +1054,11 @@ class _AdminAddAdditWidgetState extends State<AdminAddAdditWidget>
                                                           letterSpacing: 0.07,
                                                           fontWeight:
                                                               FontWeight.w600,
-                                                          useGoogleFonts: GoogleFonts
-                                                                  .asMap()
-                                                              .containsKey(
-                                                                  FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .bodyMediumFamily),
                                                           lineHeight: 1.4,
+                                                          useGoogleFonts:
+                                                              !FlutterFlowTheme
+                                                                      .of(context)
+                                                                  .bodyMediumIsCustom,
                                                         ),
                                                     maxLines: 10,
                                                     minLines: 1,
@@ -949,12 +1089,10 @@ class _AdminAddAdditWidgetState extends State<AdminAddAdditWidget>
                                                                       context)
                                                                   .bodyMediumFamily,
                                                           letterSpacing: 0.0,
-                                                          useGoogleFonts: GoogleFonts
-                                                                  .asMap()
-                                                              .containsKey(
-                                                                  FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .bodyMediumFamily),
+                                                          useGoogleFonts:
+                                                              !FlutterFlowTheme
+                                                                      .of(context)
+                                                                  .bodyMediumIsCustom,
                                                         ),
                                                   ),
                                                 ),
@@ -998,12 +1136,11 @@ class _AdminAddAdditWidgetState extends State<AdminAddAdditWidget>
                                                                 fontWeight:
                                                                     FontWeight
                                                                         .w600,
-                                                                useGoogleFonts: GoogleFonts
-                                                                        .asMap()
-                                                                    .containsKey(
-                                                                        FlutterFlowTheme.of(context)
-                                                                            .bodyMediumFamily),
                                                                 lineHeight: 1.4,
+                                                                useGoogleFonts:
+                                                                    !FlutterFlowTheme.of(
+                                                                            context)
+                                                                        .bodyMediumIsCustom,
                                                               ),
                                                       enabledBorder:
                                                           OutlineInputBorder(
@@ -1077,13 +1214,11 @@ class _AdminAddAdditWidgetState extends State<AdminAddAdditWidget>
                                                           letterSpacing: 0.07,
                                                           fontWeight:
                                                               FontWeight.w600,
-                                                          useGoogleFonts: GoogleFonts
-                                                                  .asMap()
-                                                              .containsKey(
-                                                                  FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .bodyMediumFamily),
                                                           lineHeight: 1.4,
+                                                          useGoogleFonts:
+                                                              !FlutterFlowTheme
+                                                                      .of(context)
+                                                                  .bodyMediumIsCustom,
                                                         ),
                                                     maxLines: null,
                                                     cursorColor:
@@ -1116,6 +1251,10 @@ class _AdminAddAdditWidgetState extends State<AdminAddAdditWidget>
                                                                 FFButtonWidget(
                                                               onPressed:
                                                                   () async {
+                                                                logFirebaseEvent(
+                                                                    'ADMIN_ADD_ADDIT_PAGE_Uploadcover_ON_TAP');
+                                                                logFirebaseEvent(
+                                                                    'Uploadcover_upload_media_to_firebase');
                                                                 final selectedMedia =
                                                                     await selectMediaWithSourceBottomSheet(
                                                                   context:
@@ -1136,7 +1275,7 @@ class _AdminAddAdditWidgetState extends State<AdminAddAdditWidget>
                                                                             m.storagePath,
                                                                             context))) {
                                                                   safeSetState(() =>
-                                                                      _model.isDataUploading1 =
+                                                                      _model.isDataUploading_uploadDataCover =
                                                                           true);
                                                                   var selectedUploadedFiles =
                                                                       <FFUploadedFile>[];
@@ -1151,6 +1290,7 @@ class _AdminAddAdditWidgetState extends State<AdminAddAdditWidget>
                                                                               height: m.dimensions?.height,
                                                                               width: m.dimensions?.width,
                                                                               blurHash: m.blurHash,
+                                                                              originalFilename: m.originalFilename,
                                                                             ))
                                                                         .toList();
 
@@ -1170,7 +1310,7 @@ class _AdminAddAdditWidgetState extends State<AdminAddAdditWidget>
                                                                             u!)
                                                                         .toList();
                                                                   } finally {
-                                                                    _model.isDataUploading1 =
+                                                                    _model.isDataUploading_uploadDataCover =
                                                                         false;
                                                                   }
                                                                   if (selectedUploadedFiles
@@ -1183,10 +1323,10 @@ class _AdminAddAdditWidgetState extends State<AdminAddAdditWidget>
                                                                               .length) {
                                                                     safeSetState(
                                                                         () {
-                                                                      _model.uploadedLocalFile1 =
+                                                                      _model.uploadedLocalFile_uploadDataCover =
                                                                           selectedUploadedFiles
                                                                               .first;
-                                                                      _model.uploadedFileUrl1 =
+                                                                      _model.uploadedFileUrl_uploadDataCover =
                                                                           downloadUrls
                                                                               .first;
                                                                     });
@@ -1197,13 +1337,17 @@ class _AdminAddAdditWidgetState extends State<AdminAddAdditWidget>
                                                                   }
                                                                 }
 
-                                                                if ((_model.uploadedFileUrl1 !=
+                                                                if ((_model.uploadedFileUrl_uploadDataCover !=
+                                                                            null &&
+                                                                        _model.uploadedFileUrl_uploadDataCover !=
                                                                             '') &&
                                                                     !_model
-                                                                        .isDataUploading1) {
+                                                                        .isDataUploading_uploadDataCover) {
+                                                                  logFirebaseEvent(
+                                                                      'Uploadcover_update_page_state');
                                                                   _model.cover =
                                                                       _model
-                                                                          .uploadedFileUrl1;
+                                                                          .uploadedFileUrl_uploadDataCover;
                                                                   safeSetState(
                                                                       () {});
                                                                 }
@@ -1246,10 +1390,9 @@ class _AdminAddAdditWidgetState extends State<AdminAddAdditWidget>
                                                                           14.0,
                                                                       letterSpacing:
                                                                           0.0,
-                                                                      useGoogleFonts: GoogleFonts
-                                                                              .asMap()
-                                                                          .containsKey(
-                                                                              FlutterFlowTheme.of(context).titleSmallFamily),
+                                                                      useGoogleFonts:
+                                                                          !FlutterFlowTheme.of(context)
+                                                                              .titleSmallIsCustom,
                                                                     ),
                                                                 elevation: 0.0,
                                                                 borderSide:
@@ -1307,6 +1450,10 @@ class _AdminAddAdditWidgetState extends State<AdminAddAdditWidget>
                                                             FFButtonWidget(
                                                               onPressed:
                                                                   () async {
+                                                                logFirebaseEvent(
+                                                                    'ADMIN_ADD_ADDIT_PAGE_Delete_ON_TAP');
+                                                                logFirebaseEvent(
+                                                                    'Delete_update_page_state');
                                                                 _model.cover =
                                                                     null;
                                                                 safeSetState(
@@ -1351,12 +1498,11 @@ class _AdminAddAdditWidgetState extends State<AdminAddAdditWidget>
                                                                           14.0,
                                                                       letterSpacing:
                                                                           0.07,
-                                                                      useGoogleFonts: GoogleFonts
-                                                                              .asMap()
-                                                                          .containsKey(
-                                                                              FlutterFlowTheme.of(context).titleSmallFamily),
                                                                       lineHeight:
                                                                           1.4,
+                                                                      useGoogleFonts:
+                                                                          !FlutterFlowTheme.of(context)
+                                                                              .titleSmallIsCustom,
                                                                     ),
                                                                 elevation: 0.0,
                                                                 borderSide:
@@ -1393,6 +1539,10 @@ class _AdminAddAdditWidgetState extends State<AdminAddAdditWidget>
                                                                 FFButtonWidget(
                                                               onPressed:
                                                                   () async {
+                                                                logFirebaseEvent(
+                                                                    'ADMIN_ADD_ADDIT_UploadvideoEN_ON_TAP');
+                                                                logFirebaseEvent(
+                                                                    'UploadvideoEN_upload_media_to_firebase');
                                                                 final selectedMedia =
                                                                     await selectMediaWithSourceBottomSheet(
                                                                   context:
@@ -1409,7 +1559,7 @@ class _AdminAddAdditWidgetState extends State<AdminAddAdditWidget>
                                                                             m.storagePath,
                                                                             context))) {
                                                                   safeSetState(() =>
-                                                                      _model.isDataUploading2 =
+                                                                      _model.isDataUploading_uploadDataVideoEn =
                                                                           true);
                                                                   var selectedUploadedFiles =
                                                                       <FFUploadedFile>[];
@@ -1424,6 +1574,7 @@ class _AdminAddAdditWidgetState extends State<AdminAddAdditWidget>
                                                                               height: m.dimensions?.height,
                                                                               width: m.dimensions?.width,
                                                                               blurHash: m.blurHash,
+                                                                              originalFilename: m.originalFilename,
                                                                             ))
                                                                         .toList();
 
@@ -1443,7 +1594,7 @@ class _AdminAddAdditWidgetState extends State<AdminAddAdditWidget>
                                                                             u!)
                                                                         .toList();
                                                                   } finally {
-                                                                    _model.isDataUploading2 =
+                                                                    _model.isDataUploading_uploadDataVideoEn =
                                                                         false;
                                                                   }
                                                                   if (selectedUploadedFiles
@@ -1456,10 +1607,10 @@ class _AdminAddAdditWidgetState extends State<AdminAddAdditWidget>
                                                                               .length) {
                                                                     safeSetState(
                                                                         () {
-                                                                      _model.uploadedLocalFile2 =
+                                                                      _model.uploadedLocalFile_uploadDataVideoEn =
                                                                           selectedUploadedFiles
                                                                               .first;
-                                                                      _model.uploadedFileUrl2 =
+                                                                      _model.uploadedFileUrl_uploadDataVideoEn =
                                                                           downloadUrls
                                                                               .first;
                                                                     });
@@ -1470,13 +1621,17 @@ class _AdminAddAdditWidgetState extends State<AdminAddAdditWidget>
                                                                   }
                                                                 }
 
-                                                                if ((_model.uploadedFileUrl2 !=
+                                                                if ((_model.uploadedFileUrl_uploadDataVideoEn !=
+                                                                            null &&
+                                                                        _model.uploadedFileUrl_uploadDataVideoEn !=
                                                                             '') &&
                                                                     !_model
-                                                                        .isDataUploading2) {
+                                                                        .isDataUploading_uploadDataVideoEn) {
+                                                                  logFirebaseEvent(
+                                                                      'UploadvideoEN_update_page_state');
                                                                   _model.videoEn =
                                                                       _model
-                                                                          .uploadedFileUrl2;
+                                                                          .uploadedFileUrl_uploadDataVideoEn;
                                                                   safeSetState(
                                                                       () {});
                                                                 }
@@ -1519,10 +1674,9 @@ class _AdminAddAdditWidgetState extends State<AdminAddAdditWidget>
                                                                           14.0,
                                                                       letterSpacing:
                                                                           0.0,
-                                                                      useGoogleFonts: GoogleFonts
-                                                                              .asMap()
-                                                                          .containsKey(
-                                                                              FlutterFlowTheme.of(context).titleSmallFamily),
+                                                                      useGoogleFonts:
+                                                                          !FlutterFlowTheme.of(context)
+                                                                              .titleSmallIsCustom,
                                                                     ),
                                                                 elevation: 0.0,
                                                                 borderSide:
@@ -1598,6 +1752,10 @@ class _AdminAddAdditWidgetState extends State<AdminAddAdditWidget>
                                                             FFButtonWidget(
                                                               onPressed:
                                                                   () async {
+                                                                logFirebaseEvent(
+                                                                    'ADMIN_ADD_ADDIT_PAGE_Delete_ON_TAP');
+                                                                logFirebaseEvent(
+                                                                    'Delete_update_page_state');
                                                                 _model.videoEn =
                                                                     null;
                                                                 safeSetState(
@@ -1642,12 +1800,11 @@ class _AdminAddAdditWidgetState extends State<AdminAddAdditWidget>
                                                                           14.0,
                                                                       letterSpacing:
                                                                           0.07,
-                                                                      useGoogleFonts: GoogleFonts
-                                                                              .asMap()
-                                                                          .containsKey(
-                                                                              FlutterFlowTheme.of(context).titleSmallFamily),
                                                                       lineHeight:
                                                                           1.4,
+                                                                      useGoogleFonts:
+                                                                          !FlutterFlowTheme.of(context)
+                                                                              .titleSmallIsCustom,
                                                                     ),
                                                                 elevation: 0.0,
                                                                 borderSide:
@@ -1686,7 +1843,7 @@ class _AdminAddAdditWidgetState extends State<AdminAddAdditWidget>
                                                   mainAxisSize:
                                                       MainAxisSize.max,
                                                   children: [
-                                                    if (widget.type == 1)
+                                                    if (widget!.type == 1)
                                                       Text(
                                                         FFLocalizations.of(
                                                                 context)
@@ -1703,14 +1860,13 @@ class _AdminAddAdditWidgetState extends State<AdminAddAdditWidget>
                                                                       .bodyMediumFamily,
                                                                   letterSpacing:
                                                                       0.0,
-                                                                  useGoogleFonts: GoogleFonts
-                                                                          .asMap()
-                                                                      .containsKey(
-                                                                          FlutterFlowTheme.of(context)
-                                                                              .bodyMediumFamily),
+                                                                  useGoogleFonts:
+                                                                      !FlutterFlowTheme.of(
+                                                                              context)
+                                                                          .bodyMediumIsCustom,
                                                                 ),
                                                       ),
-                                                    if (widget.type == 2)
+                                                    if (widget!.type == 2)
                                                       Text(
                                                         FFLocalizations.of(
                                                                 context)
@@ -1727,11 +1883,10 @@ class _AdminAddAdditWidgetState extends State<AdminAddAdditWidget>
                                                                       .bodyMediumFamily,
                                                                   letterSpacing:
                                                                       0.0,
-                                                                  useGoogleFonts: GoogleFonts
-                                                                          .asMap()
-                                                                      .containsKey(
-                                                                          FlutterFlowTheme.of(context)
-                                                                              .bodyMediumFamily),
+                                                                  useGoogleFonts:
+                                                                      !FlutterFlowTheme.of(
+                                                                              context)
+                                                                          .bodyMediumIsCustom,
                                                                 ),
                                                       ),
                                                   ].divide(
@@ -1777,12 +1932,11 @@ class _AdminAddAdditWidgetState extends State<AdminAddAdditWidget>
                                                                 fontWeight:
                                                                     FontWeight
                                                                         .w600,
-                                                                useGoogleFonts: GoogleFonts
-                                                                        .asMap()
-                                                                    .containsKey(
-                                                                        FlutterFlowTheme.of(context)
-                                                                            .bodyMediumFamily),
                                                                 lineHeight: 1.4,
+                                                                useGoogleFonts:
+                                                                    !FlutterFlowTheme.of(
+                                                                            context)
+                                                                        .bodyMediumIsCustom,
                                                               ),
                                                       enabledBorder:
                                                           OutlineInputBorder(
@@ -1856,13 +2010,11 @@ class _AdminAddAdditWidgetState extends State<AdminAddAdditWidget>
                                                           letterSpacing: 0.07,
                                                           fontWeight:
                                                               FontWeight.w600,
-                                                          useGoogleFonts: GoogleFonts
-                                                                  .asMap()
-                                                              .containsKey(
-                                                                  FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .bodyMediumFamily),
                                                           lineHeight: 1.4,
+                                                          useGoogleFonts:
+                                                              !FlutterFlowTheme
+                                                                      .of(context)
+                                                                  .bodyMediumIsCustom,
                                                         ),
                                                     maxLines: null,
                                                     minLines: 1,
@@ -1893,12 +2045,10 @@ class _AdminAddAdditWidgetState extends State<AdminAddAdditWidget>
                                                                       context)
                                                                   .bodyMediumFamily,
                                                           letterSpacing: 0.0,
-                                                          useGoogleFonts: GoogleFonts
-                                                                  .asMap()
-                                                              .containsKey(
-                                                                  FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .bodyMediumFamily),
+                                                          useGoogleFonts:
+                                                              !FlutterFlowTheme
+                                                                      .of(context)
+                                                                  .bodyMediumIsCustom,
                                                         ),
                                                   ),
                                                 ),
@@ -1942,12 +2092,11 @@ class _AdminAddAdditWidgetState extends State<AdminAddAdditWidget>
                                                                 fontWeight:
                                                                     FontWeight
                                                                         .w600,
-                                                                useGoogleFonts: GoogleFonts
-                                                                        .asMap()
-                                                                    .containsKey(
-                                                                        FlutterFlowTheme.of(context)
-                                                                            .bodyMediumFamily),
                                                                 lineHeight: 1.4,
+                                                                useGoogleFonts:
+                                                                    !FlutterFlowTheme.of(
+                                                                            context)
+                                                                        .bodyMediumIsCustom,
                                                               ),
                                                       enabledBorder:
                                                           OutlineInputBorder(
@@ -2021,13 +2170,11 @@ class _AdminAddAdditWidgetState extends State<AdminAddAdditWidget>
                                                           letterSpacing: 0.07,
                                                           fontWeight:
                                                               FontWeight.w600,
-                                                          useGoogleFonts: GoogleFonts
-                                                                  .asMap()
-                                                              .containsKey(
-                                                                  FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .bodyMediumFamily),
                                                           lineHeight: 1.4,
+                                                          useGoogleFonts:
+                                                              !FlutterFlowTheme
+                                                                      .of(context)
+                                                                  .bodyMediumIsCustom,
                                                         ),
                                                     maxLines: null,
                                                     cursorColor:
@@ -2058,6 +2205,10 @@ class _AdminAddAdditWidgetState extends State<AdminAddAdditWidget>
                                                           child: FFButtonWidget(
                                                             onPressed:
                                                                 () async {
+                                                              logFirebaseEvent(
+                                                                  'ADMIN_ADD_ADDIT_UploadvideoDE_ON_TAP');
+                                                              logFirebaseEvent(
+                                                                  'UploadvideoDE_upload_media_to_firebase');
                                                               final selectedMedia =
                                                                   await selectMediaWithSourceBottomSheet(
                                                                 context:
@@ -2074,7 +2225,7 @@ class _AdminAddAdditWidgetState extends State<AdminAddAdditWidget>
                                                                           m.storagePath,
                                                                           context))) {
                                                                 safeSetState(() =>
-                                                                    _model.isDataUploading3 =
+                                                                    _model.isDataUploading_uploadDataVideoDe =
                                                                         true);
                                                                 var selectedUploadedFiles =
                                                                     <FFUploadedFile>[];
@@ -2091,6 +2242,7 @@ class _AdminAddAdditWidgetState extends State<AdminAddAdditWidget>
                                                                                 height: m.dimensions?.height,
                                                                                 width: m.dimensions?.width,
                                                                                 blurHash: m.blurHash,
+                                                                                originalFilename: m.originalFilename,
                                                                               ))
                                                                           .toList();
 
@@ -2110,7 +2262,7 @@ class _AdminAddAdditWidgetState extends State<AdminAddAdditWidget>
                                                                           u!)
                                                                       .toList();
                                                                 } finally {
-                                                                  _model.isDataUploading3 =
+                                                                  _model.isDataUploading_uploadDataVideoDe =
                                                                       false;
                                                                 }
                                                                 if (selectedUploadedFiles
@@ -2123,10 +2275,10 @@ class _AdminAddAdditWidgetState extends State<AdminAddAdditWidget>
                                                                             .length) {
                                                                   safeSetState(
                                                                       () {
-                                                                    _model.uploadedLocalFile3 =
+                                                                    _model.uploadedLocalFile_uploadDataVideoDe =
                                                                         selectedUploadedFiles
                                                                             .first;
-                                                                    _model.uploadedFileUrl3 =
+                                                                    _model.uploadedFileUrl_uploadDataVideoDe =
                                                                         downloadUrls
                                                                             .first;
                                                                   });
@@ -2137,13 +2289,17 @@ class _AdminAddAdditWidgetState extends State<AdminAddAdditWidget>
                                                                 }
                                                               }
 
-                                                              if ((_model.uploadedFileUrl3 !=
+                                                              if ((_model.uploadedFileUrl_uploadDataVideoDe !=
+                                                                          null &&
+                                                                      _model.uploadedFileUrl_uploadDataVideoDe !=
                                                                           '') &&
                                                                   !_model
-                                                                      .isDataUploading3) {
+                                                                      .isDataUploading_uploadDataVideoDe) {
+                                                                logFirebaseEvent(
+                                                                    'UploadvideoDE_update_page_state');
                                                                 _model.videoDe =
                                                                     _model
-                                                                        .uploadedFileUrl3;
+                                                                        .uploadedFileUrl_uploadDataVideoDe;
                                                                 safeSetState(
                                                                     () {});
                                                               }
@@ -2188,7 +2344,7 @@ class _AdminAddAdditWidgetState extends State<AdminAddAdditWidget>
                                                                         letterSpacing:
                                                                             0.0,
                                                                         useGoogleFonts:
-                                                                            GoogleFonts.asMap().containsKey(FlutterFlowTheme.of(context).titleSmallFamily),
+                                                                            !FlutterFlowTheme.of(context).titleSmallIsCustom,
                                                                       ),
                                                               elevation: 0.0,
                                                               borderSide:
@@ -2260,6 +2416,10 @@ class _AdminAddAdditWidgetState extends State<AdminAddAdditWidget>
                                                           FFButtonWidget(
                                                             onPressed:
                                                                 () async {
+                                                              logFirebaseEvent(
+                                                                  'ADMIN_ADD_ADDIT_PAGE_Delete_ON_TAP');
+                                                              logFirebaseEvent(
+                                                                  'Delete_update_page_state');
                                                               _model.videoDe =
                                                                   null;
                                                               safeSetState(
@@ -2304,10 +2464,10 @@ class _AdminAddAdditWidgetState extends State<AdminAddAdditWidget>
                                                                             14.0,
                                                                         letterSpacing:
                                                                             0.07,
-                                                                        useGoogleFonts:
-                                                                            GoogleFonts.asMap().containsKey(FlutterFlowTheme.of(context).titleSmallFamily),
                                                                         lineHeight:
                                                                             1.4,
+                                                                        useGoogleFonts:
+                                                                            !FlutterFlowTheme.of(context).titleSmallIsCustom,
                                                                       ),
                                                               elevation: 0.0,
                                                               borderSide:
@@ -2334,6 +2494,702 @@ class _AdminAddAdditWidgetState extends State<AdminAddAdditWidget>
                                                   .addToStart(
                                                       SizedBox(height: 32.0)),
                                             ),
+                                          ),
+                                          Column(
+                                            mainAxisSize: MainAxisSize.max,
+                                            children: [
+                                              SingleChildScrollView(
+                                                child: Column(
+                                                  mainAxisSize:
+                                                      MainAxisSize.max,
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Row(
+                                                      mainAxisSize:
+                                                          MainAxisSize.max,
+                                                      children: [
+                                                        if (widget!.type == 1)
+                                                          Text(
+                                                            FFLocalizations.of(
+                                                                    context)
+                                                                .getText(
+                                                              'b13ni2l3' /* Warm Up name JA */,
+                                                            ),
+                                                            style: FlutterFlowTheme
+                                                                    .of(context)
+                                                                .bodyMedium
+                                                                .override(
+                                                                  fontFamily: FlutterFlowTheme.of(
+                                                                          context)
+                                                                      .bodyMediumFamily,
+                                                                  letterSpacing:
+                                                                      0.0,
+                                                                  useGoogleFonts:
+                                                                      !FlutterFlowTheme.of(
+                                                                              context)
+                                                                          .bodyMediumIsCustom,
+                                                                ),
+                                                          ),
+                                                        if (widget!.type == 2)
+                                                          Text(
+                                                            FFLocalizations.of(
+                                                                    context)
+                                                                .getText(
+                                                              'm6y8kqst' /* Cool Down name JA */,
+                                                            ),
+                                                            style: FlutterFlowTheme
+                                                                    .of(context)
+                                                                .bodyMedium
+                                                                .override(
+                                                                  fontFamily: FlutterFlowTheme.of(
+                                                                          context)
+                                                                      .bodyMediumFamily,
+                                                                  letterSpacing:
+                                                                      0.0,
+                                                                  useGoogleFonts:
+                                                                      !FlutterFlowTheme.of(
+                                                                              context)
+                                                                          .bodyMediumIsCustom,
+                                                                ),
+                                                          ),
+                                                      ].divide(SizedBox(
+                                                          width: 12.0)),
+                                                    ),
+                                                    Container(
+                                                      width: 410.0,
+                                                      child: TextFormField(
+                                                        controller: _model
+                                                            .textJaTextController,
+                                                        focusNode: _model
+                                                            .textJaFocusNode,
+                                                        onChanged: (_) =>
+                                                            EasyDebounce
+                                                                .debounce(
+                                                          '_model.textJaTextController',
+                                                          Duration(
+                                                              milliseconds:
+                                                                  300),
+                                                          () => safeSetState(
+                                                              () {}),
+                                                        ),
+                                                        autofocus: false,
+                                                        obscureText: false,
+                                                        decoration:
+                                                            InputDecoration(
+                                                          isDense: true,
+                                                          hintText:
+                                                              FFLocalizations.of(
+                                                                      context)
+                                                                  .getText(
+                                                            'n1cesbh8' /* Name */,
+                                                          ),
+                                                          hintStyle:
+                                                              FlutterFlowTheme.of(
+                                                                      context)
+                                                                  .bodyMedium
+                                                                  .override(
+                                                                    fontFamily:
+                                                                        FlutterFlowTheme.of(context)
+                                                                            .bodyMediumFamily,
+                                                                    color: FlutterFlowTheme.of(
+                                                                            context)
+                                                                        .gray,
+                                                                    letterSpacing:
+                                                                        0.07,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w600,
+                                                                    lineHeight:
+                                                                        1.4,
+                                                                    useGoogleFonts:
+                                                                        !FlutterFlowTheme.of(context)
+                                                                            .bodyMediumIsCustom,
+                                                                  ),
+                                                          enabledBorder:
+                                                              OutlineInputBorder(
+                                                            borderSide:
+                                                                BorderSide(
+                                                              color: FlutterFlowTheme
+                                                                      .of(context)
+                                                                  .middleGray,
+                                                              width: 1.0,
+                                                            ),
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        12.0),
+                                                          ),
+                                                          focusedBorder:
+                                                              OutlineInputBorder(
+                                                            borderSide:
+                                                                BorderSide(
+                                                              color: FlutterFlowTheme
+                                                                      .of(context)
+                                                                  .primaryText,
+                                                              width: 1.0,
+                                                            ),
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        12.0),
+                                                          ),
+                                                          errorBorder:
+                                                              OutlineInputBorder(
+                                                            borderSide:
+                                                                BorderSide(
+                                                              color: FlutterFlowTheme
+                                                                      .of(context)
+                                                                  .error,
+                                                              width: 1.0,
+                                                            ),
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        12.0),
+                                                          ),
+                                                          focusedErrorBorder:
+                                                              OutlineInputBorder(
+                                                            borderSide:
+                                                                BorderSide(
+                                                              color: FlutterFlowTheme
+                                                                      .of(context)
+                                                                  .error,
+                                                              width: 1.0,
+                                                            ),
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        12.0),
+                                                          ),
+                                                          filled: true,
+                                                          fillColor: FlutterFlowTheme
+                                                                  .of(context)
+                                                              .primaryBackground,
+                                                          contentPadding:
+                                                              EdgeInsetsDirectional
+                                                                  .fromSTEB(
+                                                                      16.0,
+                                                                      12.0,
+                                                                      16.0,
+                                                                      12.0),
+                                                        ),
+                                                        style: FlutterFlowTheme
+                                                                .of(context)
+                                                            .bodyMedium
+                                                            .override(
+                                                              fontFamily:
+                                                                  FlutterFlowTheme.of(
+                                                                          context)
+                                                                      .bodyMediumFamily,
+                                                              letterSpacing:
+                                                                  0.07,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w600,
+                                                              lineHeight: 1.4,
+                                                              useGoogleFonts:
+                                                                  !FlutterFlowTheme.of(
+                                                                          context)
+                                                                      .bodyMediumIsCustom,
+                                                            ),
+                                                        maxLines: null,
+                                                        minLines: 1,
+                                                        cursorColor:
+                                                            FlutterFlowTheme.of(
+                                                                    context)
+                                                                .primaryText,
+                                                        validator: _model
+                                                            .textJaTextControllerValidator
+                                                            .asValidator(
+                                                                context),
+                                                      ),
+                                                    ),
+                                                    Padding(
+                                                      padding:
+                                                          EdgeInsetsDirectional
+                                                              .fromSTEB(
+                                                                  0.0,
+                                                                  32.0,
+                                                                  0.0,
+                                                                  0.0),
+                                                      child: Text(
+                                                        FFLocalizations.of(
+                                                                context)
+                                                            .getText(
+                                                          'qu0l12l1' /* Duration JA */,
+                                                        ),
+                                                        style:
+                                                            FlutterFlowTheme.of(
+                                                                    context)
+                                                                .bodyMedium
+                                                                .override(
+                                                                  fontFamily: FlutterFlowTheme.of(
+                                                                          context)
+                                                                      .bodyMediumFamily,
+                                                                  letterSpacing:
+                                                                      0.0,
+                                                                  useGoogleFonts:
+                                                                      !FlutterFlowTheme.of(
+                                                                              context)
+                                                                          .bodyMediumIsCustom,
+                                                                ),
+                                                      ),
+                                                    ),
+                                                    Container(
+                                                      width: 410.0,
+                                                      child: TextFormField(
+                                                        controller: _model
+                                                            .durationJaTextController,
+                                                        focusNode: _model
+                                                            .durationJaFocusNode,
+                                                        onChanged: (_) =>
+                                                            EasyDebounce
+                                                                .debounce(
+                                                          '_model.durationJaTextController',
+                                                          Duration(
+                                                              milliseconds:
+                                                                  300),
+                                                          () => safeSetState(
+                                                              () {}),
+                                                        ),
+                                                        autofocus: false,
+                                                        obscureText: false,
+                                                        decoration:
+                                                            InputDecoration(
+                                                          isDense: true,
+                                                          hintText:
+                                                              FFLocalizations.of(
+                                                                      context)
+                                                                  .getText(
+                                                            '4ys12742' /* 0 */,
+                                                          ),
+                                                          hintStyle:
+                                                              FlutterFlowTheme.of(
+                                                                      context)
+                                                                  .bodyMedium
+                                                                  .override(
+                                                                    fontFamily:
+                                                                        FlutterFlowTheme.of(context)
+                                                                            .bodyMediumFamily,
+                                                                    color: FlutterFlowTheme.of(
+                                                                            context)
+                                                                        .gray,
+                                                                    letterSpacing:
+                                                                        0.07,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w600,
+                                                                    lineHeight:
+                                                                        1.4,
+                                                                    useGoogleFonts:
+                                                                        !FlutterFlowTheme.of(context)
+                                                                            .bodyMediumIsCustom,
+                                                                  ),
+                                                          enabledBorder:
+                                                              OutlineInputBorder(
+                                                            borderSide:
+                                                                BorderSide(
+                                                              color: FlutterFlowTheme
+                                                                      .of(context)
+                                                                  .middleGray,
+                                                              width: 1.0,
+                                                            ),
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        12.0),
+                                                          ),
+                                                          focusedBorder:
+                                                              OutlineInputBorder(
+                                                            borderSide:
+                                                                BorderSide(
+                                                              color: FlutterFlowTheme
+                                                                      .of(context)
+                                                                  .primaryText,
+                                                              width: 1.0,
+                                                            ),
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        12.0),
+                                                          ),
+                                                          errorBorder:
+                                                              OutlineInputBorder(
+                                                            borderSide:
+                                                                BorderSide(
+                                                              color: FlutterFlowTheme
+                                                                      .of(context)
+                                                                  .error,
+                                                              width: 1.0,
+                                                            ),
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        12.0),
+                                                          ),
+                                                          focusedErrorBorder:
+                                                              OutlineInputBorder(
+                                                            borderSide:
+                                                                BorderSide(
+                                                              color: FlutterFlowTheme
+                                                                      .of(context)
+                                                                  .error,
+                                                              width: 1.0,
+                                                            ),
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        12.0),
+                                                          ),
+                                                          filled: true,
+                                                          fillColor: FlutterFlowTheme
+                                                                  .of(context)
+                                                              .primaryBackground,
+                                                          contentPadding:
+                                                              EdgeInsetsDirectional
+                                                                  .fromSTEB(
+                                                                      16.0,
+                                                                      12.0,
+                                                                      16.0,
+                                                                      12.0),
+                                                        ),
+                                                        style: FlutterFlowTheme
+                                                                .of(context)
+                                                            .bodyMedium
+                                                            .override(
+                                                              fontFamily:
+                                                                  FlutterFlowTheme.of(
+                                                                          context)
+                                                                      .bodyMediumFamily,
+                                                              letterSpacing:
+                                                                  0.07,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w600,
+                                                              lineHeight: 1.4,
+                                                              useGoogleFonts:
+                                                                  !FlutterFlowTheme.of(
+                                                                          context)
+                                                                      .bodyMediumIsCustom,
+                                                            ),
+                                                        maxLines: null,
+                                                        cursorColor:
+                                                            FlutterFlowTheme.of(
+                                                                    context)
+                                                                .primaryText,
+                                                        validator: _model
+                                                            .durationJaTextControllerValidator
+                                                            .asValidator(
+                                                                context),
+                                                      ),
+                                                    ),
+                                                    Row(
+                                                      mainAxisSize:
+                                                          MainAxisSize.max,
+                                                      children: [
+                                                        Column(
+                                                          mainAxisSize:
+                                                              MainAxisSize.max,
+                                                          children: [
+                                                            Padding(
+                                                              padding:
+                                                                  EdgeInsetsDirectional
+                                                                      .fromSTEB(
+                                                                          0.0,
+                                                                          32.0,
+                                                                          0.0,
+                                                                          0.0),
+                                                              child:
+                                                                  FFButtonWidget(
+                                                                onPressed:
+                                                                    () async {
+                                                                  logFirebaseEvent(
+                                                                      'ADMIN_ADD_ADDIT_UploadvideoDE_ON_TAP');
+                                                                  logFirebaseEvent(
+                                                                      'UploadvideoDE_upload_media_to_firebase');
+                                                                  final selectedMedia =
+                                                                      await selectMediaWithSourceBottomSheet(
+                                                                    context:
+                                                                        context,
+                                                                    allowPhoto:
+                                                                        false,
+                                                                    allowVideo:
+                                                                        true,
+                                                                  );
+                                                                  if (selectedMedia !=
+                                                                          null &&
+                                                                      selectedMedia.every((m) => validateFileFormat(
+                                                                          m.storagePath,
+                                                                          context))) {
+                                                                    safeSetState(() =>
+                                                                        _model.isDataUploading_uploadDataVideoJa =
+                                                                            true);
+                                                                    var selectedUploadedFiles =
+                                                                        <FFUploadedFile>[];
+
+                                                                    var downloadUrls =
+                                                                        <String>[];
+                                                                    try {
+                                                                      selectedUploadedFiles = selectedMedia
+                                                                          .map((m) => FFUploadedFile(
+                                                                                name: m.storagePath.split('/').last,
+                                                                                bytes: m.bytes,
+                                                                                height: m.dimensions?.height,
+                                                                                width: m.dimensions?.width,
+                                                                                blurHash: m.blurHash,
+                                                                                originalFilename: m.originalFilename,
+                                                                              ))
+                                                                          .toList();
+
+                                                                      downloadUrls = (await Future
+                                                                              .wait(
+                                                                        selectedMedia
+                                                                            .map(
+                                                                          (m) async => await uploadData(
+                                                                              m.storagePath,
+                                                                              m.bytes),
+                                                                        ),
+                                                                      ))
+                                                                          .where((u) =>
+                                                                              u !=
+                                                                              null)
+                                                                          .map((u) =>
+                                                                              u!)
+                                                                          .toList();
+                                                                    } finally {
+                                                                      _model.isDataUploading_uploadDataVideoJa =
+                                                                          false;
+                                                                    }
+                                                                    if (selectedUploadedFiles.length ==
+                                                                            selectedMedia
+                                                                                .length &&
+                                                                        downloadUrls.length ==
+                                                                            selectedMedia.length) {
+                                                                      safeSetState(
+                                                                          () {
+                                                                        _model.uploadedLocalFile_uploadDataVideoJa =
+                                                                            selectedUploadedFiles.first;
+                                                                        _model.uploadedFileUrl_uploadDataVideoJa =
+                                                                            downloadUrls.first;
+                                                                      });
+                                                                    } else {
+                                                                      safeSetState(
+                                                                          () {});
+                                                                      return;
+                                                                    }
+                                                                  }
+
+                                                                  if ((_model.uploadedFileUrl_uploadDataVideoJa !=
+                                                                              null &&
+                                                                          _model.uploadedFileUrl_uploadDataVideoJa !=
+                                                                              '') &&
+                                                                      !_model
+                                                                          .isDataUploading_uploadDataVideoJa) {
+                                                                    logFirebaseEvent(
+                                                                        'UploadvideoDE_update_page_state');
+                                                                    _model.videoJa =
+                                                                        _model
+                                                                            .uploadedFileUrl_uploadDataVideoJa;
+                                                                    safeSetState(
+                                                                        () {});
+                                                                  }
+                                                                },
+                                                                text: FFLocalizations.of(
+                                                                        context)
+                                                                    .getText(
+                                                                  'zejzi7sr' /* Upload video JA */,
+                                                                ),
+                                                                options:
+                                                                    FFButtonOptions(
+                                                                  width: 410.0,
+                                                                  height: 40.0,
+                                                                  padding: EdgeInsetsDirectional
+                                                                      .fromSTEB(
+                                                                          16.0,
+                                                                          0.0,
+                                                                          16.0,
+                                                                          0.0),
+                                                                  iconPadding: EdgeInsetsDirectional
+                                                                      .fromSTEB(
+                                                                          0.0,
+                                                                          0.0,
+                                                                          0.0,
+                                                                          0.0),
+                                                                  color: FlutterFlowTheme.of(
+                                                                          context)
+                                                                      .primaryBackground,
+                                                                  textStyle: FlutterFlowTheme.of(
+                                                                          context)
+                                                                      .titleSmall
+                                                                      .override(
+                                                                        fontFamily:
+                                                                            FlutterFlowTheme.of(context).titleSmallFamily,
+                                                                        color: Colors
+                                                                            .white,
+                                                                        fontSize:
+                                                                            14.0,
+                                                                        letterSpacing:
+                                                                            0.0,
+                                                                        useGoogleFonts:
+                                                                            !FlutterFlowTheme.of(context).titleSmallIsCustom,
+                                                                      ),
+                                                                  elevation:
+                                                                      0.0,
+                                                                  borderSide:
+                                                                      BorderSide(
+                                                                    color: FlutterFlowTheme.of(
+                                                                            context)
+                                                                        .middleGray,
+                                                                  ),
+                                                                  borderRadius:
+                                                                      BorderRadius
+                                                                          .circular(
+                                                                              12.0),
+                                                                ),
+                                                              ),
+                                                            ),
+                                                            if (_model.videoJa !=
+                                                                    null &&
+                                                                _model.videoJa !=
+                                                                    '')
+                                                              Container(
+                                                                width: 410.0,
+                                                                height: 230.0,
+                                                                decoration:
+                                                                    BoxDecoration(
+                                                                  color: FlutterFlowTheme.of(
+                                                                          context)
+                                                                      .primaryBackground,
+                                                                  borderRadius:
+                                                                      BorderRadius
+                                                                          .circular(
+                                                                              12.0),
+                                                                  border: Border
+                                                                      .all(
+                                                                    color: FlutterFlowTheme.of(
+                                                                            context)
+                                                                        .middleGray,
+                                                                    width: 1.0,
+                                                                  ),
+                                                                ),
+                                                                child: Align(
+                                                                  alignment:
+                                                                      AlignmentDirectional(
+                                                                          0.0,
+                                                                          0.0),
+                                                                  child:
+                                                                      FlutterFlowVideoPlayer(
+                                                                    path: _model
+                                                                        .videoJa!,
+                                                                    videoType:
+                                                                        VideoType
+                                                                            .network,
+                                                                    width:
+                                                                        410.0,
+                                                                    height:
+                                                                        230.0,
+                                                                    autoPlay:
+                                                                        false,
+                                                                    looping:
+                                                                        false,
+                                                                    showControls:
+                                                                        true,
+                                                                    allowFullScreen:
+                                                                        true,
+                                                                    allowPlaybackSpeedMenu:
+                                                                        false,
+                                                                    lazyLoad:
+                                                                        true,
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                            if (_model.videoJa !=
+                                                                    null &&
+                                                                _model.videoJa !=
+                                                                    '')
+                                                              FFButtonWidget(
+                                                                onPressed:
+                                                                    () async {
+                                                                  logFirebaseEvent(
+                                                                      'ADMIN_ADD_ADDIT_PAGE_Delete_ON_TAP');
+                                                                  logFirebaseEvent(
+                                                                      'Delete_update_page_state');
+                                                                  _model.videoJa =
+                                                                      null;
+                                                                  safeSetState(
+                                                                      () {});
+                                                                },
+                                                                text: FFLocalizations.of(
+                                                                        context)
+                                                                    .getText(
+                                                                  '08qhg6q7' /* Delete video JA */,
+                                                                ),
+                                                                options:
+                                                                    FFButtonOptions(
+                                                                  width: 410.0,
+                                                                  height: 40.0,
+                                                                  padding: EdgeInsetsDirectional
+                                                                      .fromSTEB(
+                                                                          16.0,
+                                                                          0.0,
+                                                                          16.0,
+                                                                          0.0),
+                                                                  iconPadding: EdgeInsetsDirectional
+                                                                      .fromSTEB(
+                                                                          0.0,
+                                                                          0.0,
+                                                                          0.0,
+                                                                          0.0),
+                                                                  color: FlutterFlowTheme.of(
+                                                                          context)
+                                                                      .middleGray,
+                                                                  textStyle: FlutterFlowTheme.of(
+                                                                          context)
+                                                                      .titleSmall
+                                                                      .override(
+                                                                        fontFamily:
+                                                                            FlutterFlowTheme.of(context).titleSmallFamily,
+                                                                        color: FlutterFlowTheme.of(context)
+                                                                            .primaryText,
+                                                                        fontSize:
+                                                                            14.0,
+                                                                        letterSpacing:
+                                                                            0.07,
+                                                                        lineHeight:
+                                                                            1.4,
+                                                                        useGoogleFonts:
+                                                                            !FlutterFlowTheme.of(context).titleSmallIsCustom,
+                                                                      ),
+                                                                  elevation:
+                                                                      0.0,
+                                                                  borderSide:
+                                                                      BorderSide(
+                                                                    color: FlutterFlowTheme.of(
+                                                                            context)
+                                                                        .middleGray,
+                                                                    width: 1.0,
+                                                                  ),
+                                                                  borderRadius:
+                                                                      BorderRadius
+                                                                          .circular(
+                                                                              12.0),
+                                                                ),
+                                                              ),
+                                                          ].divide(SizedBox(
+                                                              height: 8.0)),
+                                                        ),
+                                                      ].divide(SizedBox(
+                                                          width: 24.0)),
+                                                    ),
+                                                  ]
+                                                      .divide(
+                                                          SizedBox(height: 8.0))
+                                                      .addToStart(SizedBox(
+                                                          height: 32.0)),
+                                                ),
+                                              ),
+                                            ],
                                           ),
                                         ],
                                       ),

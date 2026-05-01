@@ -1,13 +1,22 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:go_router/go_router.dart';
+import 'package:page_transition/page_transition.dart';
 import 'package:provider/provider.dart';
 import '/backend/backend.dart';
+import '/backend/schema/structs/index.dart';
+import '/backend/schema/enums/enums.dart';
 
 import '/auth/base_auth_user_provider.dart';
 
+import '/main.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
+import '/flutter_flow/lat_lng.dart';
+import '/flutter_flow/place.dart';
 import '/flutter_flow/flutter_flow_util.dart';
+import 'serialization_util.dart';
 
 import '/index.dart';
 
@@ -76,14 +85,17 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
       debugLogDiagnostics: true,
       refreshListenable: appStateNotifier,
       navigatorKey: appNavigatorKey,
-      errorBuilder: (context, state) =>
-          appStateNotifier.loggedIn ? StartPageWidget() : AuthPageWidget(),
+      errorBuilder: (context, state) => RootPageContext.wrap(
+        appStateNotifier.loggedIn ? StartPageWidget() : AuthPageWidget(),
+        errorRoute: state.uri.toString(),
+      ),
       routes: [
         FFRoute(
           name: '_initialize',
           path: '/',
-          builder: (context, _) =>
-              appStateNotifier.loggedIn ? StartPageWidget() : AuthPageWidget(),
+          builder: (context, _) => RootPageContext.wrap(
+            appStateNotifier.loggedIn ? StartPageWidget() : AuthPageWidget(),
+          ),
         ),
         FFRoute(
           name: HomePageWidget.routeName,
@@ -194,7 +206,6 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
         FFRoute(
           name: StartPageWidget.routeName,
           path: StartPageWidget.routePath,
-          requireAuth: true,
           builder: (context, params) => StartPageWidget(),
         ),
         FFRoute(
@@ -207,7 +218,12 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           name: SeasonWorkoutPageWidget.routeName,
           path: SeasonWorkoutPageWidget.routePath,
           requireAuth: true,
-          builder: (context, params) => SeasonWorkoutPageWidget(),
+          builder: (context, params) => SeasonWorkoutPageWidget(
+            level: params.getParam(
+              'level',
+              ParamType.int,
+            ),
+          ),
         ),
         FFRoute(
           name: SeasonPageWidget.routeName,
@@ -362,10 +378,15 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           requireAuth: true,
           asyncParams: {
             'zoom': getDoc(['additionals'], AdditionalsRecord.fromSnapshot),
+            'zoom2': getDoc(['additionals'], AdditionalsRecord.fromSnapshot),
           },
           builder: (context, params) => AdminZoomWidget(
             zoom: params.getParam(
               'zoom',
+              ParamType.Document,
+            ),
+            zoom2: params.getParam(
+              'zoom2',
               ParamType.Document,
             ),
           ),
@@ -460,6 +481,10 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
             ),
             videoDe: params.getParam(
               'videoDe',
+              ParamType.String,
+            ),
+            videoJa: params.getParam(
+              'videoJa',
               ParamType.String,
             ),
           ),
@@ -677,10 +702,13 @@ class FFRoute {
               : builder(context, ffParams);
           final child = appStateNotifier.loading
               ? Container(
-                  color: FlutterFlowTheme.of(context).primary,
-                  child: Image.asset(
-                    'assets/images/Logo_white_1.png',
-                    fit: BoxFit.none,
+                  color: Color(0xFF161616),
+                  child: Center(
+                    child: Image.asset(
+                      'assets/images/newLogo.png',
+                      width: MediaQuery.sizeOf(context).width * 0.8,
+                      fit: BoxFit.fitWidth,
+                    ),
                   ),
                 )
               : page;
@@ -689,6 +717,7 @@ class FFRoute {
           return transitionInfo.hasTransition
               ? CustomTransitionPage(
                   key: state.pageKey,
+                  name: state.name,
                   child: child,
                   transitionDuration: transitionInfo.duration,
                   transitionsBuilder:
@@ -706,7 +735,8 @@ class FFRoute {
                     child,
                   ),
                 )
-              : MaterialPage(key: state.pageKey, child: child);
+              : MaterialPage(
+                  key: state.pageKey, name: state.name, child: child);
         },
         routes: routes,
       );

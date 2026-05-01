@@ -1,8 +1,11 @@
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
+import '/flutter_flow/flutter_flow_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'dialog_model.dart';
 export 'dialog_model.dart';
 
@@ -34,7 +37,14 @@ class _DialogWidgetState extends State<DialogWidget> {
 
     // On component load action.
     SchedulerBinding.instance.addPostFrameCallback((_) async {
-      await Future.delayed(const Duration(milliseconds: 3000));
+      logFirebaseEvent('DIALOG_COMP_dialog_ON_INIT_STATE');
+      logFirebaseEvent('dialog_wait__delay');
+      await Future.delayed(
+        Duration(
+          milliseconds: 3000,
+        ),
+      );
+      logFirebaseEvent('dialog_bottom_sheet');
       Navigator.pop(context);
     });
 
@@ -63,14 +73,14 @@ class _DialogWidgetState extends State<DialogWidget> {
             padding: EdgeInsetsDirectional.fromSTEB(12.0, 8.0, 12.0, 8.0),
             child: Text(
               valueOrDefault<String>(
-                widget.text,
+                widget!.text,
                 '-',
               ),
               style: FlutterFlowTheme.of(context).bodyMedium.override(
                     fontFamily: FlutterFlowTheme.of(context).bodyMediumFamily,
                     letterSpacing: 0.0,
-                    useGoogleFonts: GoogleFonts.asMap().containsKey(
-                        FlutterFlowTheme.of(context).bodyMediumFamily),
+                    useGoogleFonts:
+                        !FlutterFlowTheme.of(context).bodyMediumIsCustom,
                   ),
             ),
           ),
