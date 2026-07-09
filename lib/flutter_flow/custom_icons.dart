@@ -5,6 +5,7 @@ class FFIcons {
 
   static const String _breakleticsFamily = 'Breakletics';
   static const String _breakNew2Family = 'BreakNew2';
+  static const String _headphonesFamily = 'Headphones';
 
   // breakletics
   static const IconData kadditionals20 =
@@ -103,4 +104,8 @@ class FFIcons {
       IconData(0xe900, fontFamily: _breakNew2Family);
   static const IconData klock12 =
       IconData(0xe901, fontFamily: _breakNew2Family);
+
+  // headphones
+  static const IconData kbreakleticsv3 =
+      IconData(0xe000, fontFamily: _headphonesFamily);
 }

@@ -179,6 +179,10 @@ class _OnboardingHomeStep4WidgetState extends State<OnboardingHomeStep4Widget>
                                       'ONBOARDING_HOME_STEP4_COMP_back_ON_TAP');
                                   logFirebaseEvent('back_bottom_sheet');
                                   Navigator.pop(context);
+                                  logFirebaseEvent('back_update_app_state');
+                                  FFAppState().onboardingStep =
+                                      FFAppState().onboardingStep + -1;
+                                  safeSetState(() {});
                                   logFirebaseEvent('back_navigate_back');
                                   context.safePop();
                                   logFirebaseEvent('back_bottom_sheet');
@@ -243,6 +247,10 @@ class _OnboardingHomeStep4WidgetState extends State<OnboardingHomeStep4Widget>
                                       'ONBOARDING_HOME_STEP4_COMP_next_ON_TAP');
                                   logFirebaseEvent('next_haptic_feedback');
                                   HapticFeedback.selectionClick();
+                                  logFirebaseEvent('next_update_app_state');
+                                  FFAppState().onboardingStep =
+                                      FFAppState().onboardingStep + 1;
+                                  safeSetState(() {});
                                   logFirebaseEvent('next_bottom_sheet');
                                   Navigator.pop(context);
                                   logFirebaseEvent('next_bottom_sheet');

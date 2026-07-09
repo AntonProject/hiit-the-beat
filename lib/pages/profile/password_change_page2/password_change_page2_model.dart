@@ -11,6 +11,7 @@ import '/custom_code/actions/index.dart' as actions;
 import '/index.dart';
 import 'package:stop_watch_timer/stop_watch_timer.dart';
 import 'password_change_page2_widget.dart' show PasswordChangePage2Widget;
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';

@@ -1095,6 +1095,45 @@ class _ProfilePageWidgetState extends State<ProfilePageWidget>
                                 updateCallback: () => safeSetState(() {}),
                                 child: ProfileMenuOptionWidget(
                                   icon: Icon(
+                                    FFIcons.kbreakleticsv3,
+                                    color: FlutterFlowTheme.of(context).gray,
+                                    size: 24.0,
+                                  ),
+                                  text: FFLocalizations.of(context).getText(
+                                    'qc2259v9' /* WhatsApp support */,
+                                  ),
+                                  action: () async {
+                                    logFirebaseEvent(
+                                        'PROFILE_Container_9s01snm9_CALLBACK');
+                                    logFirebaseEvent(
+                                        'profileMenuOption_haptic_feedback');
+                                    HapticFeedback.selectionClick();
+                                    if (FFLocalizations.of(context)
+                                            .languageCode ==
+                                        'en') {
+                                      logFirebaseEvent(
+                                          'profileMenuOption_launch_u_r_l');
+                                      await launchURL(
+                                          'https://wa.me/+1776965109');
+                                    } else {
+                                      logFirebaseEvent(
+                                          'profileMenuOption_launch_u_r_l');
+                                      await launchURL(
+                                          'https://wa.me/+1776965109');
+                                    }
+                                  },
+                                ),
+                              ),
+                              Divider(
+                                height: 32.0,
+                                thickness: 1.0,
+                                color: FlutterFlowTheme.of(context).middleGray,
+                              ),
+                              wrapWithModel(
+                                model: _model.profileMenuOptionModel5,
+                                updateCallback: () => safeSetState(() {}),
+                                child: ProfileMenuOptionWidget(
+                                  icon: Icon(
                                     FFIcons.kdoc24,
                                     color: FlutterFlowTheme.of(context).gray,
                                     size: 24.0,
@@ -1130,7 +1169,7 @@ class _ProfilePageWidgetState extends State<ProfilePageWidget>
                                 color: FlutterFlowTheme.of(context).middleGray,
                               ),
                               wrapWithModel(
-                                model: _model.profileMenuOptionModel5,
+                                model: _model.profileMenuOptionModel6,
                                 updateCallback: () => safeSetState(() {}),
                                 child: ProfileMenuOptionWidget(
                                   icon: Icon(
@@ -1169,7 +1208,7 @@ class _ProfilePageWidgetState extends State<ProfilePageWidget>
                                 color: FlutterFlowTheme.of(context).middleGray,
                               ),
                               wrapWithModel(
-                                model: _model.profileMenuOptionModel6,
+                                model: _model.profileMenuOptionModel7,
                                 updateCallback: () => safeSetState(() {}),
                                 child: ProfileMenuOptionWidget(
                                   icon: Icon(
@@ -1207,12 +1246,46 @@ class _ProfilePageWidgetState extends State<ProfilePageWidget>
                                 thickness: 1.0,
                                 color: FlutterFlowTheme.of(context).middleGray,
                               ),
+                              wrapWithModel(
+                                model: _model.profileMenuOptionModel8,
+                                updateCallback: () => safeSetState(() {}),
+                                child: ProfileMenuOptionWidget(
+                                  icon: Icon(
+                                    Icons.star_border,
+                                    color: FlutterFlowTheme.of(context).gray,
+                                    size: 24.0,
+                                  ),
+                                  text: FFLocalizations.of(context).getText(
+                                    'fi22gjpw' /* Rate Us */,
+                                  ),
+                                  action: () async {
+                                    logFirebaseEvent(
+                                        'PROFILE_Container_ialrz62z_CALLBACK');
+                                    logFirebaseEvent(
+                                        'profileMenuOption_haptic_feedback');
+                                    HapticFeedback.selectionClick();
+                                    logFirebaseEvent(
+                                        'profileMenuOption_custom_action');
+                                    unawaited(
+                                      () async {
+                                        await actions
+                                            .requestReviewOrOpenStore();
+                                      }(),
+                                    );
+                                  },
+                                ),
+                              ),
+                              Divider(
+                                height: 32.0,
+                                thickness: 1.0,
+                                color: FlutterFlowTheme.of(context).middleGray,
+                              ),
                               if (valueOrDefault(
                                       currentUserDocument?.role, '') ==
                                   'admin')
                                 AuthUserStreamWidget(
                                   builder: (context) => wrapWithModel(
-                                    model: _model.profileMenuOptionModel7,
+                                    model: _model.profileMenuOptionModel9,
                                     updateCallback: () => safeSetState(() {}),
                                     child: ProfileMenuOptionWidget(
                                       icon: Icon(
@@ -1253,7 +1326,7 @@ class _ProfilePageWidgetState extends State<ProfilePageWidget>
                               if (currentUserEmail != null &&
                                   currentUserEmail != '')
                                 wrapWithModel(
-                                  model: _model.profileMenuOptionModel8,
+                                  model: _model.profileMenuOptionModel10,
                                   updateCallback: () => safeSetState(() {}),
                                   child: ProfileMenuOptionWidget(
                                     icon: Icon(

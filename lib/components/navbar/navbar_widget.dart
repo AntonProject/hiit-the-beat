@@ -5,8 +5,10 @@ import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
 import 'dart:ui';
+import '/actions/actions.dart' as action_blocks;
 import '/index.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -39,6 +41,13 @@ class _NavbarWidgetState extends State<NavbarWidget> {
   void initState() {
     super.initState();
     _model = createModel(context, () => NavbarModel());
+
+    // On component load action.
+    SchedulerBinding.instance.addPostFrameCallback((_) async {
+      logFirebaseEvent('NAVBAR_COMP_navbar_ON_INIT_STATE');
+      logFirebaseEvent('navbar_action_block');
+      await action_blocks.recheckUserDeviceLanguage(context);
+    });
 
     WidgetsBinding.instance.addPostFrameCallback((_) => safeSetState(() {}));
   }
@@ -97,6 +106,9 @@ class _NavbarWidgetState extends State<NavbarWidget> {
                           logFirebaseEvent(
                               'homeInactiveButton_haptic_feedback');
                           HapticFeedback.mediumImpact();
+                          logFirebaseEvent('homeInactiveButton_action_block');
+                          await action_blocks
+                              .recheckUserDeviceLanguage(context);
                           logFirebaseEvent('homeInactiveButton_navigate_to');
 
                           context.goNamed(
@@ -148,6 +160,10 @@ class _NavbarWidgetState extends State<NavbarWidget> {
                           logFirebaseEvent(
                               'workoutInactiveButton_haptic_feedback');
                           HapticFeedback.mediumImpact();
+                          logFirebaseEvent(
+                              'workoutInactiveButton_action_block');
+                          await action_blocks
+                              .recheckUserDeviceLanguage(context);
                           logFirebaseEvent('workoutInactiveButton_navigate_to');
 
                           context.goNamed(
@@ -208,6 +224,9 @@ class _NavbarWidgetState extends State<NavbarWidget> {
                               'NAVBAR_COMP_addInactiveButton_CALLBACK');
                           logFirebaseEvent('addInactiveButton_haptic_feedback');
                           HapticFeedback.mediumImpact();
+                          logFirebaseEvent('addInactiveButton_action_block');
+                          await action_blocks
+                              .recheckUserDeviceLanguage(context);
                           logFirebaseEvent('addInactiveButton_navigate_to');
 
                           context.goNamed(
@@ -259,6 +278,10 @@ class _NavbarWidgetState extends State<NavbarWidget> {
                           logFirebaseEvent(
                               'profileInactiveButton_haptic_feedback');
                           HapticFeedback.mediumImpact();
+                          logFirebaseEvent(
+                              'profileInactiveButton_action_block');
+                          await action_blocks
+                              .recheckUserDeviceLanguage(context);
                           logFirebaseEvent('profileInactiveButton_navigate_to');
 
                           context.goNamed(

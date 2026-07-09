@@ -2,7 +2,6 @@ import '/auth/firebase_auth/auth_util.dart';
 import '/backend/backend.dart';
 import '/components/dialogs/guest_dialog/guest_dialog_widget.dart';
 import '/components/dialogs/payment_dialog/payment_dialog_widget.dart';
-import '/components/dialogs/payment_dialog_start/payment_dialog_start_widget.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
@@ -73,35 +72,18 @@ class _AdditionalCompWidgetState extends State<AdditionalCompWidget> {
               if ((currentUserDocument?.additionalsIdViews?.toList() ?? [])
                       .length ==
                   0) {
-                if (valueOrDefault<bool>(
-                        currentUserDocument?.plusmember, false) ==
-                    false) {
-                  logFirebaseEvent('Container_bottom_sheet');
-                  showModalBottomSheet(
-                    isScrollControlled: true,
-                    backgroundColor: Colors.transparent,
-                    context: context,
-                    builder: (context) {
-                      return Padding(
-                        padding: MediaQuery.viewInsetsOf(context),
-                        child: PaymentDialogWidget(),
-                      );
-                    },
-                  ).then((value) => safeSetState(() {}));
-                } else {
-                  logFirebaseEvent('Container_bottom_sheet');
-                  showModalBottomSheet(
-                    isScrollControlled: true,
-                    backgroundColor: Colors.transparent,
-                    context: context,
-                    builder: (context) {
-                      return Padding(
-                        padding: MediaQuery.viewInsetsOf(context),
-                        child: PaymentDialogStartWidget(),
-                      );
-                    },
-                  ).then((value) => safeSetState(() {}));
-                }
+                logFirebaseEvent('Container_bottom_sheet');
+                showModalBottomSheet(
+                  isScrollControlled: true,
+                  backgroundColor: Colors.transparent,
+                  context: context,
+                  builder: (context) {
+                    return Padding(
+                      padding: MediaQuery.viewInsetsOf(context),
+                      child: PaymentDialogWidget(),
+                    );
+                  },
+                ).then((value) => safeSetState(() {}));
 
                 return;
               }
@@ -128,34 +110,18 @@ class _AdditionalCompWidgetState extends State<AdditionalCompWidget> {
               }
             }
           } else {
-            if (valueOrDefault<bool>(currentUserDocument?.plusmember, false) ==
-                false) {
-              logFirebaseEvent('Container_bottom_sheet');
-              showModalBottomSheet(
-                isScrollControlled: true,
-                backgroundColor: Colors.transparent,
-                context: context,
-                builder: (context) {
-                  return Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: PaymentDialogWidget(),
-                  );
-                },
-              ).then((value) => safeSetState(() {}));
-            } else {
-              logFirebaseEvent('Container_bottom_sheet');
-              showModalBottomSheet(
-                isScrollControlled: true,
-                backgroundColor: Colors.transparent,
-                context: context,
-                builder: (context) {
-                  return Padding(
-                    padding: MediaQuery.viewInsetsOf(context),
-                    child: PaymentDialogStartWidget(),
-                  );
-                },
-              ).then((value) => safeSetState(() {}));
-            }
+            logFirebaseEvent('Container_bottom_sheet');
+            showModalBottomSheet(
+              isScrollControlled: true,
+              backgroundColor: Colors.transparent,
+              context: context,
+              builder: (context) {
+                return Padding(
+                  padding: MediaQuery.viewInsetsOf(context),
+                  child: PaymentDialogWidget(),
+                );
+              },
+            ).then((value) => safeSetState(() {}));
 
             return;
           }

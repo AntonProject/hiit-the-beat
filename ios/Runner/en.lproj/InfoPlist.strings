@@ -3,3 +3,4 @@ NSPhotoLibraryUsageDescription = "In order to take a profile photo, this app req
 NSMicrophoneUsageDescription = "In order to record audio for video, this app requires permission to access the microphone";
 ITSAppUsesNonExemptEncryption = "false";
 NSUserTrackingUsageDescription = "This permission allows us to provide you with a personalized workout experience and improve the quality of the app.";
+PermissionGroupNotification = "In order to get notifications, this app requires permission to access the notifications";

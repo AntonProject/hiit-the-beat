@@ -2,7 +2,6 @@ import '/auth/firebase_auth/auth_util.dart';
 import '/backend/backend.dart';
 import '/components/dialogs/guest_dialog/guest_dialog_widget.dart';
 import '/components/dialogs/payment_dialog/payment_dialog_widget.dart';
-import '/components/dialogs/payment_dialog_start/payment_dialog_start_widget.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
@@ -27,9 +26,11 @@ class WorkoutCompWidget extends StatefulWidget {
     int? workoutCount,
     int? indexWork,
     int? seasonIndex,
+    int? selectedLvl,
   })  : this.workoutCount = workoutCount ?? 0,
         this.indexWork = indexWork ?? 0,
-        this.seasonIndex = seasonIndex ?? 0;
+        this.seasonIndex = seasonIndex ?? 0,
+        this.selectedLvl = selectedLvl ?? 1;
 
   final WorkoutsRecord? workout;
   final SeasonsRecord? season;
@@ -37,6 +38,7 @@ class WorkoutCompWidget extends StatefulWidget {
   final int workoutCount;
   final int indexWork;
   final int seasonIndex;
+  final int selectedLvl;
 
   @override
   State<WorkoutCompWidget> createState() => _WorkoutCompWidgetState();
@@ -81,59 +83,40 @@ class _WorkoutCompWidgetState extends State<WorkoutCompWidget> {
             logFirebaseEvent('Container_haptic_feedback');
             HapticFeedback.mediumImpact();
             if (!valueOrDefault<bool>(currentUserDocument?.plusmember, false)) {
-              if (widget!.workout!.free) {
-                if (!(currentUserEmail != null && currentUserEmail != '')) {
-                  if (widget!.progress!.workoutDone.length >= 2) {
-                    logFirebaseEvent('Container_haptic_feedback');
-                    HapticFeedback.vibrate();
-                    logFirebaseEvent('Container_bottom_sheet');
-                    showModalBottomSheet(
-                      isScrollControlled: true,
-                      backgroundColor: Colors.transparent,
-                      context: context,
-                      builder: (context) {
-                        return Padding(
-                          padding: MediaQuery.viewInsetsOf(context),
-                          child: GuestDialogWidget(),
-                        );
-                      },
-                    ).then((value) => safeSetState(() {}));
-
-                    return;
-                  }
-                }
-              } else {
-                if (valueOrDefault<bool>(
-                        currentUserDocument?.plusmember, false) ==
-                    false) {
-                  logFirebaseEvent('Container_bottom_sheet');
-                  showModalBottomSheet(
-                    isScrollControlled: true,
-                    backgroundColor: Colors.transparent,
-                    context: context,
-                    builder: (context) {
-                      return Padding(
-                        padding: MediaQuery.viewInsetsOf(context),
-                        child: PaymentDialogWidget(),
-                      );
-                    },
-                  ).then((value) => safeSetState(() {}));
-                } else {
-                  logFirebaseEvent('Container_bottom_sheet');
-                  showModalBottomSheet(
-                    isScrollControlled: true,
-                    backgroundColor: Colors.transparent,
-                    context: context,
-                    builder: (context) {
-                      return Padding(
-                        padding: MediaQuery.viewInsetsOf(context),
-                        child: PaymentDialogStartWidget(),
-                      );
-                    },
-                  ).then((value) => safeSetState(() {}));
-                }
+              if (currentUserEmail != null && currentUserEmail != '') {
+                logFirebaseEvent('Container_bottom_sheet');
+                showModalBottomSheet(
+                  isScrollControlled: true,
+                  backgroundColor: Colors.transparent,
+                  context: context,
+                  builder: (context) {
+                    return Padding(
+                      padding: MediaQuery.viewInsetsOf(context),
+                      child: PaymentDialogWidget(),
+                    );
+                  },
+                ).then((value) => safeSetState(() {}));
 
                 return;
+              } else {
+                if (widget!.progress!.workoutDone.length >= 2) {
+                  logFirebaseEvent('Container_haptic_feedback');
+                  HapticFeedback.vibrate();
+                  logFirebaseEvent('Container_bottom_sheet');
+                  showModalBottomSheet(
+                    isScrollControlled: true,
+                    backgroundColor: Colors.transparent,
+                    context: context,
+                    builder: (context) {
+                      return Padding(
+                        padding: MediaQuery.viewInsetsOf(context),
+                        child: GuestDialogWidget(),
+                      );
+                    },
+                  ).then((value) => safeSetState(() {}));
+
+                  return;
+                }
               }
             }
             logFirebaseEvent('Container_navigate_to');
@@ -170,6 +153,13 @@ class _WorkoutCompWidgetState extends State<WorkoutCompWidget> {
                   valueOrDefault<int>(
                     widget!.seasonIndex,
                     0,
+                  ),
+                  ParamType.int,
+                ),
+                'selectedLvl': serializeParam(
+                  valueOrDefault<int>(
+                    widget!.selectedLvl,
+                    1,
                   ),
                   ParamType.int,
                 ),

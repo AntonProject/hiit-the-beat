@@ -23,6 +23,11 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 class StartPageModel extends FlutterFlowModel<StartPageWidget> {
+  ///  State fields for stateful widgets in this page.
+
+  // Stores action output result for [Custom Action - checkSubsStatus] action in StartPage widget.
+  String? subsStatusUpdate;
+
   @override
   void initState(BuildContext context) {}
 

@@ -33,13 +33,16 @@ class WorkoutSuccess3timesDialogWidget extends StatefulWidget {
     required this.season,
     required this.progress,
     required this.seasonNumber,
-  }) : this.workoutCount = workoutCount ?? 0;
+    int? selectedLvl,
+  })  : this.workoutCount = workoutCount ?? 0,
+        this.selectedLvl = selectedLvl ?? 1;
 
   final WorkoutStatisticStruct? workoutDone;
   final int workoutCount;
   final SeasonsRecord? season;
   final DocumentReference? progress;
   final int? seasonNumber;
+  final int selectedLvl;
 
   @override
   State<WorkoutSuccess3timesDialogWidget> createState() =>
@@ -597,6 +600,13 @@ class _WorkoutSuccess3timesDialogWidgetState
                                     widget!.seasonNumber,
                                     ParamType.int,
                                   ),
+                                  'selectedLvl': serializeParam(
+                                    valueOrDefault<int>(
+                                      widget!.selectedLvl,
+                                      1,
+                                    ),
+                                    ParamType.int,
+                                  ),
                                 }.withoutNulls,
                                 extra: <String, dynamic>{
                                   'season': widget!.season,
@@ -699,6 +709,13 @@ class _WorkoutSuccess3timesDialogWidgetState
                                     _model.nextSeason?.number,
                                     ParamType.int,
                                   ),
+                                  'selectedLvl': serializeParam(
+                                    valueOrDefault<int>(
+                                      widget!.selectedLvl,
+                                      1,
+                                    ),
+                                    ParamType.int,
+                                  ),
                                 }.withoutNulls,
                                 extra: <String, dynamic>{
                                   'season': _model.nextSeason,
@@ -730,6 +747,13 @@ class _WorkoutSuccess3timesDialogWidgetState
                                     ),
                                     'seasonIndex': serializeParam(
                                       widget!.seasonNumber,
+                                      ParamType.int,
+                                    ),
+                                    'selectedLvl': serializeParam(
+                                      valueOrDefault<int>(
+                                        widget!.selectedLvl,
+                                        1,
+                                      ),
                                       ParamType.int,
                                     ),
                                   }.withoutNulls,
@@ -789,6 +813,13 @@ class _WorkoutSuccess3timesDialogWidgetState
                                     ),
                                     'seasonIndex': serializeParam(
                                       widget!.seasonNumber,
+                                      ParamType.int,
+                                    ),
+                                    'selectedLvl': serializeParam(
+                                      valueOrDefault<int>(
+                                        widget!.selectedLvl,
+                                        1,
+                                      ),
                                       ParamType.int,
                                     ),
                                   }.withoutNulls,

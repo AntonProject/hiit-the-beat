@@ -6,11 +6,10 @@ import '/backend/schema/enums/enums.dart';
 import '/backend/schema/structs/index.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
-import 'dart:async';
 import '/actions/actions.dart' as action_blocks;
+import '/custom_code/actions/index.dart' as actions;
 import '/flutter_flow/custom_functions.dart' as functions;
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
 Future<String?> createActiveCampaignContact(
@@ -69,53 +68,6 @@ Future removeAllActiveCampaignSubscriptions(
     apiResultzgl = await ActivecampaignGroup.deleteUserFromAutomationCall.call(
       contactAutomationId: currentLoop1Item,
     );
-  }
-}
-
-Future checkProgressDoc(BuildContext context) async {
-  ProgressRecord? progress;
-  ProgressRecord? progressCreated;
-
-  if (!(currentUserDocument?.progress != null)) {
-    logFirebaseEvent('checkProgressDoc_firestore_query');
-    progress = await queryProgressRecordOnce(
-      queryBuilder: (progressRecord) => progressRecord.where(
-        'user',
-        isEqualTo: currentUserReference,
-      ),
-      singleRecord: true,
-    ).then((s) => s.firstOrNull);
-    if (!(progress != null)) {
-      logFirebaseEvent('checkProgressDoc_backend_call');
-
-      var progressRecordReference = ProgressRecord.collection.doc();
-      await progressRecordReference.set(createProgressRecordData(
-        user: currentUserReference,
-      ));
-      progressCreated = ProgressRecord.getDocumentFromData(
-          createProgressRecordData(
-            user: currentUserReference,
-          ),
-          progressRecordReference);
-      logFirebaseEvent('checkProgressDoc_backend_call');
-      unawaited(
-        () async {
-          await currentUserReference!.update(createUsersRecordData(
-            currentLevel: 1,
-            progress: progressCreated?.reference,
-          ));
-        }(),
-      );
-    } else {
-      logFirebaseEvent('checkProgressDoc_backend_call');
-      unawaited(
-        () async {
-          await currentUserReference!.update(createUsersRecordData(
-            progress: progress?.reference,
-          ));
-        }(),
-      );
-    }
   }
 }
 
@@ -363,5 +315,22 @@ Future activeCampaignInit(BuildContext context) async {
       logFirebaseEvent('ActiveCampaignInit_action_block');
       await action_blocks.newUserSignUpActiveCampaign(context);
     }
+  }
+}
+
+Future recheckUserDeviceLanguage(BuildContext context) async {
+  String? lang;
+
+  logFirebaseEvent('recheckUserDeviceLanguage_custom_action');
+  lang = await actions.getUserDeviceLanguage();
+  if (lang == 'de') {
+    logFirebaseEvent('recheckUserDeviceLanguage_set_app_langua');
+    setAppLanguage(context, 'de');
+  } else if (lang == 'ja') {
+    logFirebaseEvent('recheckUserDeviceLanguage_set_app_langua');
+    setAppLanguage(context, 'ja');
+  } else {
+    logFirebaseEvent('recheckUserDeviceLanguage_set_app_langua');
+    setAppLanguage(context, 'en');
   }
 }

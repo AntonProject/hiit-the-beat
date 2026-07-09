@@ -4,6 +4,7 @@ import '/backend/schema/structs/index.dart';
 import '/components/dialogs/guest_dialog/guest_dialog_widget.dart';
 import '/components/dialogs/level_success_dialog/level_success_dialog_widget.dart';
 import '/components/dialogs/onboarding_home_step4/onboarding_home_step4_widget.dart';
+import '/components/dialogs/payment_dialog/payment_dialog_widget.dart';
 import '/components/dialogs/select_warm_up_cool_down_dialog/select_warm_up_cool_down_dialog_widget.dart';
 import '/components/dialogs/workout_success3times_dialog/workout_success3times_dialog_widget.dart';
 import '/components/dialogs/workout_success_dialog/workout_success_dialog_widget.dart';
@@ -38,9 +39,11 @@ class WorkoutPageWidget extends StatefulWidget {
     int? indexInList,
     required this.progress,
     int? seasonIndex,
+    int? selectedLvl,
   })  : this.workoutCount = workoutCount ?? 0,
         this.indexInList = indexInList ?? 0,
-        this.seasonIndex = seasonIndex ?? 0;
+        this.seasonIndex = seasonIndex ?? 0,
+        this.selectedLvl = selectedLvl ?? 1;
 
   final SeasonsRecord? season;
   final WorkoutsRecord? workout;
@@ -48,6 +51,7 @@ class WorkoutPageWidget extends StatefulWidget {
   final int indexInList;
   final DocumentReference? progress;
   final int seasonIndex;
+  final int selectedLvl;
 
   static String routeName = 'WorkoutPage';
   static String routePath = '/workoutPage';
@@ -82,7 +86,8 @@ class _WorkoutPageWidgetState extends State<WorkoutPageWidget> {
           await actions.setStatusBarColor();
         }(),
       );
-      if (FFAppState().onboardingHome) {
+      if ((FFAppState().onboardingHome == true) &&
+          (FFAppState().onboardingStep == 4)) {
         logFirebaseEvent('WorkoutPage_bottom_sheet');
         await showModalBottomSheet(
           isScrollControlled: true,
@@ -172,6 +177,13 @@ class _WorkoutPageWidgetState extends State<WorkoutPageWidget> {
                         ),
                         'seasonIndex': serializeParam(
                           widget!.seasonIndex,
+                          ParamType.int,
+                        ),
+                        'selectedLvl': serializeParam(
+                          valueOrDefault<int>(
+                            widget!.selectedLvl,
+                            1,
+                          ),
                           ParamType.int,
                         ),
                       }.withoutNulls,
@@ -1338,37 +1350,70 @@ class _WorkoutPageWidgetState extends State<WorkoutPageWidget> {
                                               logFirebaseEvent(
                                                   'Selectoneofours_haptic_feedback');
                                               HapticFeedback.selectionClick();
-                                              logFirebaseEvent(
-                                                  'Selectoneofours_bottom_sheet');
-                                              showModalBottomSheet(
-                                                isScrollControlled: true,
-                                                backgroundColor:
-                                                    Colors.transparent,
-                                                context: context,
-                                                builder: (context) {
-                                                  return GestureDetector(
-                                                    onTap: () {
-                                                      FocusScope.of(context)
-                                                          .unfocus();
-                                                      FocusManager
-                                                          .instance.primaryFocus
-                                                          ?.unfocus();
-                                                    },
-                                                    child: Padding(
-                                                      padding: MediaQuery
-                                                          .viewInsetsOf(
-                                                              context),
-                                                      child:
-                                                          SelectWarmUpCoolDownDialogWidget(
-                                                        type: 1,
-                                                        workout:
-                                                            widget!.workout!,
+                                              if (valueOrDefault<bool>(
+                                                  currentUserDocument
+                                                      ?.plusmember,
+                                                  false)) {
+                                                logFirebaseEvent(
+                                                    'Selectoneofours_bottom_sheet');
+                                                showModalBottomSheet(
+                                                  isScrollControlled: true,
+                                                  backgroundColor:
+                                                      Colors.transparent,
+                                                  context: context,
+                                                  builder: (context) {
+                                                    return GestureDetector(
+                                                      onTap: () {
+                                                        FocusScope.of(context)
+                                                            .unfocus();
+                                                        FocusManager.instance
+                                                            .primaryFocus
+                                                            ?.unfocus();
+                                                      },
+                                                      child: Padding(
+                                                        padding: MediaQuery
+                                                            .viewInsetsOf(
+                                                                context),
+                                                        child:
+                                                            SelectWarmUpCoolDownDialogWidget(
+                                                          type: 1,
+                                                          workout:
+                                                              widget!.workout!,
+                                                        ),
                                                       ),
-                                                    ),
-                                                  );
-                                                },
-                                              ).then((value) =>
-                                                  safeSetState(() {}));
+                                                    );
+                                                  },
+                                                ).then((value) =>
+                                                    safeSetState(() {}));
+                                              } else {
+                                                logFirebaseEvent(
+                                                    'Selectoneofours_bottom_sheet');
+                                                showModalBottomSheet(
+                                                  isScrollControlled: true,
+                                                  backgroundColor:
+                                                      Colors.transparent,
+                                                  context: context,
+                                                  builder: (context) {
+                                                    return GestureDetector(
+                                                      onTap: () {
+                                                        FocusScope.of(context)
+                                                            .unfocus();
+                                                        FocusManager.instance
+                                                            .primaryFocus
+                                                            ?.unfocus();
+                                                      },
+                                                      child: Padding(
+                                                        padding: MediaQuery
+                                                            .viewInsetsOf(
+                                                                context),
+                                                        child:
+                                                            PaymentDialogWidget(),
+                                                      ),
+                                                    );
+                                                  },
+                                                ).then((value) =>
+                                                    safeSetState(() {}));
+                                              }
                                             },
                                       text: FFLocalizations.of(context).getText(
                                         'ao6mwsco' /* Select one of ours */,
@@ -1432,17 +1477,52 @@ class _WorkoutPageWidgetState extends State<WorkoutPageWidget> {
                                               logFirebaseEvent(
                                                   'Ididit_haptic_feedback');
                                               HapticFeedback.selectionClick();
-                                              if (!_model.trainingsDone
-                                                  .contains(1)) {
+                                              if (valueOrDefault<bool>(
+                                                  currentUserDocument
+                                                      ?.plusmember,
+                                                  false)) {
+                                                if (!_model.trainingsDone
+                                                    .contains(1)) {
+                                                  logFirebaseEvent(
+                                                      'Ididit_update_page_state');
+                                                  _model.addToTrainingsDone(1);
+                                                  safeSetState(() {});
+                                                }
                                                 logFirebaseEvent(
                                                     'Ididit_update_page_state');
-                                                _model.addToTrainingsDone(1);
+                                                _model.trainingChoose = 2;
                                                 safeSetState(() {});
+                                              } else {
+                                                logFirebaseEvent(
+                                                    'Ididit_bottom_sheet');
+                                                showModalBottomSheet(
+                                                  isScrollControlled: true,
+                                                  backgroundColor:
+                                                      Colors.transparent,
+                                                  context: context,
+                                                  builder: (context) {
+                                                    return GestureDetector(
+                                                      onTap: () {
+                                                        FocusScope.of(context)
+                                                            .unfocus();
+                                                        FocusManager.instance
+                                                            .primaryFocus
+                                                            ?.unfocus();
+                                                      },
+                                                      child: Padding(
+                                                        padding: MediaQuery
+                                                            .viewInsetsOf(
+                                                                context),
+                                                        child:
+                                                            PaymentDialogWidget(),
+                                                      ),
+                                                    );
+                                                  },
+                                                ).then((value) =>
+                                                    safeSetState(() {}));
+
+                                                return;
                                               }
-                                              logFirebaseEvent(
-                                                  'Ididit_update_page_state');
-                                              _model.trainingChoose = 2;
-                                              safeSetState(() {});
                                             },
                                       text: FFLocalizations.of(context).getText(
                                         'rfuq6jtu' /* Done */,
@@ -1745,40 +1825,73 @@ class _WorkoutPageWidgetState extends State<WorkoutPageWidget> {
                                         HapticFeedback.mediumImpact();
                                         if (currentUserEmail != null &&
                                             currentUserEmail != '') {
-                                          if (_model.trainingsDone
-                                              .contains(1)) {
-                                            logFirebaseEvent(
-                                                'Container_update_page_state');
-                                            _model.trainingChoose = 2;
-                                            safeSetState(() {});
-                                            logFirebaseEvent(
-                                                'Container_navigate_to');
-                                            unawaited(
-                                              () async {
-                                                context.pushNamed(
-                                                  VideoPageWidget.routeName,
-                                                  queryParameters: {
-                                                    'videoEn': serializeParam(
-                                                      widget!
-                                                          .workout?.videoUrlEn,
-                                                      ParamType.String,
-                                                    ),
-                                                    'videoDe': serializeParam(
-                                                      widget!
-                                                          .workout?.videoUrlDe,
-                                                      ParamType.String,
-                                                    ),
-                                                    'videoJa': serializeParam(
-                                                      widget!
-                                                          .workout?.videoUrlJa,
-                                                      ParamType.String,
-                                                    ),
-                                                  }.withoutNulls,
-                                                );
-                                              }(),
-                                            );
-                                            return;
+                                          if (valueOrDefault<bool>(
+                                              currentUserDocument?.plusmember,
+                                              false)) {
+                                            if (_model.trainingsDone
+                                                .contains(1)) {
+                                              logFirebaseEvent(
+                                                  'Container_update_page_state');
+                                              _model.trainingChoose = 2;
+                                              safeSetState(() {});
+                                              logFirebaseEvent(
+                                                  'Container_navigate_to');
+                                              unawaited(
+                                                () async {
+                                                  context.pushNamed(
+                                                    VideoPageWidget.routeName,
+                                                    queryParameters: {
+                                                      'videoEn': serializeParam(
+                                                        widget!.workout
+                                                            ?.videoUrlEn,
+                                                        ParamType.String,
+                                                      ),
+                                                      'videoDe': serializeParam(
+                                                        widget!.workout
+                                                            ?.videoUrlDe,
+                                                        ParamType.String,
+                                                      ),
+                                                      'videoJa': serializeParam(
+                                                        widget!.workout
+                                                            ?.videoUrlJa,
+                                                        ParamType.String,
+                                                      ),
+                                                    }.withoutNulls,
+                                                  );
+                                                }(),
+                                              );
+                                            } else {
+                                              return;
+                                            }
                                           } else {
+                                            logFirebaseEvent(
+                                                'Container_bottom_sheet');
+                                            showModalBottomSheet(
+                                              isScrollControlled: true,
+                                              backgroundColor:
+                                                  Colors.transparent,
+                                              context: context,
+                                              builder: (context) {
+                                                return GestureDetector(
+                                                  onTap: () {
+                                                    FocusScope.of(context)
+                                                        .unfocus();
+                                                    FocusManager
+                                                        .instance.primaryFocus
+                                                        ?.unfocus();
+                                                  },
+                                                  child: Padding(
+                                                    padding:
+                                                        MediaQuery.viewInsetsOf(
+                                                            context),
+                                                    child:
+                                                        PaymentDialogWidget(),
+                                                  ),
+                                                );
+                                              },
+                                            ).then(
+                                                (value) => safeSetState(() {}));
+
                                             return;
                                           }
                                         } else {
@@ -1973,17 +2086,52 @@ class _WorkoutPageWidgetState extends State<WorkoutPageWidget> {
                                               logFirebaseEvent(
                                                   'Ididit_haptic_feedback');
                                               HapticFeedback.selectionClick();
-                                              if (!_model.trainingsDone
-                                                  .contains(2)) {
+                                              if (valueOrDefault<bool>(
+                                                  currentUserDocument
+                                                      ?.plusmember,
+                                                  false)) {
+                                                if (!_model.trainingsDone
+                                                    .contains(2)) {
+                                                  logFirebaseEvent(
+                                                      'Ididit_update_page_state');
+                                                  _model.addToTrainingsDone(2);
+                                                  safeSetState(() {});
+                                                }
                                                 logFirebaseEvent(
                                                     'Ididit_update_page_state');
-                                                _model.addToTrainingsDone(2);
+                                                _model.trainingChoose = 3;
                                                 safeSetState(() {});
+                                              } else {
+                                                logFirebaseEvent(
+                                                    'Ididit_bottom_sheet');
+                                                showModalBottomSheet(
+                                                  isScrollControlled: true,
+                                                  backgroundColor:
+                                                      Colors.transparent,
+                                                  context: context,
+                                                  builder: (context) {
+                                                    return GestureDetector(
+                                                      onTap: () {
+                                                        FocusScope.of(context)
+                                                            .unfocus();
+                                                        FocusManager.instance
+                                                            .primaryFocus
+                                                            ?.unfocus();
+                                                      },
+                                                      child: Padding(
+                                                        padding: MediaQuery
+                                                            .viewInsetsOf(
+                                                                context),
+                                                        child:
+                                                            PaymentDialogWidget(),
+                                                      ),
+                                                    );
+                                                  },
+                                                ).then((value) =>
+                                                    safeSetState(() {}));
+
+                                                return;
                                               }
-                                              logFirebaseEvent(
-                                                  'Ididit_update_page_state');
-                                              _model.trainingChoose = 3;
-                                              safeSetState(() {});
                                             },
                                       text: FFLocalizations.of(context).getText(
                                         'bd3xpxi8' /* Done */,
@@ -2282,37 +2430,70 @@ class _WorkoutPageWidgetState extends State<WorkoutPageWidget> {
                                               logFirebaseEvent(
                                                   'Selectoneofours_haptic_feedback');
                                               HapticFeedback.selectionClick();
-                                              logFirebaseEvent(
-                                                  'Selectoneofours_bottom_sheet');
-                                              showModalBottomSheet(
-                                                isScrollControlled: true,
-                                                backgroundColor:
-                                                    Colors.transparent,
-                                                context: context,
-                                                builder: (context) {
-                                                  return GestureDetector(
-                                                    onTap: () {
-                                                      FocusScope.of(context)
-                                                          .unfocus();
-                                                      FocusManager
-                                                          .instance.primaryFocus
-                                                          ?.unfocus();
-                                                    },
-                                                    child: Padding(
-                                                      padding: MediaQuery
-                                                          .viewInsetsOf(
-                                                              context),
-                                                      child:
-                                                          SelectWarmUpCoolDownDialogWidget(
-                                                        type: 2,
-                                                        workout:
-                                                            widget!.workout!,
+                                              if (valueOrDefault<bool>(
+                                                  currentUserDocument
+                                                      ?.plusmember,
+                                                  false)) {
+                                                logFirebaseEvent(
+                                                    'Selectoneofours_bottom_sheet');
+                                                showModalBottomSheet(
+                                                  isScrollControlled: true,
+                                                  backgroundColor:
+                                                      Colors.transparent,
+                                                  context: context,
+                                                  builder: (context) {
+                                                    return GestureDetector(
+                                                      onTap: () {
+                                                        FocusScope.of(context)
+                                                            .unfocus();
+                                                        FocusManager.instance
+                                                            .primaryFocus
+                                                            ?.unfocus();
+                                                      },
+                                                      child: Padding(
+                                                        padding: MediaQuery
+                                                            .viewInsetsOf(
+                                                                context),
+                                                        child:
+                                                            SelectWarmUpCoolDownDialogWidget(
+                                                          type: 2,
+                                                          workout:
+                                                              widget!.workout!,
+                                                        ),
                                                       ),
-                                                    ),
-                                                  );
-                                                },
-                                              ).then((value) =>
-                                                  safeSetState(() {}));
+                                                    );
+                                                  },
+                                                ).then((value) =>
+                                                    safeSetState(() {}));
+                                              } else {
+                                                logFirebaseEvent(
+                                                    'Selectoneofours_bottom_sheet');
+                                                showModalBottomSheet(
+                                                  isScrollControlled: true,
+                                                  backgroundColor:
+                                                      Colors.transparent,
+                                                  context: context,
+                                                  builder: (context) {
+                                                    return GestureDetector(
+                                                      onTap: () {
+                                                        FocusScope.of(context)
+                                                            .unfocus();
+                                                        FocusManager.instance
+                                                            .primaryFocus
+                                                            ?.unfocus();
+                                                      },
+                                                      child: Padding(
+                                                        padding: MediaQuery
+                                                            .viewInsetsOf(
+                                                                context),
+                                                        child:
+                                                            PaymentDialogWidget(),
+                                                      ),
+                                                    );
+                                                  },
+                                                ).then((value) =>
+                                                    safeSetState(() {}));
+                                              }
                                             },
                                       text: FFLocalizations.of(context).getText(
                                         'kr5agtv7' /* Select one of ours */,
@@ -2376,17 +2557,50 @@ class _WorkoutPageWidgetState extends State<WorkoutPageWidget> {
                                               logFirebaseEvent(
                                                   'Ididit_haptic_feedback');
                                               HapticFeedback.selectionClick();
-                                              if (!_model.trainingsDone
-                                                  .contains(3)) {
+                                              if (valueOrDefault<bool>(
+                                                  currentUserDocument
+                                                      ?.plusmember,
+                                                  false)) {
+                                                if (!_model.trainingsDone
+                                                    .contains(3)) {
+                                                  logFirebaseEvent(
+                                                      'Ididit_update_page_state');
+                                                  _model.addToTrainingsDone(3);
+                                                  safeSetState(() {});
+                                                }
                                                 logFirebaseEvent(
                                                     'Ididit_update_page_state');
-                                                _model.addToTrainingsDone(3);
+                                                _model.trainingChoose = 0;
                                                 safeSetState(() {});
+                                              } else {
+                                                logFirebaseEvent(
+                                                    'Ididit_bottom_sheet');
+                                                showModalBottomSheet(
+                                                  isScrollControlled: true,
+                                                  backgroundColor:
+                                                      Colors.transparent,
+                                                  context: context,
+                                                  builder: (context) {
+                                                    return GestureDetector(
+                                                      onTap: () {
+                                                        FocusScope.of(context)
+                                                            .unfocus();
+                                                        FocusManager.instance
+                                                            .primaryFocus
+                                                            ?.unfocus();
+                                                      },
+                                                      child: Padding(
+                                                        padding: MediaQuery
+                                                            .viewInsetsOf(
+                                                                context),
+                                                        child:
+                                                            PaymentDialogWidget(),
+                                                      ),
+                                                    );
+                                                  },
+                                                ).then((value) =>
+                                                    safeSetState(() {}));
                                               }
-                                              logFirebaseEvent(
-                                                  'Ididit_update_page_state');
-                                              _model.trainingChoose = 0;
-                                              safeSetState(() {});
                                             },
                                       text: FFLocalizations.of(context).getText(
                                         'l4j7009c' /* Done */,
@@ -2458,229 +2672,81 @@ class _WorkoutPageWidgetState extends State<WorkoutPageWidget> {
                                         'WORKOUT_PAGE_PAGE_Ididit_ON_TAP');
                                     logFirebaseEvent('Ididit_haptic_feedback');
                                     HapticFeedback.selectionClick();
-                                    logFirebaseEvent('Ididit_backend_call');
-                                    unawaited(
-                                      () async {
-                                        await columnProgressRecord.reference
-                                            .update({
-                                          ...mapToFirestore(
-                                            {
-                                              'workout_done':
-                                                  FieldValue.arrayUnion([
-                                                getWorkoutStatisticFirestoreData(
-                                                  updateWorkoutStatisticStruct(
-                                                    WorkoutStatisticStruct(
-                                                      seasonId: widget!
-                                                          .season?.reference.id,
-                                                      level:
-                                                          valueOrDefault<int>(
-                                                        widget!.season?.level,
-                                                        1,
+                                    if (valueOrDefault<bool>(
+                                        currentUserDocument?.plusmember,
+                                        false)) {
+                                      logFirebaseEvent('Ididit_backend_call');
+                                      unawaited(
+                                        () async {
+                                          await columnProgressRecord.reference
+                                              .update({
+                                            ...mapToFirestore(
+                                              {
+                                                'workout_done':
+                                                    FieldValue.arrayUnion([
+                                                  getWorkoutStatisticFirestoreData(
+                                                    updateWorkoutStatisticStruct(
+                                                      WorkoutStatisticStruct(
+                                                        seasonId: widget!.season
+                                                            ?.reference.id,
+                                                        level:
+                                                            valueOrDefault<int>(
+                                                          widget!.season?.level,
+                                                          1,
+                                                        ),
+                                                        datetime:
+                                                            getCurrentTimestamp,
+                                                        warpmupPoints:
+                                                            valueOrDefault<int>(
+                                                          FFAppState()
+                                                              .warmupPoints,
+                                                          0,
+                                                        ),
+                                                        cooldownPoints:
+                                                            valueOrDefault<int>(
+                                                          FFAppState()
+                                                              .cooldownPoints,
+                                                          0,
+                                                        ),
+                                                        workoutPoints:
+                                                            valueOrDefault<int>(
+                                                          widget!
+                                                              .workout?.points,
+                                                          0,
+                                                        ),
+                                                        workoutId: widget!
+                                                            .workout
+                                                            ?.reference
+                                                            .id,
                                                       ),
-                                                      datetime:
-                                                          getCurrentTimestamp,
-                                                      warpmupPoints:
-                                                          valueOrDefault<int>(
-                                                        FFAppState()
-                                                            .warmupPoints,
-                                                        2,
-                                                      ),
-                                                      cooldownPoints:
-                                                          valueOrDefault<int>(
-                                                        FFAppState()
-                                                            .cooldownPoints,
-                                                        2,
-                                                      ),
-                                                      workoutPoints:
-                                                          valueOrDefault<int>(
-                                                        widget!.workout?.points,
-                                                        0,
-                                                      ),
-                                                      workoutId: widget!.workout
-                                                          ?.reference.id,
+                                                      clearUnsetFields: false,
                                                     ),
-                                                    clearUnsetFields: false,
-                                                  ),
-                                                  true,
-                                                )
-                                              ]),
-                                            },
-                                          ),
-                                        });
-                                      }(),
-                                    );
-                                    logFirebaseEvent(
-                                        'Ididit_update_page_state');
-                                    _model.trainingsDone = [];
-                                    _model.trainingChoose = 0;
-                                    safeSetState(() {});
-                                    if (columnProgressRecord.workoutDone
-                                            .where((e) =>
-                                                e.workoutId ==
-                                                widget!.workout?.reference.id)
-                                            .toList()
-                                            .length ==
-                                        2) {
-                                      logFirebaseEvent('Ididit_bottom_sheet');
-                                      showModalBottomSheet(
-                                        isScrollControlled: true,
-                                        backgroundColor: Colors.transparent,
-                                        isDismissible: false,
-                                        enableDrag: false,
-                                        context: context,
-                                        builder: (context) {
-                                          return GestureDetector(
-                                            onTap: () {
-                                              FocusScope.of(context).unfocus();
-                                              FocusManager.instance.primaryFocus
-                                                  ?.unfocus();
-                                            },
-                                            child: Padding(
-                                              padding: MediaQuery.viewInsetsOf(
-                                                  context),
-                                              child:
-                                                  WorkoutSuccess3timesDialogWidget(
-                                                workoutDone:
-                                                    WorkoutStatisticStruct(
-                                                  seasonId: widget!
-                                                      .season?.reference.id,
-                                                  level: valueOrDefault<int>(
-                                                    widget!.season?.level,
-                                                    1,
-                                                  ),
-                                                  datetime: getCurrentTimestamp,
-                                                  warpmupPoints:
-                                                      valueOrDefault<int>(
-                                                    FFAppState().warmupPoints,
-                                                    2,
-                                                  ),
-                                                  cooldownPoints:
-                                                      valueOrDefault<int>(
-                                                    FFAppState().cooldownPoints,
-                                                    2,
-                                                  ),
-                                                  workoutPoints:
-                                                      valueOrDefault<int>(
-                                                    widget!.workout?.points,
-                                                    0,
-                                                  ),
-                                                  workoutId: widget!
-                                                      .workout?.reference.id,
-                                                ),
-                                                workoutCount:
-                                                    valueOrDefault<int>(
-                                                  widget!.workoutCount,
-                                                  0,
-                                                ),
-                                                season: widget!.season!,
-                                                progress: widget!.progress!,
-                                                seasonNumber:
-                                                    widget!.seasonIndex,
-                                              ),
+                                                    true,
+                                                  )
+                                                ]),
+                                              },
                                             ),
-                                          );
-                                        },
-                                      ).then((value) => safeSetState(() {}));
-                                    } else {
-                                      logFirebaseEvent('Ididit_bottom_sheet');
-                                      showModalBottomSheet(
-                                        isScrollControlled: true,
-                                        backgroundColor: Colors.transparent,
-                                        isDismissible: false,
-                                        enableDrag: false,
-                                        context: context,
-                                        builder: (context) {
-                                          return GestureDetector(
-                                            onTap: () {
-                                              FocusScope.of(context).unfocus();
-                                              FocusManager.instance.primaryFocus
-                                                  ?.unfocus();
-                                            },
-                                            child: Padding(
-                                              padding: MediaQuery.viewInsetsOf(
-                                                  context),
-                                              child: WorkoutSuccessDialogWidget(
-                                                workoutDone:
-                                                    WorkoutStatisticStruct(
-                                                  seasonId: widget!
-                                                      .season?.reference.id,
-                                                  level: valueOrDefault<int>(
-                                                    widget!.season?.level,
-                                                    1,
-                                                  ),
-                                                  datetime: getCurrentTimestamp,
-                                                  warpmupPoints:
-                                                      valueOrDefault<int>(
-                                                    FFAppState().warmupPoints,
-                                                    2,
-                                                  ),
-                                                  cooldownPoints:
-                                                      valueOrDefault<int>(
-                                                    FFAppState().cooldownPoints,
-                                                    2,
-                                                  ),
-                                                  workoutPoints:
-                                                      valueOrDefault<int>(
-                                                    widget!.workout?.points,
-                                                    0,
-                                                  ),
-                                                  workoutId: widget!
-                                                      .workout?.reference.id,
-                                                ),
-                                                progress: columnProgressRecord
-                                                    .reference,
-                                                season: widget!.season!,
-                                                wockoutCount:
-                                                    valueOrDefault<int>(
-                                                  widget!.workoutCount,
-                                                  0,
-                                                ),
-                                                seasonNumber:
-                                                    widget!.seasonIndex,
-                                              ),
-                                            ),
-                                          );
-                                        },
-                                      ).then((value) => safeSetState(() {}));
-                                    }
-
-                                    logFirebaseEvent('Ididit_update_app_state');
-                                    FFAppState().warmupPoints = 2;
-                                    FFAppState().cooldownPoints = 2;
-                                    safeSetState(() {});
-                                    if (currentUserEmail != null &&
-                                        currentUserEmail != '') {
-                                      if (functions.newLevelAchieved(
-                                          columnProgressRecord.workoutDone
-                                              .toList(),
-                                          WorkoutStatisticStruct(
-                                            seasonId:
-                                                widget!.season?.reference.id,
-                                            level: valueOrDefault<int>(
-                                              widget!.season?.level,
-                                              1,
-                                            ),
-                                            datetime: getCurrentTimestamp,
-                                            warpmupPoints: valueOrDefault<int>(
-                                              FFAppState().warmupPoints,
-                                              2,
-                                            ),
-                                            cooldownPoints: valueOrDefault<int>(
-                                              FFAppState().cooldownPoints,
-                                              2,
-                                            ),
-                                            workoutPoints: valueOrDefault<int>(
-                                              widget!.workout?.points,
-                                              0,
-                                            ),
-                                            workoutId:
-                                                widget!.workout?.reference.id,
-                                          ),
-                                          functions.levels().toList())) {
+                                          });
+                                        }(),
+                                      );
+                                      logFirebaseEvent(
+                                          'Ididit_update_page_state');
+                                      _model.trainingsDone = [];
+                                      _model.trainingChoose = 0;
+                                      safeSetState(() {});
+                                      if (columnProgressRecord.workoutDone
+                                              .where((e) =>
+                                                  e.workoutId ==
+                                                  widget!.workout?.reference.id)
+                                              .toList()
+                                              .length ==
+                                          2) {
                                         logFirebaseEvent('Ididit_bottom_sheet');
                                         showModalBottomSheet(
                                           isScrollControlled: true,
                                           backgroundColor: Colors.transparent,
+                                          isDismissible: false,
+                                          enableDrag: false,
                                           context: context,
                                           builder: (context) {
                                             return GestureDetector(
@@ -2696,21 +2762,237 @@ class _WorkoutPageWidgetState extends State<WorkoutPageWidget> {
                                                     MediaQuery.viewInsetsOf(
                                                         context),
                                                 child:
-                                                    LevelSuccessDialogWidget(),
+                                                    WorkoutSuccess3timesDialogWidget(
+                                                  workoutDone:
+                                                      WorkoutStatisticStruct(
+                                                    seasonId: widget!
+                                                        .season?.reference.id,
+                                                    level: valueOrDefault<int>(
+                                                      widget!.season?.level,
+                                                      1,
+                                                    ),
+                                                    datetime:
+                                                        getCurrentTimestamp,
+                                                    warpmupPoints:
+                                                        valueOrDefault<int>(
+                                                      FFAppState().warmupPoints,
+                                                      2,
+                                                    ),
+                                                    cooldownPoints:
+                                                        valueOrDefault<int>(
+                                                      FFAppState()
+                                                          .cooldownPoints,
+                                                      2,
+                                                    ),
+                                                    workoutPoints:
+                                                        valueOrDefault<int>(
+                                                      widget!.workout?.points,
+                                                      0,
+                                                    ),
+                                                    workoutId: widget!
+                                                        .workout?.reference.id,
+                                                  ),
+                                                  workoutCount:
+                                                      valueOrDefault<int>(
+                                                    widget!.workoutCount,
+                                                    0,
+                                                  ),
+                                                  season: widget!.season!,
+                                                  progress: widget!.progress!,
+                                                  seasonNumber:
+                                                      widget!.seasonIndex,
+                                                  selectedLvl:
+                                                      valueOrDefault<int>(
+                                                    widget!.selectedLvl,
+                                                    1,
+                                                  ),
+                                                ),
                                               ),
                                             );
                                           },
                                         ).then((value) => safeSetState(() {}));
+                                      } else {
+                                        logFirebaseEvent('Ididit_bottom_sheet');
+                                        showModalBottomSheet(
+                                          isScrollControlled: true,
+                                          backgroundColor: Colors.transparent,
+                                          isDismissible: false,
+                                          enableDrag: false,
+                                          context: context,
+                                          builder: (context) {
+                                            return GestureDetector(
+                                              onTap: () {
+                                                FocusScope.of(context)
+                                                    .unfocus();
+                                                FocusManager
+                                                    .instance.primaryFocus
+                                                    ?.unfocus();
+                                              },
+                                              child: Padding(
+                                                padding:
+                                                    MediaQuery.viewInsetsOf(
+                                                        context),
+                                                child:
+                                                    WorkoutSuccessDialogWidget(
+                                                  workoutDone:
+                                                      WorkoutStatisticStruct(
+                                                    seasonId: widget!
+                                                        .season?.reference.id,
+                                                    level: valueOrDefault<int>(
+                                                      widget!.season?.level,
+                                                      1,
+                                                    ),
+                                                    datetime:
+                                                        getCurrentTimestamp,
+                                                    warpmupPoints:
+                                                        valueOrDefault<int>(
+                                                      FFAppState().warmupPoints,
+                                                      2,
+                                                    ),
+                                                    cooldownPoints:
+                                                        valueOrDefault<int>(
+                                                      FFAppState()
+                                                          .cooldownPoints,
+                                                      2,
+                                                    ),
+                                                    workoutPoints:
+                                                        valueOrDefault<int>(
+                                                      widget!.workout?.points,
+                                                      0,
+                                                    ),
+                                                    workoutId: widget!
+                                                        .workout?.reference.id,
+                                                  ),
+                                                  progress: columnProgressRecord
+                                                      .reference,
+                                                  season: widget!.season!,
+                                                  wockoutCount:
+                                                      valueOrDefault<int>(
+                                                    widget!.workoutCount,
+                                                    0,
+                                                  ),
+                                                  seasonNumber:
+                                                      widget!.seasonIndex,
+                                                  selectedLvl:
+                                                      valueOrDefault<int>(
+                                                    widget!.selectedLvl,
+                                                    1,
+                                                  ),
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                        ).then((value) => safeSetState(() {}));
+
+                                        if (columnProgressRecord.workoutDone
+                                                .where((e) =>
+                                                    e.workoutId ==
+                                                    widget!
+                                                        .workout?.reference.id)
+                                                .toList()
+                                                .length ==
+                                            1) {
+                                          logFirebaseEvent(
+                                              'Ididit_custom_action');
+                                          unawaited(
+                                            () async {
+                                              await actions
+                                                  .requestReviewOrOpenStore();
+                                            }(),
+                                          );
+                                        }
+                                      }
+
+                                      if (currentUserEmail != null &&
+                                          currentUserEmail != '') {
+                                        if (functions.newLevelAchieved(
+                                            columnProgressRecord.workoutDone
+                                                .toList(),
+                                            WorkoutStatisticStruct(
+                                              seasonId:
+                                                  widget!.season?.reference.id,
+                                              level: valueOrDefault<int>(
+                                                widget!.season?.level,
+                                                1,
+                                              ),
+                                              datetime: getCurrentTimestamp,
+                                              warpmupPoints:
+                                                  valueOrDefault<int>(
+                                                FFAppState().warmupPoints,
+                                                2,
+                                              ),
+                                              cooldownPoints:
+                                                  valueOrDefault<int>(
+                                                FFAppState().cooldownPoints,
+                                                2,
+                                              ),
+                                              workoutPoints:
+                                                  valueOrDefault<int>(
+                                                widget!.workout?.points,
+                                                0,
+                                              ),
+                                              workoutId:
+                                                  widget!.workout?.reference.id,
+                                            ),
+                                            functions.levels().toList())) {
+                                          logFirebaseEvent(
+                                              'Ididit_bottom_sheet');
+                                          await showModalBottomSheet(
+                                            isScrollControlled: true,
+                                            backgroundColor: Colors.transparent,
+                                            context: context,
+                                            builder: (context) {
+                                              return GestureDetector(
+                                                onTap: () {
+                                                  FocusScope.of(context)
+                                                      .unfocus();
+                                                  FocusManager
+                                                      .instance.primaryFocus
+                                                      ?.unfocus();
+                                                },
+                                                child: Padding(
+                                                  padding:
+                                                      MediaQuery.viewInsetsOf(
+                                                          context),
+                                                  child:
+                                                      LevelSuccessDialogWidget(),
+                                                ),
+                                              );
+                                            },
+                                          ).then(
+                                              (value) => safeSetState(() {}));
+                                        }
+                                      } else {
+                                        logFirebaseEvent('Ididit_bottom_sheet');
+                                        unawaited(
+                                          () async {}(),
+                                        );
                                       }
                                     } else {
                                       logFirebaseEvent('Ididit_bottom_sheet');
-                                      unawaited(
-                                        () async {}(),
-                                      );
+                                      showModalBottomSheet(
+                                        isScrollControlled: true,
+                                        backgroundColor: Colors.transparent,
+                                        context: context,
+                                        builder: (context) {
+                                          return GestureDetector(
+                                            onTap: () {
+                                              FocusScope.of(context).unfocus();
+                                              FocusManager.instance.primaryFocus
+                                                  ?.unfocus();
+                                            },
+                                            child: Padding(
+                                              padding: MediaQuery.viewInsetsOf(
+                                                  context),
+                                              child: PaymentDialogWidget(),
+                                            ),
+                                          );
+                                        },
+                                      ).then((value) => safeSetState(() {}));
                                     }
                                   },
                             text: FFLocalizations.of(context).getText(
-                              'pf7q4dog' /* Finish workout */,
+                              'pf7q4dog' /* Done. Collect your points. */,
                             ),
                             icon: Icon(
                               FFIcons.kflag24,

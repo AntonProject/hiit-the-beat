@@ -14,7 +14,6 @@ import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
 import 'dart:async';
 import 'dart:ui';
-import '/actions/actions.dart' as action_blocks;
 import '/custom_code/actions/index.dart' as actions;
 import '/flutter_flow/custom_functions.dart' as functions;
 import 'package:auto_size_text/auto_size_text.dart';
@@ -58,49 +57,58 @@ class _SeasonWorkoutPageWidgetState extends State<SeasonWorkoutPageWidget> {
     // On page load action.
     SchedulerBinding.instance.addPostFrameCallback((_) async {
       logFirebaseEvent('SEASON_WORKOUT_SeasonWorkoutPage_ON_INIT');
-      logFirebaseEvent('SeasonWorkoutPage_update_page_state');
-      _model.tab = valueOrDefault<int>(
-        widget!.level,
-        1,
-      );
-      safeSetState(() {});
-      logFirebaseEvent('SeasonWorkoutPage_action_block');
-      unawaited(
-        () async {
-          await action_blocks.checkProgressDoc(context);
-          safeSetState(() {});
-        }(),
-      );
-      logFirebaseEvent('SeasonWorkoutPage_custom_action');
-      unawaited(
-        () async {
-          await actions.setStatusBarColor();
-        }(),
-      );
-      logFirebaseEvent('SeasonWorkoutPage_custom_action');
-      unawaited(
-        () async {
-          await actions.lockLandscapeMode();
-        }(),
-      );
-      logFirebaseEvent('SeasonWorkoutPage_page_view');
-      unawaited(
-        () async {
-          await _model.pageViewController?.animateToPage(
-            valueOrDefault<int>(
-              valueOrDefault<int>(
-                    widget!.level,
-                    1,
-                  ) -
-                  1,
+      await Future.wait([
+        Future(() async {
+          if ((widget!.level != null) && (widget!.level > 0)) {
+            logFirebaseEvent('SeasonWorkoutPage_update_page_state');
+            _model.tab = widget!.level;
+            safeSetState(() {});
+          } else {
+            logFirebaseEvent('SeasonWorkoutPage_update_page_state');
+            _model.tab = valueOrDefault<int>(
+              valueOrDefault(currentUserDocument?.currentLevel, 0),
               1,
-            ),
-            duration: Duration(milliseconds: 500),
-            curve: Curves.ease,
+            );
+            safeSetState(() {});
+          }
+
+          logFirebaseEvent('SeasonWorkoutPage_page_view');
+          unawaited(
+            () async {
+              await _model.pageViewController?.animateToPage(
+                valueOrDefault<int>(
+                  valueOrDefault<int>(
+                        widget!.level,
+                        1,
+                      ) -
+                      1,
+                  1,
+                ),
+                duration: Duration(milliseconds: 500),
+                curve: Curves.ease,
+              );
+            }(),
           );
-        }(),
-      );
-      if (FFAppState().onboardingHome) {
+        }),
+        Future(() async {
+          logFirebaseEvent('SeasonWorkoutPage_custom_action');
+          unawaited(
+            () async {
+              await actions.setStatusBarColor();
+            }(),
+          );
+        }),
+        Future(() async {
+          logFirebaseEvent('SeasonWorkoutPage_custom_action');
+          unawaited(
+            () async {
+              await actions.lockLandscapeMode();
+            }(),
+          );
+        }),
+      ]);
+      if ((FFAppState().onboardingHome == true) &&
+          (FFAppState().onboardingStep == 2)) {
         logFirebaseEvent('SeasonWorkoutPage_bottom_sheet');
         await showModalBottomSheet(
           isScrollControlled: true,
@@ -607,6 +615,12 @@ class _SeasonWorkoutPageWidgetState extends State<SeasonWorkoutPageWidget> {
                                                               int>(
                                                             containerVarIndex,
                                                             0,
+                                                          ),
+                                                          selectedLvl:
+                                                              valueOrDefault<
+                                                                  int>(
+                                                            _model.tab,
+                                                            1,
                                                           ),
                                                         ),
                                                       );

@@ -1,18 +1,19 @@
 import '/auth/firebase_auth/auth_util.dart';
 import '/backend/api_requests/api_calls.dart';
 import '/backend/backend.dart';
+import '/backend/schema/enums/enums.dart';
 import '/components/dialog/dialog_widget.dart';
 import '/components/dialogs/guest_dialog/guest_dialog_widget.dart';
-import '/components/dialogs/payment_dialog/payment_dialog_widget.dart';
-import '/components/dialogs/payment_dialog_start/payment_dialog_start_widget.dart';
 import '/components/empty_list/empty_list_widget.dart';
 import '/components/page_component/change_subs/change_subs_widget.dart';
 import '/components/page_component/success_subs/success_subs_widget.dart';
+import '/flutter_flow/flutter_flow_animations.dart';
 import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
 import 'dart:async';
+import 'dart:math';
 import 'dart:ui';
 import '/actions/actions.dart' as action_blocks;
 import '/custom_code/actions/index.dart' as actions;
@@ -24,6 +25,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -40,10 +42,13 @@ class SubscriptionPageWidget extends StatefulWidget {
   State<SubscriptionPageWidget> createState() => _SubscriptionPageWidgetState();
 }
 
-class _SubscriptionPageWidgetState extends State<SubscriptionPageWidget> {
+class _SubscriptionPageWidgetState extends State<SubscriptionPageWidget>
+    with TickerProviderStateMixin {
   late SubscriptionPageModel _model;
 
   final scaffoldKey = GlobalKey<ScaffoldState>();
+
+  final animationsMap = <String, AnimationInfo>{};
 
   @override
   void initState() {
@@ -55,18 +60,49 @@ class _SubscriptionPageWidgetState extends State<SubscriptionPageWidget> {
     // On page load action.
     SchedulerBinding.instance.addPostFrameCallback((_) async {
       logFirebaseEvent('SUBSCRIPTION_SubscriptionPage_ON_INIT_ST');
-      logFirebaseEvent('SubscriptionPage_custom_action');
-      unawaited(
-        () async {
-          await actions.lockLandscapeMode();
-        }(),
-      );
-      logFirebaseEvent('SubscriptionPage_custom_action');
-      unawaited(
-        () async {
-          await actions.setStatusBarColor();
-        }(),
-      );
+      await Future.wait([
+        Future(() async {
+          logFirebaseEvent('SubscriptionPage_custom_action');
+          unawaited(
+            () async {
+              await actions.lockLandscapeMode();
+            }(),
+          );
+        }),
+        Future(() async {
+          logFirebaseEvent('SubscriptionPage_custom_action');
+          unawaited(
+            () async {
+              await actions.setStatusBarColor();
+            }(),
+          );
+        }),
+        Future(() async {
+          logFirebaseEvent('SubscriptionPage_custom_action');
+          _model.status = await actions.checkSubsStatus(
+            currentUserUid,
+          );
+          logFirebaseEvent('SubscriptionPage_update_page_state');
+          _model.subsStatus = _model.status!;
+          safeSetState(() {});
+        }),
+      ]);
+    });
+
+    animationsMap.addAll({
+      'columnOnPageLoadAnimation': AnimationInfo(
+        trigger: AnimationTrigger.onPageLoad,
+        effectsBuilder: () => [
+          VisibilityEffect(duration: 300.ms),
+          FadeEffect(
+            curve: Curves.easeInOut,
+            delay: 300.0.ms,
+            duration: 500.0.ms,
+            begin: 0.0,
+            end: 1.0,
+          ),
+        ],
+      ),
     });
 
     WidgetsBinding.instance.addPostFrameCallback((_) => safeSetState(() {}));
@@ -899,7 +935,7 @@ class _SubscriptionPageWidgetState extends State<SubscriptionPageWidget> {
                                                                   FFLocalizations.of(
                                                                           context)
                                                                       .getText(
-                                                                    '7tbrnflb' /* 76% of users commit to long-te... */,
+                                                                    '7tbrnflb' /* Chosen by 76% of members */,
                                                                   ),
                                                                   style: FlutterFlowTheme.of(
                                                                           context)
@@ -946,13 +982,58 @@ class _SubscriptionPageWidgetState extends State<SubscriptionPageWidget> {
                                                                       .circle,
                                                                 ),
                                                               ),
-                                                              Expanded(
-                                                                child: Text(
-                                                                  FFLocalizations.of(
-                                                                          context)
-                                                                      .getText(
-                                                                    '3j0q74op' /* $2.9 / week - instead of a cup... */,
-                                                                  ),
+                                                              RichText(
+                                                                textScaler: MediaQuery.of(
+                                                                        context)
+                                                                    .textScaler,
+                                                                text: TextSpan(
+                                                                  children: [
+                                                                    TextSpan(
+                                                                      text: FFLocalizations.of(
+                                                                              context)
+                                                                          .getText(
+                                                                        '4162cpea' /* Save  */,
+                                                                      ),
+                                                                      style: FlutterFlowTheme.of(
+                                                                              context)
+                                                                          .bodyMedium
+                                                                          .override(
+                                                                            fontFamily:
+                                                                                FlutterFlowTheme.of(context).bodyMediumFamily,
+                                                                            letterSpacing:
+                                                                                0.0,
+                                                                            useGoogleFonts:
+                                                                                !FlutterFlowTheme.of(context).bodyMediumIsCustom,
+                                                                          ),
+                                                                    ),
+                                                                    TextSpan(
+                                                                      text: valueOrDefault<
+                                                                          String>(
+                                                                        functions.priceSaving(
+                                                                            valueOrDefault<String>(
+                                                                              revenue_cat.offerings!.current!.availablePackages.where((e) => e.identifier == 'plusmember12').toList().firstOrNull!.storeProduct.priceString,
+                                                                              '0',
+                                                                            ),
+                                                                            valueOrDefault<String>(
+                                                                              revenue_cat.offerings!.current!.availablePackages.where((e) => e.identifier == 'plusmember1').toList().firstOrNull!.storeProduct.priceString,
+                                                                              '0',
+                                                                            ),
+                                                                            'month'),
+                                                                        '0',
+                                                                      ),
+                                                                      style:
+                                                                          TextStyle(),
+                                                                    ),
+                                                                    TextSpan(
+                                                                      text: FFLocalizations.of(
+                                                                              context)
+                                                                          .getText(
+                                                                        'z2eqm1ek' /*  vs. monthly plan */,
+                                                                      ),
+                                                                      style:
+                                                                          TextStyle(),
+                                                                    )
+                                                                  ],
                                                                   style: FlutterFlowTheme.of(
                                                                           context)
                                                                       .bodyMedium
@@ -999,23 +1080,65 @@ class _SubscriptionPageWidgetState extends State<SubscriptionPageWidget> {
                                                                 ),
                                                               ),
                                                               Expanded(
-                                                                child: Text(
-                                                                  FFLocalizations.of(
+                                                                child: RichText(
+                                                                  textScaler: MediaQuery.of(
                                                                           context)
-                                                                      .getText(
-                                                                    'hm7frjjm' /* Long-term motivation & continu... */,
-                                                                  ),
-                                                                  style: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .bodyMedium
-                                                                      .override(
-                                                                        fontFamily:
-                                                                            FlutterFlowTheme.of(context).bodyMediumFamily,
-                                                                        letterSpacing:
-                                                                            0.0,
-                                                                        useGoogleFonts:
-                                                                            !FlutterFlowTheme.of(context).bodyMediumIsCustom,
+                                                                      .textScaler,
+                                                                  text:
+                                                                      TextSpan(
+                                                                    children: [
+                                                                      TextSpan(
+                                                                        text: FFLocalizations.of(context)
+                                                                            .getText(
+                                                                          'lsj38x1a' /* Only  */,
+                                                                        ),
+                                                                        style: FlutterFlowTheme.of(context)
+                                                                            .bodyMedium
+                                                                            .override(
+                                                                              fontFamily: FlutterFlowTheme.of(context).bodyMediumFamily,
+                                                                              letterSpacing: 0.0,
+                                                                              useGoogleFonts: !FlutterFlowTheme.of(context).bodyMediumIsCustom,
+                                                                            ),
                                                                       ),
+                                                                      TextSpan(
+                                                                        text: valueOrDefault<
+                                                                            String>(
+                                                                          functions.priceSaving(
+                                                                              valueOrDefault<String>(
+                                                                                revenue_cat.offerings!.current!.availablePackages.where((e) => e.identifier == 'plusmember12').toList().firstOrNull!.storeProduct.priceString,
+                                                                                '0',
+                                                                              ),
+                                                                              valueOrDefault<String>(
+                                                                                revenue_cat.offerings!.current!.availablePackages.where((e) => e.identifier == 'plusmember1').toList().firstOrNull!.storeProduct.priceString,
+                                                                                '0',
+                                                                              ),
+                                                                              'week'),
+                                                                          '0',
+                                                                        ),
+                                                                        style:
+                                                                            TextStyle(),
+                                                                      ),
+                                                                      TextSpan(
+                                                                        text: FFLocalizations.of(context)
+                                                                            .getText(
+                                                                          '407ojiig' /*  / week */,
+                                                                        ),
+                                                                        style:
+                                                                            TextStyle(),
+                                                                      )
+                                                                    ],
+                                                                    style: FlutterFlowTheme.of(
+                                                                            context)
+                                                                        .bodyMedium
+                                                                        .override(
+                                                                          fontFamily:
+                                                                              FlutterFlowTheme.of(context).bodyMediumFamily,
+                                                                          letterSpacing:
+                                                                              0.0,
+                                                                          useGoogleFonts:
+                                                                              !FlutterFlowTheme.of(context).bodyMediumIsCustom,
+                                                                        ),
+                                                                  ),
                                                                 ),
                                                               ),
                                                             ].divide(SizedBox(
@@ -1051,23 +1174,52 @@ class _SubscriptionPageWidgetState extends State<SubscriptionPageWidget> {
                                                                 ),
                                                               ),
                                                               Expanded(
-                                                                child: Text(
-                                                                  FFLocalizations.of(
+                                                                child: RichText(
+                                                                  textScaler: MediaQuery.of(
                                                                           context)
-                                                                      .getText(
-                                                                    'm345soo5' /* Maximum flexibility — cancel a... */,
-                                                                  ),
-                                                                  style: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .bodyMedium
-                                                                      .override(
-                                                                        fontFamily:
-                                                                            FlutterFlowTheme.of(context).bodyMediumFamily,
-                                                                        letterSpacing:
-                                                                            0.0,
-                                                                        useGoogleFonts:
-                                                                            !FlutterFlowTheme.of(context).bodyMediumIsCustom,
+                                                                      .textScaler,
+                                                                  text:
+                                                                      TextSpan(
+                                                                    children: [
+                                                                      TextSpan(
+                                                                        text: valueOrDefault<
+                                                                            String>(
+                                                                          functions.pricePeriod(
+                                                                              packagesItem.storeProduct.priceString,
+                                                                              4,
+                                                                              '0',
+                                                                              false),
+                                                                          '0',
+                                                                        ),
+                                                                        style: FlutterFlowTheme.of(context)
+                                                                            .bodyMedium
+                                                                            .override(
+                                                                              fontFamily: FlutterFlowTheme.of(context).bodyMediumFamily,
+                                                                              letterSpacing: 0.0,
+                                                                              useGoogleFonts: !FlutterFlowTheme.of(context).bodyMediumIsCustom,
+                                                                            ),
                                                                       ),
+                                                                      TextSpan(
+                                                                        text: FFLocalizations.of(context)
+                                                                            .getText(
+                                                                          'k7zxnajl' /*  / week */,
+                                                                        ),
+                                                                        style:
+                                                                            TextStyle(),
+                                                                      )
+                                                                    ],
+                                                                    style: FlutterFlowTheme.of(
+                                                                            context)
+                                                                        .bodyMedium
+                                                                        .override(
+                                                                          fontFamily:
+                                                                              FlutterFlowTheme.of(context).bodyMediumFamily,
+                                                                          letterSpacing:
+                                                                              0.0,
+                                                                          useGoogleFonts:
+                                                                              !FlutterFlowTheme.of(context).bodyMediumIsCustom,
+                                                                        ),
+                                                                  ),
                                                                 ),
                                                               ),
                                                             ].divide(SizedBox(
@@ -1107,122 +1259,37 @@ class _SubscriptionPageWidgetState extends State<SubscriptionPageWidget> {
                               child: Column(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  Align(
-                                    alignment: AlignmentDirectional(0.0, 1.0),
-                                    child: Padding(
+                                  if ((_model.subsStatus ==
+                                          PlusmemberStatus.none.name) &&
+                                      !valueOrDefault<bool>(
+                                          currentUserDocument?.plusmember,
+                                          false))
+                                    Padding(
                                       padding: EdgeInsetsDirectional.fromSTEB(
-                                          0.0, 0.0, 0.0, 8.0),
-                                      child: FFButtonWidget(
-                                        onPressed: () async {
-                                          logFirebaseEvent(
-                                              'SUBSCRIPTION_PAGE_PAGE_Learnmore_ON_TAP');
-                                          logFirebaseEvent(
-                                              'Learnmore_haptic_feedback');
-                                          HapticFeedback.selectionClick();
-                                          if (valueOrDefault<bool>(
-                                                  currentUserDocument
-                                                      ?.plusmember,
-                                                  false) ==
-                                              false) {
-                                            logFirebaseEvent(
-                                                'Learnmore_bottom_sheet');
-                                            showModalBottomSheet(
-                                              isScrollControlled: true,
-                                              backgroundColor:
-                                                  Colors.transparent,
-                                              context: context,
-                                              builder: (context) {
-                                                return GestureDetector(
-                                                  onTap: () {
-                                                    FocusScope.of(context)
-                                                        .unfocus();
-                                                    FocusManager
-                                                        .instance.primaryFocus
-                                                        ?.unfocus();
-                                                  },
-                                                  child: Padding(
-                                                    padding:
-                                                        MediaQuery.viewInsetsOf(
-                                                            context),
-                                                    child:
-                                                        PaymentDialogStartWidget(),
-                                                  ),
-                                                );
-                                              },
-                                            ).then(
-                                                (value) => safeSetState(() {}));
-                                          } else {
-                                            logFirebaseEvent(
-                                                'Learnmore_bottom_sheet');
-                                            showModalBottomSheet(
-                                              isScrollControlled: true,
-                                              backgroundColor:
-                                                  Colors.transparent,
-                                              context: context,
-                                              builder: (context) {
-                                                return GestureDetector(
-                                                  onTap: () {
-                                                    FocusScope.of(context)
-                                                        .unfocus();
-                                                    FocusManager
-                                                        .instance.primaryFocus
-                                                        ?.unfocus();
-                                                  },
-                                                  child: Padding(
-                                                    padding:
-                                                        MediaQuery.viewInsetsOf(
-                                                            context),
-                                                    child:
-                                                        PaymentDialogWidget(),
-                                                  ),
-                                                );
-                                              },
-                                            ).then(
-                                                (value) => safeSetState(() {}));
-                                          }
-                                        },
-                                        text:
-                                            FFLocalizations.of(context).getText(
-                                          'zn68g42o' /* Learn more about benefits */,
-                                        ),
-                                        options: FFButtonOptions(
-                                          padding:
-                                              EdgeInsetsDirectional.fromSTEB(
-                                                  16.0, 0.0, 16.0, 0.0),
-                                          iconPadding:
-                                              EdgeInsetsDirectional.fromSTEB(
-                                                  0.0, 0.0, 0.0, 0.0),
-                                          color: Colors.transparent,
-                                          textStyle: FlutterFlowTheme.of(
-                                                  context)
-                                              .titleSmall
+                                          0.0, 0.0, 0.0, 10.0),
+                                      child: AuthUserStreamWidget(
+                                        builder: (context) => Text(
+                                          FFLocalizations.of(context).getText(
+                                            'v9zneb3z' /* Try free for 7 days. Cancel an... */,
+                                          ),
+                                          style: FlutterFlowTheme.of(context)
+                                              .bodyMedium
                                               .override(
                                                 fontFamily:
                                                     FlutterFlowTheme.of(context)
-                                                        .titleSmallFamily,
+                                                        .bodyMediumFamily,
                                                 color:
                                                     FlutterFlowTheme.of(context)
-                                                        .secondary,
-                                                fontSize: 14.0,
-                                                letterSpacing: 0.07,
-                                                fontWeight: FontWeight.w600,
-                                                lineHeight: 1.4,
+                                                        .white,
+                                                letterSpacing: 0.0,
                                                 useGoogleFonts:
                                                     !FlutterFlowTheme.of(
                                                             context)
-                                                        .titleSmallIsCustom,
+                                                        .bodyMediumIsCustom,
                                               ),
-                                          elevation: 0.0,
-                                          borderSide: BorderSide(
-                                            color: Colors.transparent,
-                                            width: 1.0,
-                                          ),
-                                          borderRadius:
-                                              BorderRadius.circular(8.0),
                                         ),
                                       ),
                                     ),
-                                  ),
                                   Padding(
                                     padding: EdgeInsetsDirectional.fromSTEB(
                                         0.0, 0.0, 0.0, 8.0),
@@ -1394,6 +1461,18 @@ class _SubscriptionPageWidgetState extends State<SubscriptionPageWidget> {
                                                             createUsersRecordData(
                                                       hasPayable: true,
                                                     ));
+                                                    logFirebaseEvent(
+                                                        'Gotopayment_custom_action');
+                                                    unawaited(
+                                                      () async {
+                                                        _model.subsStatusUpdate =
+                                                            await actions
+                                                                .checkSubsStatus(
+                                                          currentUserUid,
+                                                        );
+                                                      }(),
+                                                    );
+                                                    _shouldSetState = true;
                                                   } else {
                                                     logFirebaseEvent(
                                                         'Gotopayment_navigate_back');
@@ -1441,10 +1520,13 @@ class _SubscriptionPageWidgetState extends State<SubscriptionPageWidget> {
                                                   safeSetState(() {});
                                               },
                                         text: valueOrDefault<String>(
-                                          !valueOrDefault<bool>(
-                                                  currentUserDocument
-                                                      ?.plusmember,
-                                                  false)
+                                          (_model.subsStatus ==
+                                                      PlusmemberStatus
+                                                          .none.name) &&
+                                                  !valueOrDefault<bool>(
+                                                      currentUserDocument
+                                                          ?.plusmember,
+                                                      false)
                                               ? valueOrDefault<String>(
                                                   FFLocalizations.of(context)
                                                       .getVariableText(
@@ -1520,10 +1602,13 @@ class _SubscriptionPageWidgetState extends State<SubscriptionPageWidget> {
                                         text: TextSpan(
                                           children: [
                                             TextSpan(
-                                              text: !valueOrDefault<bool>(
-                                                      currentUserDocument
-                                                          ?.plusmember,
-                                                      false)
+                                              text: (_model.subsStatus ==
+                                                          PlusmemberStatus
+                                                              .none.name) &&
+                                                      !valueOrDefault<bool>(
+                                                          currentUserDocument
+                                                              ?.plusmember,
+                                                          false)
                                                   ? valueOrDefault<String>(
                                                       FFLocalizations.of(
                                                               context)
@@ -2049,7 +2134,8 @@ class _SubscriptionPageWidgetState extends State<SubscriptionPageWidget> {
                                     ),
                                   ),
                                 ].addToEnd(SizedBox(height: 14.0)),
-                              ),
+                              ).animateOnPageLoad(
+                                  animationsMap['columnOnPageLoadAnimation']!),
                             ),
                           ),
                         ),

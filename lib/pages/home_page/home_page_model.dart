@@ -1,9 +1,5 @@
 import '/auth/firebase_auth/auth_util.dart';
 import '/backend/backend.dart';
-import '/components/becomea_h_i_i_tthe_beat_trainer/becomea_h_i_i_tthe_beat_trainer_widget.dart';
-import '/components/dialogs/onboarding_home/onboarding_home_widget.dart';
-import '/components/dialogs/onboarding_start/onboarding_start_widget.dart';
-import '/components/dialogs/payment_dialog_start/payment_dialog_start_widget.dart';
 import '/components/empty_list/empty_list_widget.dart';
 import '/components/h_i_i_tthe_beat_shop/h_i_i_tthe_beat_shop_widget.dart';
 import '/components/navbar/navbar_widget.dart';
@@ -55,8 +51,6 @@ class HomePageModel extends FlutterFlowModel<HomePageWidget> {
   late WatchtheintroductoryvideoModel watchtheintroductoryvideoModel;
   // Model for ZOOMLiveWorkoutJamList component.
   late ZOOMLiveWorkoutJamListModel zOOMLiveWorkoutJamListModel;
-  // Model for BecomeaHIITtheBeatTrainer component.
-  late BecomeaHIITtheBeatTrainerModel becomeaHIITtheBeatTrainerModel;
   // Model for HIITtheBeatShop component.
   late HIITtheBeatShopModel hIITtheBeatShopModel;
   // State field(s) for PageView widget.
@@ -78,8 +72,6 @@ class HomePageModel extends FlutterFlowModel<HomePageWidget> {
         createModel(context, () => WatchtheintroductoryvideoModel());
     zOOMLiveWorkoutJamListModel =
         createModel(context, () => ZOOMLiveWorkoutJamListModel());
-    becomeaHIITtheBeatTrainerModel =
-        createModel(context, () => BecomeaHIITtheBeatTrainerModel());
     hIITtheBeatShopModel = createModel(context, () => HIITtheBeatShopModel());
     seasonCompModels = FlutterFlowDynamicModels(() => SeasonCompModel());
     navbarModel = createModel(context, () => NavbarModel());
@@ -89,7 +81,6 @@ class HomePageModel extends FlutterFlowModel<HomePageWidget> {
   void dispose() {
     watchtheintroductoryvideoModel.dispose();
     zOOMLiveWorkoutJamListModel.dispose();
-    becomeaHIITtheBeatTrainerModel.dispose();
     hIITtheBeatShopModel.dispose();
     seasonCompModels.dispose();
     navbarModel.dispose();

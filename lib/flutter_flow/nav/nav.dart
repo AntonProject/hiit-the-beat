@@ -11,6 +11,8 @@ import '/backend/schema/enums/enums.dart';
 
 import '/auth/base_auth_user_provider.dart';
 
+import '/backend/push_notifications/push_notifications_handler.dart'
+    show PushNotificationsHandler;
 import '/main.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/lat_lng.dart';
@@ -189,7 +191,6 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
         FFRoute(
           name: PasswordChangePage2Widget.routeName,
           path: PasswordChangePage2Widget.routePath,
-          requireAuth: true,
           builder: (context, params) => PasswordChangePage2Widget(
             email: params.getParam(
               'email',
@@ -245,6 +246,10 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
               'seasonIndex',
               ParamType.int,
             ),
+            selectedLvl: params.getParam(
+              'selectedLvl',
+              ParamType.int,
+            ),
           ),
         ),
         FFRoute(
@@ -280,6 +285,10 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
             ),
             seasonIndex: params.getParam(
               'seasonIndex',
+              ParamType.int,
+            ),
+            selectedLvl: params.getParam(
+              'selectedLvl',
               ParamType.int,
             ),
           ),
@@ -711,7 +720,7 @@ class FFRoute {
                     ),
                   ),
                 )
-              : page;
+              : PushNotificationsHandler(child: page);
 
           final transitionInfo = state.transitionInfo;
           return transitionInfo.hasTransition

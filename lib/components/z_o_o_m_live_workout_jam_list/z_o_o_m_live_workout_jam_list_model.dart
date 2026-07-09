@@ -1,7 +1,7 @@
 import '/auth/firebase_auth/auth_util.dart';
 import '/backend/backend.dart';
 import '/components/dialogs/payment_dialog/payment_dialog_widget.dart';
-import '/components/dialogs/payment_dialog_start/payment_dialog_start_widget.dart';
+import '/components/dialogs/zoom_no_premium_dialog/zoom_no_premium_dialog_widget.dart';
 import '/components/skeleton/skeleton_homezoom/skeleton_homezoom_widget.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';

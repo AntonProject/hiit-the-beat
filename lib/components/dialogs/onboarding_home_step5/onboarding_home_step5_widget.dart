@@ -171,6 +171,10 @@ class _OnboardingHomeStep5WidgetState extends State<OnboardingHomeStep5Widget>
                             FFAppState().onboardingHome = false;
                             FFAppState().firstOpen = false;
                             FFAppState().update(() {});
+                            logFirebaseEvent('Letsgo_update_app_state');
+                            FFAppState().onboardingStep =
+                                FFAppState().onboardingStep + 1;
+                            safeSetState(() {});
                             logFirebaseEvent('Letsgo_navigate_to');
 
                             context.goNamed(
@@ -240,6 +244,10 @@ class _OnboardingHomeStep5WidgetState extends State<OnboardingHomeStep5Widget>
                                       'ONBOARDING_HOME_STEP5_COMP_back_ON_TAP');
                                   logFirebaseEvent('back_bottom_sheet');
                                   Navigator.pop(context);
+                                  logFirebaseEvent('back_update_app_state');
+                                  FFAppState().onboardingStep =
+                                      FFAppState().onboardingStep + -1;
+                                  safeSetState(() {});
                                   logFirebaseEvent('back_bottom_sheet');
                                   showModalBottomSheet(
                                     isScrollControlled: true,
@@ -308,6 +316,10 @@ class _OnboardingHomeStep5WidgetState extends State<OnboardingHomeStep5Widget>
                                   HapticFeedback.selectionClick();
                                   logFirebaseEvent('next_bottom_sheet');
                                   Navigator.pop(context);
+                                  logFirebaseEvent('next_update_app_state');
+                                  FFAppState().onboardingStep =
+                                      FFAppState().onboardingStep + 1;
+                                  safeSetState(() {});
                                   logFirebaseEvent('next_update_app_state');
                                   FFAppState().onboardingHome = false;
                                   FFAppState().firstOpen = false;

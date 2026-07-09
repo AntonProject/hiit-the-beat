@@ -180,15 +180,19 @@ final kTranslationsMap = <Map<String, Map<String, String>>>[
   },
   // AuthPage
   {
-    'ldlvrz96': {
-      'en': 'JOIN THE COMMUNITY TODAY!',
-      'de':
-          'THROUGH FITNESS & MUSIC WE EMPOWER, CONNECT & TRANSFORM LIVES. WORLDWIDE',
-      'ja': '今すぐコミュニティに参加しましょう！',
+    '96c5bviw': {
+      'en': 'THIS ISN\'T JUST\n',
+      'de': '',
+      'ja': '',
+    },
+    'i7328muh': {
+      'en': 'ANOTHER WORKOUT',
+      'de': '',
+      'ja': '',
     },
     'uctmduz2': {
       'en':
-          'Everything you need to unleash your highest potential & get fitter than ever before',
+          'Strength. Coordination. Mobility. Control. Rhythm.\nAll at once. Led by music',
       'de':
           'Alles, was du brauchst, um fitter und beweglicher zu werden – und das mit Spaß! Erlebe das abwechslungsreiche Workout der Welt',
       'ja': '最高の潜在能力を発揮し、これまで以上に健康になるために必要なものすべて',
@@ -216,6 +220,26 @@ final kTranslationsMap = <Map<String, Map<String, String>>>[
       'de': 'Einloggen',
       'ja': 'ログイン',
     },
+    'ehfrnzwl': {
+      'en': 'Continue with Google',
+      'de': 'Weiter mit Google',
+      'ja': 'Googleで続行',
+    },
+    'wq7qouzf': {
+      'en': ' ',
+      'de': ' ',
+      'ja': '',
+    },
+    'k33phmp9': {
+      'en': 'Continue with Apple',
+      'de': 'Weiter mit Apple',
+      'ja': 'Appleで続ける',
+    },
+    '7jtsjcbs': {
+      'en': ' ',
+      'de': ' ',
+      'ja': '',
+    },
     'hx3a7fwb': {
       'en': 'Email',
       'de': 'E-Mail',
@@ -235,16 +259,6 @@ final kTranslationsMap = <Map<String, Map<String, String>>>[
       'en': '',
       'de': '',
       'ja': '',
-    },
-    '65uwhj9e': {
-      'en': 'Log in',
-      'de': 'Einloggen',
-      'ja': 'ログイン',
-    },
-    'um9xxlwd': {
-      'en': 'Account deleted',
-      'de': 'Konto gelöscht',
-      'ja': 'アカウントを削除しました',
     },
     's2ir1gfg': {
       'en': 'Wrong email or password',
@@ -286,25 +300,15 @@ final kTranslationsMap = <Map<String, Map<String, String>>>[
       'de': '',
       'ja': '',
     },
-    'ehfrnzwl': {
-      'en': 'Continue with Google',
-      'de': 'Weiter mit Google',
-      'ja': 'Googleで続行',
+    '65uwhj9e': {
+      'en': 'Log in',
+      'de': 'Einloggen',
+      'ja': 'ログイン',
     },
-    'wq7qouzf': {
-      'en': ' ',
-      'de': ' ',
-      'ja': '',
-    },
-    'k33phmp9': {
-      'en': 'Continue with Apple',
-      'de': 'Weiter mit Apple',
-      'ja': 'Appleで続ける',
-    },
-    '7jtsjcbs': {
-      'en': ' ',
-      'de': ' ',
-      'ja': '',
+    'um9xxlwd': {
+      'en': 'Account deleted',
+      'de': 'Konto gelöscht',
+      'ja': 'アカウントを削除しました',
     },
     '5a9zo0d2': {
       'en': 'Create an account',
@@ -379,9 +383,29 @@ final kTranslationsMap = <Map<String, Map<String, String>>>[
   // SignupPage
   {
     'qpe0i4iv': {
-      'en': 'Sign up',
+      'en': 'Create an account',
       'de': 'Melden Sie sich an',
       'ja': 'サインアップ',
+    },
+    'xdayj45h': {
+      'en': 'Continue with Google',
+      'de': 'Weiter mit Google',
+      'ja': 'Googleで続行',
+    },
+    'ma1eu5tp': {
+      'en': ' ',
+      'de': ' ',
+      'ja': '',
+    },
+    '9otzq9f4': {
+      'en': 'Continue with Apple',
+      'de': 'Weiter mit Apple',
+      'ja': 'Appleで続ける',
+    },
+    '1fhh2vy2': {
+      'en': ' ',
+      'de': ' ',
+      'ja': '',
     },
     'tpa0swpa': {
       'en': 'Email',
@@ -428,8 +452,18 @@ final kTranslationsMap = <Map<String, Map<String, String>>>[
       'de': 'Passwörter stimmen nicht überein',
       'ja': 'パスワードが一致しません',
     },
+    'iais1jrj': {
+      'en': 'Already have an account?',
+      'de': 'Du hast bereits ein Konto?',
+      'ja': 'すでにアカウントをお持ちですか?',
+    },
+    'tzz4jrav': {
+      'en': 'Log in',
+      'de': 'Einloggen',
+      'ja': 'ログイン',
+    },
     'd938p4wk': {
-      'en': 'Sign up',
+      'en': 'Create an account',
       'de': 'Anmelden',
       'ja': 'サインアップ',
     },
@@ -458,36 +492,6 @@ final kTranslationsMap = <Map<String, Map<String, String>>>[
       'de': ' zu',
       'ja': '',
     },
-    'xdayj45h': {
-      'en': 'Continue with Google',
-      'de': 'Weiter mit Google',
-      'ja': 'Googleで続行',
-    },
-    'ma1eu5tp': {
-      'en': ' ',
-      'de': ' ',
-      'ja': '',
-    },
-    '9otzq9f4': {
-      'en': 'Continue with Apple',
-      'de': 'Weiter mit Apple',
-      'ja': 'Appleで続ける',
-    },
-    '1fhh2vy2': {
-      'en': ' ',
-      'de': ' ',
-      'ja': '',
-    },
-    'iais1jrj': {
-      'en': 'Already have an account?',
-      'de': 'Du hast bereits ein Konto?',
-      'ja': 'すでにアカウントをお持ちですか?',
-    },
-    'tzz4jrav': {
-      'en': 'Log in',
-      'de': 'Einloggen',
-      'ja': 'ログイン',
-    },
     'skf0wkcd': {
       'en': 'Home',
       'de': 'Home',
@@ -496,13 +500,18 @@ final kTranslationsMap = <Map<String, Map<String, String>>>[
   },
   // EmailVerificationPage
   {
+    'k69d8798': {
+      'en': 'We sent the link to the ',
+      'de': '',
+      'ja': '',
+    },
     '3ia1zkt2': {
       'en': 'We sent the link to the ',
       'de': 'Wir haben den Link gesendet an ',
       'ja': 'リンクを送信しました ',
     },
     't7ecpc98': {
-      'en': 'Follow this link to confirm email',
+      'en': 'Please check your inbox and tap the link to verify your email',
       'de': 'Folge diesem Link, um die E-Mail zu bestätigen',
       'ja': 'メールを確認するにはこのリンクをクリックしてください',
     },
@@ -558,6 +567,11 @@ final kTranslationsMap = <Map<String, Map<String, String>>>[
   },
   // EmailChangeSendLinkPage
   {
+    'z90bzxho': {
+      'en': 'We sent the link to the ',
+      'de': '',
+      'ja': '',
+    },
     'qt0qsldk': {
       'en': 'We sent the link to the',
       'de': 'Wir haben den Link an die',
@@ -2096,6 +2110,11 @@ final kTranslationsMap = <Map<String, Map<String, String>>>[
       'de': 'Handynummer hinzufügen',
       'ja': '電話番号を追加',
     },
+    'qc2259v9': {
+      'en': 'WhatsApp support',
+      'de': 'WhatsApp support',
+      'ja': '利用規約',
+    },
     'hnmc6b5n': {
       'en': 'Terms & conditions',
       'de': 'Allgemeine Geschäftsbedingungen',
@@ -2110,6 +2129,11 @@ final kTranslationsMap = <Map<String, Map<String, String>>>[
       'en': 'Imprint',
       'de': 'Impressum',
       'ja': 'インプリント',
+    },
+    'fi22gjpw': {
+      'en': 'Rate Us',
+      'de': 'Bewerten Sie uns',
+      'ja': '評価してください',
     },
     'i1kbaueb': {
       'en': 'Admin Panel',
@@ -2140,6 +2164,11 @@ final kTranslationsMap = <Map<String, Map<String, String>>>[
   },
   // PasswordChangePage
   {
+    'ztz0re8a': {
+      'en': 'To change password we’ll send a link to your email ',
+      'de': '',
+      'ja': '',
+    },
     '7x2848dd': {
       'en': 'To change password we’ll send a link to your email',
       'de':
@@ -2159,6 +2188,11 @@ final kTranslationsMap = <Map<String, Map<String, String>>>[
   },
   // PasswordChangePage2
   {
+    'l0kotbll': {
+      'en': 'We sent the link to the ',
+      'de': '',
+      'ja': '',
+    },
     'tw4mqvkb': {
       'en': 'We sent the link to the',
       'de': 'Wir haben den Link zum',
@@ -2455,8 +2489,8 @@ final kTranslationsMap = <Map<String, Map<String, String>>>[
       'ja': 'Done',
     },
     'pf7q4dog': {
-      'en': 'Finish workout',
-      'de': 'Finish workout',
+      'en': 'Done. Collect your points.',
+      'de': 'Done. Collect your points.',
       'ja': 'Finish workout',
     },
     '36253ub2': {
@@ -4632,29 +4666,54 @@ final kTranslationsMap = <Map<String, Map<String, String>>>[
       'ja': '3か月間無料！',
     },
     '7tbrnflb': {
-      'en': '76% of users commit to long-term result — join them today!',
-      'de': '76 % der Nutzer bleiben langfristig dabei —\nsei einer von ihnen!',
+      'en': 'Chosen by 76% of members',
+      'de': '76 % der Nutzer bleiben langfristig dabei ',
       'ja': 'ユーザーの 76% が長期的な成果を約束します。今すぐ参加しましょう!',
     },
-    '3j0q74op': {
-      'en': '\$2.9 / week - instead of a cup of coffee!',
-      'de': '2,90 \$ pro Woche – statt einer Tasse Kaffee!',
+    '4162cpea': {
+      'en': 'Save ',
+      'de': 'Spare ',
+      'ja': 'Save ',
+    },
+    'z2eqm1ek': {
+      'en': ' vs. monthly plan',
+      'de': ' vs. Monatsabo',
+      'ja': ' vs. monthly plan',
+    },
+    'zh3v58jr': {
+      'en': 'Only \$2.90 / week',
+      'de': '2,90 \$ pro Woche ',
       'ja': '週 2.9 ドル - コーヒー 1 杯の代わりに!',
     },
-    'hm7frjjm': {
-      'en': 'Long-term motivation & continuous progress',
-      'de': 'Langfristige Motivation & kontinuierliche Fortschritte',
-      'ja': '長期的なモチベーションと継続的な進歩',
+    'lsj38x1a': {
+      'en': 'Only ',
+      'de': '',
+      'ja': '',
+    },
+    '407ojiig': {
+      'en': ' / week',
+      'de': ' pro Woche',
+      'ja': '',
+    },
+    '3j0q74op': {
+      'en': 'Only \$2.90 / week',
+      'de': '2,90 \$ pro Woche ',
+      'ja': '週 2.9 ドル - コーヒー 1 杯の代わりに!',
+    },
+    'k7zxnajl': {
+      'en': ' / week',
+      'de': ' pro Woche',
+      'ja': '',
     },
     'm345soo5': {
-      'en': 'Maximum flexibility — cancel anytime',
-      'de': 'Maximale Flexibilität — jederzeit kündbar',
+      'en': '\$4.25 / week',
+      'de': '4,25 \$ / Woche',
       'ja': '最大限の柔軟性 - いつでもキャンセル可能',
     },
-    'zn68g42o': {
-      'en': 'Learn more about benefits',
-      'de': 'Erfahren Sie mehr über die Vorteile',
-      'ja': '特典について詳しくはこちら',
+    'v9zneb3z': {
+      'en': 'Try free for 7 days. Cancel anytime. No charge',
+      'de': '',
+      'ja': '',
     },
     'hivpj2fq': {
       'en':
@@ -5072,12 +5131,12 @@ final kTranslationsMap = <Map<String, Map<String, String>>>[
   // signupSuccess
   {
     '135inf76': {
-      'en': 'The account has been created',
+      'en': 'Your account has been created',
       'de': 'Dein Konto wurde erstellt',
       'ja': 'アカウントが作成されました',
     },
     '7zjkfwfk': {
-      'en': 'Have fun and enjoy the progress!',
+      'en': 'Now it\'s time to HIIT the Beat',
       'de': 'Viel Spaß und zeige der Welt was du drauf hast',
       'ja': '楽しみながら進歩を楽しみましょう！',
     },
@@ -5418,9 +5477,9 @@ final kTranslationsMap = <Map<String, Map<String, String>>>[
   // becomeplusmember
   {
     'zvxsuk2p': {
-      'en': 'Become a Plusmember  to get access to 80+ workouts',
-      'de': 'Werden Sie Plusmitglied für über 80+ Workouts!',
-      'ja': 'Plusmemberになると、80以上のワークアウトにアクセスできます',
+      'en': 'Become a Plusmember  to get access to 100+ workouts',
+      'de': 'Werden Sie Plusmitglied für über 100+ Workouts!',
+      'ja': 'Plusmemberになると、100以上のワークアウトにアクセスできます',
     },
     '9k47luzn': {
       'en': 'Details & payment',
@@ -5493,11 +5552,6 @@ final kTranslationsMap = <Map<String, Map<String, String>>>[
       'de': 'Workouts',
       'ja': 'Workouts',
     },
-    'sl4r56ut': {
-      'en': 'Free',
-      'de': 'Free',
-      'ja': 'Free',
-    },
     'f6jing3j': {
       'en': 'Last activity',
       'de': 'Letzte Aktivität',
@@ -5558,47 +5612,59 @@ final kTranslationsMap = <Map<String, Map<String, String>>>[
   // PaymentDialog
   {
     '0gprl0cm': {
-      'en': 'UNLOCK\nTHE FULL HIIT THE BEAT EXPERIENCE',
-      'de': 'SCHALTE DAS VOLLE HIIT THE BEAT ERLEBNIS FREI',
-      'ja': 'BECOMA PLUSメンバーになる',
+      'en': 'TRAIN EVERYTHING \nTHAT MATTERS. \nALL AT ONCE. LED BY MUSIC',
+      'de': 'TRAIN EVERYTHING \nTHAT MATTERS. \nALL AT ONCE. LED BY MUSIC',
+      'ja': 'TRAIN EVERYTHING \nTHAT MATTERS. \nALL AT ONCE. LED BY MUSIC',
     },
-    'cbv411z4': {
-      'en':
-          'TRAIN WITH MUSIC, ENERGY & FUN — ANYTIME, ANYWHERE WITH THE PLUS MEMBERSHIP',
-      'de':
-          'TRAINIERE MIT ENERGIEGELADENEN, MUSIKGETRIEBENEN WORKOUTS — WANN UND WO DU WILLST',
-      'ja': 'そして今日からあなたの人生を変え始めましょう！',
+    'kg7u2t86': {
+      'en': 'FUN.CHALLENGING.DIFFERENT',
+      'de': 'FUN.CHALLENGING.DIFFERENT',
+      'ja': 'FUN.CHALLENGING.DIFFERENT',
     },
     'may7byav': {
-      'en':
-          'Music-driven workouts — no limits, all unlocked, inclusive warm ups & cool downs',
-      'de':
-          'Unbegrenzter Zugriff auf alle musikgetriebenen High-Energy-Workouts — inklusive Warm-ups & Cooldowns',
-      'ja': 'より多くのエネルギー、より多くのモチベーション、より多くの多様性',
+      'en': '100+ music-driven workouts',
+      'de': '100+ music-driven workouts',
+      'ja': '100+ music-driven workouts',
     },
-    'ygk6ddgn': {
-      'en':
-          'Weekly live ZOOM workout Jams — \nTrain live with our coaches & community',
-      'de':
-          'Wöchentliche ZOOM Live Workout Jam mit unseren coaches — trainiere live mit der community',
-      'ja': 'ライブ Zoom トレーニング - 実際のコーチやコミュニティと一緒にトレーニングしましょう!',
+    'iba3a3u8': {
+      'en': 'New ones added regularly',
+      'de': 'New ones added regularly',
+      'ja': 'New ones added regularly',
     },
-    'wk6zijvt': {
-      'en': 'For all fitness levels — Simple, motivating,\nfun & effective',
-      'de':
-          'Für jedes Fitnesslevel geeignet — einfach, spaßig, motivierend & effektiv',
-      'ja': '定期的に新しいコンテンツが登場。ワークアウトは毎回異なります。',
+    'kbyul9u3': {
+      'en': '4 levels',
+      'de': '4 levels',
+      'ja': '4 levels',
     },
-    '3vrpuapa': {
-      'en':
-          'Track your progress & stay motivated — \nBuild consistency & momentum',
-      'de': 'Sammle Punkte, bleib dran und verfolge deine Fortschritte',
-      'ja': 'あらゆるフィットネスレベルに対応する100以上のエクササイズと80以上のワークアウト',
+    '29ze0gds': {
+      'en': 'Beginner → Advanced → Expert → Godmode',
+      'de': 'Beginner → Advanced → Expert → Godmode',
+      'ja': 'Beginner → Advanced → Expert → Godmode',
     },
-    '88csohcq': {
-      'en': 'SELECT SUBSCRIPTION',
-      'de': 'WÄHLE EIN ABONNEMENT',
-      'ja': 'サブスクリプションを選択',
+    'oomhg8l9': {
+      'en': 'No reps.  No counting',
+      'de': 'No reps.  No counting',
+      'ja': 'No reps.  No counting',
+    },
+    '9o3tfclx': {
+      'en': 'Just the beat',
+      'de': 'Just the beat',
+      'ja': 'Just the beat',
+    },
+    'rnegvd7d': {
+      'en': 'Weekly Live  Workout Jams',
+      'de': 'Weekly Live  Workout Jams',
+      'ja': 'Weekly Live  Workout Jams',
+    },
+    'elh0ty3e': {
+      'en': 'With coaches  & community',
+      'de': 'With coaches  & community',
+      'ja': 'With coaches  & community',
+    },
+    'oe2hfr27': {
+      'en': '100,000 downloads worldwide',
+      'de': '100,000 downloads worldwide',
+      'ja': '100,000 downloads worldwide',
     },
   },
   // GuestDialog
@@ -5974,6 +6040,19 @@ final kTranslationsMap = <Map<String, Map<String, String>>>[
       'ja': 'Delete',
     },
   },
+  // ZOOMLiveWorkoutJamList
+  {
+    'ewznu98z': {
+      'en': 'Workout',
+      'de': 'Workout',
+      'ja': '',
+    },
+    '32g8y489': {
+      'en': 'Jam',
+      'de': 'Jam',
+      'ja': '',
+    },
+  },
   // AdminUserDelete
   {
     'vm6go066': {
@@ -6128,52 +6207,6 @@ final kTranslationsMap = <Map<String, Map<String, String>>>[
       'en': 'No, cancel',
       'de': 'No, cancel',
       'ja': 'No, cancel',
-    },
-  },
-  // PaymentDialogStart
-  {
-    'yddbsx0v': {
-      'en': 'UNLOCK\nTHE FULL HIIT THE BEAT \nEXPERIENCE',
-      'de': 'SCHALTE DAS VOLLE HIIT THE BEAT ERLEBNIS FREI',
-      'ja': '7日間無料トライアルを始めましょう！',
-    },
-    'regbuahb': {
-      'en':
-          'TRAIN WITH MUSIC, ENERGY & FUN — ANYTIME, ANYWHERE WITH THE PLUS MEMBERSHIP',
-      'de':
-          'TRAINIERE MIT ENERGIEGELADENEN, MUSIKGETRIEBENEN WORKOUTS — WANN UND WO DU WILLST',
-      'ja': '最初のワークアウトが待っています ― 違いをすぐに実感してください',
-    },
-    'ho2sfkjt': {
-      'en':
-          'Music-driven workouts — no limits, all unlocked, inclusive warm ups & cool downs',
-      'de':
-          'Unbegrenzter Zugriff auf alle musikgetriebenen High-Energy-Workouts — inklusive Warm-ups & Cooldowns',
-      'ja': 'より多くのエネルギー、より多くのモチベーション、より多くの多様性',
-    },
-    '0a9jj1ve': {
-      'en':
-          'Weekly live ZOOM workout Jams — \nTrain live with our coaches & community',
-      'de':
-          'Wöchentliche ZOOM Live Workout Jam mit unseren coaches — trainiere live mit der community',
-      'ja': 'ライブ Zoom トレーニング - 実際のコーチやコミュニティと一緒にトレーニングしましょう!',
-    },
-    '78caukbi': {
-      'en': 'For all fitness levels — Simple, motivating,\n fun & effective',
-      'de':
-          'Für jedes Fitnesslevel geeignet — einfach, spaßig, motivierend & effektiv',
-      'ja': '定期的に新しいコンテンツが登場。ワークアウトは毎回異なります。',
-    },
-    'p773u3g7': {
-      'en':
-          'Track your progress & stay motivated —\nBuild consistency & momentum',
-      'de': 'Sammle Punkte, bleib dran und verfolge deine Fortschritte',
-      'ja': 'あらゆるフィットネスレベルに対応する100以上のエクササイズと80以上のワークアウト',
-    },
-    '0rf1lodg': {
-      'en': 'START 7-DAY FREE TRIAL',
-      'de': 'JETZT 7 TAGE KOSTENLOS TESTEN',
-      'ja': '無料トライアルを始める',
     },
   },
   // LevelSuccessDialog
@@ -6420,6 +6453,64 @@ final kTranslationsMap = <Map<String, Map<String, String>>>[
       'ja': 'PUSHES YOU FORWARD',
     },
   },
+  // ZoomNoPremiumDialog
+  {
+    '74e6i1g6': {
+      'en': 'WORKOUT\n',
+      'de': 'WORKOUT\n',
+      'ja': 'WORKOUT\n',
+    },
+    'lmie17lq': {
+      'en': 'JAM',
+      'de': 'JAM',
+      'ja': 'JAM',
+    },
+    'h2hcoykk': {
+      'en': 'TRAIN EVERYTHING \nTHAT MATTERS. \nALL AT ONCE. LED BY MUSIC',
+      'de':
+          'TRAIN EVERYTHING THAT MATTERS.\nALLES IN EINER SESSION. POWERED BY MUSTRAIN EVERYTHING \nTHAT MATTERS. \nALL AT ONCE. LED BY MUSICIC.',
+      'ja': 'TRAIN EVERYTHING \nTHAT MATTERS. \nALL AT ONCE. LED BY MUSIC',
+    },
+    'z6gld9wx': {
+      'en': 'What is a Workout Jam?',
+      'de': 'What is a Workout Jam?',
+      'ja': 'What is a Workout Jam?',
+    },
+    'hje3ohy8': {
+      'en':
+          'A live workout session with real coaches  and the Mover community. Every week different people, different levels, same fun',
+      'de':
+          'A live workout session with real coaches  and the Mover community. Every week different people, different levels, same fun',
+      'ja':
+          'A live workout session with real coaches  and the Mover community. Every week different people, different levels, same fun',
+    },
+    'qm6i8s91': {
+      'en':
+          'Train together, not alone. Get motivated by coaches who push you, and Movers who train right alongside you. No equipment. No excuses. Just the beat',
+      'de':
+          'Train together, not alone. Get motivated by coaches who push you, and Movers who train right alongside you. No equipment. No excuses. Just the beat',
+      'ja':
+          'Train together, not alone. Get motivated by coaches who push you, and Movers who train right alongside you. No equipment. No excuses. Just the beat',
+    },
+    '9p6lnipd': {
+      'en': 'Available only for Plusmembers',
+      'de': 'Available only for Plusmembers',
+      'ja': 'Available only for Plusmembers',
+    },
+    'ecn3ocqv': {
+      'en': 'Got it',
+      'de': 'Got it',
+      'ja': 'Got it',
+    },
+  },
+  // SignUpDelimiter
+  {
+    '0arxbgom': {
+      'en': 'Or with email',
+      'de': '',
+      'ja': '',
+    },
+  },
   // Miscellaneous
   {
     'pj6qeklk': {
@@ -6483,6 +6574,12 @@ final kTranslationsMap = <Map<String, Map<String, String>>>[
       'de':
           'Diese Berechtigung ermöglicht es uns, Ihnen ein personalisiertes Trainingserlebnis zu bieten und die Qualität der App zu verbessern.',
       'ja': 'この許可により、パーソナライズされたワークアウト体験を提供し、アプリの品質を向上させることができます。',
+    },
+    'ejvk3tfn': {
+      'en':
+          'In order to get notifications, this app requires permission to access the notifications',
+      'de': '',
+      'ja': '',
     },
     'jm6so7ph': {
       'en': 'Incorrect password',

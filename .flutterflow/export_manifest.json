@@ -9,7 +9,7 @@
     "mode": "export",
     "format": true
   },
-  "exported_at": "2026-05-01T12:01:02.521734Z",
+  "exported_at": "2026-06-04T17:39:50.189463Z",
   "files": [
     ".flutterflow/export_manifest.json",
     "README.md",
@@ -261,8 +261,6 @@
     "lib/components/dialogs/onboarding_start/onboarding_start_widget.dart",
     "lib/components/dialogs/payment_dialog/payment_dialog_model.dart",
     "lib/components/dialogs/payment_dialog/payment_dialog_widget.dart",
-    "lib/components/dialogs/payment_dialog_start/payment_dialog_start_model.dart",
-    "lib/components/dialogs/payment_dialog_start/payment_dialog_start_widget.dart",
     "lib/components/dialogs/promo_dialog/promo_dialog_model.dart",
     "lib/components/dialogs/promo_dialog/promo_dialog_widget.dart",
     "lib/components/dialogs/season_done_dialog/season_done_dialog_model.dart",
@@ -275,6 +273,8 @@
     "lib/components/dialogs/workout_success3times_dialog/workout_success3times_dialog_widget.dart",
     "lib/components/dialogs/workout_success_dialog/workout_success_dialog_model.dart",
     "lib/components/dialogs/workout_success_dialog/workout_success_dialog_widget.dart",
+    "lib/components/dialogs/zoom_no_premium_dialog/zoom_no_premium_dialog_model.dart",
+    "lib/components/dialogs/zoom_no_premium_dialog/zoom_no_premium_dialog_widget.dart",
     "lib/components/empty_list/empty_list_model.dart",
     "lib/components/empty_list/empty_list_widget.dart",
     "lib/components/h_i_i_tthe_beat_shop/h_i_i_tthe_beat_shop_model.dart",
@@ -346,6 +346,7 @@
     "lib/custom_code/actions/check_subscription_by_id.dart",
     "lib/custom_code/actions/date_time_combine_europe_berlin.dart",
     "lib/custom_code/actions/facebook.dart",
+    "lib/custom_code/actions/get_user_device_language.dart",
     "lib/custom_code/actions/index.dart",
     "lib/custom_code/actions/initialize_pub_time_zones.dart",
     "lib/custom_code/actions/lock_landscape_mode.dart",
@@ -440,6 +441,14 @@
     "web/manifest.json"
   ],
   "entities": [
+    {
+      "type": "action_block",
+      "key": "6ubicc",
+      "name": "recheckUserDeviceLanguage",
+      "primary_files": [
+        "lib/actions/actions.dart"
+      ]
+    },
     {
       "type": "action_block",
       "key": "jlwnnp",
@@ -814,6 +823,15 @@
     },
     {
       "type": "component",
+      "key": "Container_cj5wsxqx",
+      "name": "ZoomNoPremiumDialog",
+      "primary_files": [
+        "lib/components/dialogs/zoom_no_premium_dialog/zoom_no_premium_dialog_model.dart",
+        "lib/components/dialogs/zoom_no_premium_dialog/zoom_no_premium_dialog_widget.dart"
+      ]
+    },
+    {
+      "type": "component",
       "key": "Container_cnoe34mn",
       "name": "DeleteAccDialog",
       "primary_files": [
@@ -972,15 +990,6 @@
       "primary_files": [
         "lib/admin/admin_components/admin_workout_delete/admin_workout_delete_model.dart",
         "lib/admin/admin_components/admin_workout_delete/admin_workout_delete_widget.dart"
-      ]
-    },
-    {
-      "type": "component",
-      "key": "Container_kbtzqi8y",
-      "name": "PaymentDialogStart",
-      "primary_files": [
-        "lib/components/dialogs/payment_dialog_start/payment_dialog_start_model.dart",
-        "lib/components/dialogs/payment_dialog_start/payment_dialog_start_widget.dart"
       ]
     },
     {
@@ -1440,6 +1449,17 @@
       "name": "seasonId",
       "primary_files": [
         "lib/custom_code/actions/season_id.dart"
+      ],
+      "related_files": [
+        "lib/custom_code/actions/index.dart"
+      ]
+    },
+    {
+      "type": "custom_action",
+      "key": "wsvvj",
+      "name": "getUserDeviceLanguage",
+      "primary_files": [
+        "lib/custom_code/actions/get_user_device_language.dart"
       ],
       "related_files": [
         "lib/custom_code/actions/index.dart"

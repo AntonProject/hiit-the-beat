@@ -1,8 +1,6 @@
 import '/auth/firebase_auth/auth_util.dart';
 import '/backend/backend.dart';
 import '/components/dialogs/guest_dialog/guest_dialog_widget.dart';
-import '/components/dialogs/payment_dialog/payment_dialog_widget.dart';
-import '/components/dialogs/payment_dialog_start/payment_dialog_start_widget.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
@@ -90,63 +88,38 @@ class _SeasonCompWidgetState extends State<SeasonCompWidget> {
             logFirebaseEvent('Container_haptic_feedback');
             HapticFeedback.mediumImpact();
             if (currentUserEmail != null && currentUserEmail != '') {
-              if (widget!.season!.free) {
-                logFirebaseEvent('Container_navigate_to');
+              logFirebaseEvent('Container_navigate_to');
 
-                context.pushNamed(
-                  SeasonPageWidget.routeName,
-                  queryParameters: {
-                    'season': serializeParam(
-                      widget!.season,
-                      ParamType.Document,
+              context.pushNamed(
+                SeasonPageWidget.routeName,
+                queryParameters: {
+                  'season': serializeParam(
+                    widget!.season,
+                    ParamType.Document,
+                  ),
+                  'workoutCount': serializeParam(
+                    containerCount,
+                    ParamType.int,
+                  ),
+                  'seasonIndex': serializeParam(
+                    valueOrDefault<int>(
+                      widget!.index,
+                      0,
                     ),
-                    'workoutCount': serializeParam(
-                      containerCount,
-                      ParamType.int,
+                    ParamType.int,
+                  ),
+                  'selectedLvl': serializeParam(
+                    valueOrDefault<int>(
+                      valueOrDefault(currentUserDocument?.currentLevel, 0),
+                      1,
                     ),
-                    'seasonIndex': serializeParam(
-                      valueOrDefault<int>(
-                        widget!.index,
-                        0,
-                      ),
-                      ParamType.int,
-                    ),
-                  }.withoutNulls,
-                  extra: <String, dynamic>{
-                    'season': widget!.season,
-                  },
-                );
-              } else {
-                if (valueOrDefault<bool>(
-                        currentUserDocument?.plusmember, false) ==
-                    false) {
-                  logFirebaseEvent('Container_bottom_sheet');
-                  showModalBottomSheet(
-                    isScrollControlled: true,
-                    backgroundColor: Colors.transparent,
-                    context: context,
-                    builder: (context) {
-                      return Padding(
-                        padding: MediaQuery.viewInsetsOf(context),
-                        child: PaymentDialogWidget(),
-                      );
-                    },
-                  ).then((value) => safeSetState(() {}));
-                } else {
-                  logFirebaseEvent('Container_bottom_sheet');
-                  showModalBottomSheet(
-                    isScrollControlled: true,
-                    backgroundColor: Colors.transparent,
-                    context: context,
-                    builder: (context) {
-                      return Padding(
-                        padding: MediaQuery.viewInsetsOf(context),
-                        child: PaymentDialogStartWidget(),
-                      );
-                    },
-                  ).then((value) => safeSetState(() {}));
-                }
-              }
+                    ParamType.int,
+                  ),
+                }.withoutNulls,
+                extra: <String, dynamic>{
+                  'season': widget!.season,
+                },
+              );
             } else {
               logFirebaseEvent('Container_haptic_feedback');
               HapticFeedback.vibrate();

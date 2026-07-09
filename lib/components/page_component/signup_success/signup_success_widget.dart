@@ -84,7 +84,7 @@ class _SignupSuccessWidgetState extends State<SignupSuccessWidget> {
                           EdgeInsetsDirectional.fromSTEB(0.0, 20.0, 0.0, 0.0),
                       child: Text(
                         FFLocalizations.of(context).getText(
-                          '135inf76' /* The account has been created */,
+                          '135inf76' /* Your account has been created */,
                         ),
                         textAlign: TextAlign.center,
                         style: FlutterFlowTheme.of(context).bodyMedium.override(
@@ -101,7 +101,7 @@ class _SignupSuccessWidgetState extends State<SignupSuccessWidget> {
                     ),
                     Text(
                       FFLocalizations.of(context).getText(
-                        '7zjkfwfk' /* Have fun and enjoy the progres... */,
+                        '7zjkfwfk' /* Now it's time to HIIT the Beat */,
                       ),
                       textAlign: TextAlign.center,
                       style: FlutterFlowTheme.of(context).bodyMedium.override(
@@ -149,7 +149,7 @@ class _SignupSuccessWidgetState extends State<SignupSuccessWidget> {
                 height: 40.0,
                 padding: EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 0.0),
                 iconPadding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
-                color: FlutterFlowTheme.of(context).secondaryBackground,
+                color: Color(0x00212121),
                 textStyle: FlutterFlowTheme.of(context).titleSmall.override(
                       fontFamily: FlutterFlowTheme.of(context).titleSmallFamily,
                       color: FlutterFlowTheme.of(context).primaryText,

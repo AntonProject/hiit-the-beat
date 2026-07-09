@@ -187,6 +187,10 @@ class _OnboardingHomeStep1WidgetState extends State<OnboardingHomeStep1Widget>
                                       'ONBOARDING_HOME_STEP1_COMP_next_ON_TAP');
                                   logFirebaseEvent('next_haptic_feedback');
                                   HapticFeedback.selectionClick();
+                                  logFirebaseEvent('next_update_app_state');
+                                  FFAppState().onboardingStep =
+                                      FFAppState().onboardingStep + 1;
+                                  safeSetState(() {});
                                   logFirebaseEvent('next_bottom_sheet');
                                   Navigator.pop(context);
                                   logFirebaseEvent('next_navigate_to');

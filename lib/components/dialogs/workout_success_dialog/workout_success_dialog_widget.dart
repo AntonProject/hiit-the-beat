@@ -31,13 +31,16 @@ class WorkoutSuccessDialogWidget extends StatefulWidget {
     required this.season,
     int? wockoutCount,
     required this.seasonNumber,
-  }) : this.wockoutCount = wockoutCount ?? 0;
+    int? selectedLvl,
+  })  : this.wockoutCount = wockoutCount ?? 0,
+        this.selectedLvl = selectedLvl ?? 1;
 
   final WorkoutStatisticStruct? workoutDone;
   final DocumentReference? progress;
   final SeasonsRecord? season;
   final int wockoutCount;
   final int? seasonNumber;
+  final int selectedLvl;
 
   @override
   State<WorkoutSuccessDialogWidget> createState() =>
@@ -576,6 +579,20 @@ class _WorkoutSuccessDialogWidgetState extends State<WorkoutSuccessDialogWidget>
                                 valueOrDefault<int>(
                                   widget!.wockoutCount,
                                   0,
+                                ),
+                                ParamType.int,
+                              ),
+                              'selectedLvl': serializeParam(
+                                valueOrDefault<int>(
+                                  widget!.selectedLvl,
+                                  1,
+                                ),
+                                ParamType.int,
+                              ),
+                              'seasonIndex': serializeParam(
+                                valueOrDefault<int>(
+                                  widget!.seasonNumber,
+                                  1,
                                 ),
                                 ParamType.int,
                               ),

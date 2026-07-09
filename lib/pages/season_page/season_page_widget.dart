@@ -29,12 +29,15 @@ class SeasonPageWidget extends StatefulWidget {
     required this.season,
     int? workoutCount,
     int? seasonIndex,
+    int? selectedLvl,
   })  : this.workoutCount = workoutCount ?? 0,
-        this.seasonIndex = seasonIndex ?? 0;
+        this.seasonIndex = seasonIndex ?? 0,
+        this.selectedLvl = selectedLvl ?? 1;
 
   final SeasonsRecord? season;
   final int workoutCount;
   final int seasonIndex;
+  final int selectedLvl;
 
   static String routeName = 'SeasonPage';
   static String routePath = '/seasonPage';
@@ -69,7 +72,8 @@ class _SeasonPageWidgetState extends State<SeasonPageWidget> {
           await actions.setStatusBarColor();
         }(),
       );
-      if (FFAppState().onboardingHome) {
+      if ((FFAppState().onboardingHome == true) &&
+          (FFAppState().onboardingStep == 3)) {
         logFirebaseEvent('SeasonPage_bottom_sheet');
         await showModalBottomSheet(
           isScrollControlled: true,
@@ -146,8 +150,7 @@ class _SeasonPageWidgetState extends State<SeasonPageWidget> {
                       queryParameters: {
                         'level': serializeParam(
                           valueOrDefault<int>(
-                            valueOrDefault(
-                                currentUserDocument?.currentLevel, 0),
+                            widget!.selectedLvl,
                             1,
                           ),
                           ParamType.int,
@@ -879,6 +882,11 @@ class _SeasonPageWidgetState extends State<SeasonPageWidget> {
                                                           valueOrDefault<int>(
                                                         widget!.seasonIndex,
                                                         0,
+                                                      ),
+                                                      selectedLvl:
+                                                          valueOrDefault<int>(
+                                                        widget!.selectedLvl,
+                                                        1,
                                                       ),
                                                     ),
                                                   );

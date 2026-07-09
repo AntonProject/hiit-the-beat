@@ -44,12 +44,6 @@ class FFAppState extends ChangeNotifier {
           _levels;
     });
     _safeInit(() {
-      _warmupPoints = prefs.getInt('ff_warmupPoints') ?? _warmupPoints;
-    });
-    _safeInit(() {
-      _cooldownPoints = prefs.getInt('ff_cooldownPoints') ?? _cooldownPoints;
-    });
-    _safeInit(() {
       _types = prefs
               .getStringList('ff_types')
               ?.map((x) {
@@ -103,6 +97,9 @@ class FFAppState extends ChangeNotifier {
     });
     _safeInit(() {
       _onboardingHome = prefs.getBool('ff_onboardingHome') ?? _onboardingHome;
+    });
+    _safeInit(() {
+      _onboardingStep = prefs.getInt('ff_onboardingStep') ?? _onboardingStep;
     });
   }
 
@@ -210,18 +207,16 @@ class FFAppState extends ChangeNotifier {
         'ff_levels', _levels.map((x) => x.serialize()).toList());
   }
 
-  int _warmupPoints = 2;
+  int _warmupPoints = 5;
   int get warmupPoints => _warmupPoints;
   set warmupPoints(int value) {
     _warmupPoints = value;
-    prefs.setInt('ff_warmupPoints', value);
   }
 
-  int _cooldownPoints = 2;
+  int _cooldownPoints = 5;
   int get cooldownPoints => _cooldownPoints;
   set cooldownPoints(int value) {
     _cooldownPoints = value;
-    prefs.setInt('ff_cooldownPoints', value);
   }
 
   List<LevelStruct> _types = [
@@ -394,6 +389,19 @@ class FFAppState extends ChangeNotifier {
   set onboardingHome(bool value) {
     _onboardingHome = value;
     prefs.setBool('ff_onboardingHome', value);
+  }
+
+  int _onboardingStep = 1;
+  int get onboardingStep => _onboardingStep;
+  set onboardingStep(int value) {
+    _onboardingStep = value;
+    prefs.setInt('ff_onboardingStep', value);
+  }
+
+  String _pendingDeepLinkPage = '';
+  String get pendingDeepLinkPage => _pendingDeepLinkPage;
+  set pendingDeepLinkPage(String value) {
+    _pendingDeepLinkPage = value;
   }
 
   final _workoutsManager = FutureRequestManager<List<WorkoutsRecord>>();

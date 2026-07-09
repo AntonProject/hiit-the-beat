@@ -54,42 +54,59 @@ class _StartPageWidgetState extends State<StartPageWidget>
       }
       logFirebaseEvent('START_PAGE_PAGE_StartPage_ON_INIT_STATE');
       await authManager.refreshUser();
-      if (valueOrDefault(currentUserDocument?.language, '') == null ||
-          valueOrDefault(currentUserDocument?.language, '') == '') {
-        if (FFLocalizations.of(context).languageCode == 'de') {
-          logFirebaseEvent('StartPage_backend_call');
+      await Future.wait([
+        Future(() async {
+          if (valueOrDefault(currentUserDocument?.language, '') == null ||
+              valueOrDefault(currentUserDocument?.language, '') == '') {
+            if (FFLocalizations.of(context).languageCode == 'de') {
+              logFirebaseEvent('StartPage_backend_call');
 
-          await currentUserReference!.update(createUsersRecordData(
-            language: 'de',
-          ));
-        } else {
-          logFirebaseEvent('StartPage_backend_call');
+              await currentUserReference!.update(createUsersRecordData(
+                language: 'de',
+              ));
+            } else {
+              logFirebaseEvent('StartPage_backend_call');
 
-          await currentUserReference!.update(createUsersRecordData(
-            language: 'en',
-          ));
-        }
-      }
-      if (FFLocalizations.of(context).languageCode == 'de') {
-        logFirebaseEvent('StartPage_set_app_language');
-        setAppLanguage(context, 'de');
-      } else {
-        logFirebaseEvent('StartPage_set_app_language');
-        setAppLanguage(context, 'en');
-      }
+              await currentUserReference!.update(createUsersRecordData(
+                language: 'en',
+              ));
+            }
 
-      logFirebaseEvent('StartPage_custom_action');
-      unawaited(
-        () async {
-          await actions.lockLandscapeMode();
-        }(),
-      );
-      logFirebaseEvent('StartPage_custom_action');
-      unawaited(
-        () async {
-          await actions.setStatusBarColor();
-        }(),
-      );
+            logFirebaseEvent('StartPage_action_block');
+            unawaited(
+              () async {
+                await action_blocks.recheckUserDeviceLanguage(context);
+              }(),
+            );
+          }
+        }),
+        Future(() async {
+          logFirebaseEvent('StartPage_custom_action');
+          unawaited(
+            () async {
+              await actions.lockLandscapeMode();
+            }(),
+          );
+        }),
+        Future(() async {
+          logFirebaseEvent('StartPage_custom_action');
+          unawaited(
+            () async {
+              await actions.setStatusBarColor();
+            }(),
+          );
+        }),
+        Future(() async {
+          logFirebaseEvent('StartPage_custom_action');
+          unawaited(
+            () async {
+              _model.subsStatusUpdate = await actions.checkSubsStatus(
+                currentUserUid,
+              );
+            }(),
+          );
+        }),
+      ]);
       if (loggedIn) {
         if (valueOrDefault<bool>(currentUserDocument?.deleted, false)) {
           logFirebaseEvent('StartPage_auth');
@@ -142,13 +159,6 @@ class _StartPageWidgetState extends State<StartPageWidget>
         } else {
           if (currentUserEmailVerified ||
               (currentUserEmail == null || currentUserEmail == '')) {
-            logFirebaseEvent('StartPage_action_block');
-            unawaited(
-              () async {
-                await action_blocks.checkProgressDoc(context);
-                safeSetState(() {});
-              }(),
-            );
             if (FFLocalizations.of(context).languageCode == 'de') {
               logFirebaseEvent('StartPage_update_app_state');
               FFAppState().seasonFilter = 'de';

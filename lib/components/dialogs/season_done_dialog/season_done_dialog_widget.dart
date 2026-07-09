@@ -414,6 +414,14 @@ class _SeasonDoneDialogWidgetState extends State<SeasonDoneDialogWidget>
                                   ),
                                   ParamType.int,
                                 ),
+                                'selectedLvl': serializeParam(
+                                  valueOrDefault<int>(
+                                    valueOrDefault(
+                                        currentUserDocument?.currentLevel, 0),
+                                    1,
+                                  ),
+                                  ParamType.int,
+                                ),
                               }.withoutNulls,
                               extra: <String, dynamic>{
                                 'season': _model.nextSeason,

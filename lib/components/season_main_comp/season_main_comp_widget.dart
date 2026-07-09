@@ -1,8 +1,6 @@
 import '/auth/firebase_auth/auth_util.dart';
 import '/backend/backend.dart';
 import '/components/dialogs/guest_dialog/guest_dialog_widget.dart';
-import '/components/dialogs/payment_dialog/payment_dialog_widget.dart';
-import '/components/dialogs/payment_dialog_start/payment_dialog_start_widget.dart';
 import '/components/skeleton/skeleton_season_main/skeleton_season_main_widget.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
@@ -29,11 +27,14 @@ class SeasonMainCompWidget extends StatefulWidget {
     required this.season,
     required this.progress,
     int? index,
-  }) : this.index = index ?? 0;
+    int? selectedLvl,
+  })  : this.index = index ?? 0,
+        this.selectedLvl = selectedLvl ?? 1;
 
   final SeasonsRecord? season;
   final ProgressRecord? progress;
   final int index;
+  final int selectedLvl;
 
   @override
   State<SeasonMainCompWidget> createState() => _SeasonMainCompWidgetState();
@@ -119,88 +120,60 @@ class _SeasonMainCompWidgetState extends State<SeasonMainCompWidget> {
                 logFirebaseEvent('SEASON_MAIN_Container_2tfr66q8_ON_TAP');
                 logFirebaseEvent('Container_haptic_feedback');
                 HapticFeedback.selectionClick();
-                if (!valueOrDefault<bool>(
-                    currentUserDocument?.plusmember, false)) {
-                  if (widget!.season!.free) {
-                  } else {
-                    if (currentUserEmail != null && currentUserEmail != '') {
-                      if (valueOrDefault<bool>(
-                              currentUserDocument?.plusmember, false) ==
-                          false) {
-                        logFirebaseEvent('Container_bottom_sheet');
-                        showModalBottomSheet(
-                          isScrollControlled: true,
-                          backgroundColor: Colors.transparent,
-                          context: context,
-                          builder: (context) {
-                            return Padding(
-                              padding: MediaQuery.viewInsetsOf(context),
-                              child: PaymentDialogWidget(),
-                            );
-                          },
-                        ).then((value) => safeSetState(() {}));
-                      } else {
-                        logFirebaseEvent('Container_bottom_sheet');
-                        showModalBottomSheet(
-                          isScrollControlled: true,
-                          backgroundColor: Colors.transparent,
-                          context: context,
-                          builder: (context) {
-                            return Padding(
-                              padding: MediaQuery.viewInsetsOf(context),
-                              child: PaymentDialogStartWidget(),
-                            );
-                          },
-                        ).then((value) => safeSetState(() {}));
-                      }
-                    } else {
-                      logFirebaseEvent('Container_haptic_feedback');
-                      HapticFeedback.vibrate();
-                      logFirebaseEvent('Container_bottom_sheet');
-                      showModalBottomSheet(
-                        isScrollControlled: true,
-                        backgroundColor: Colors.transparent,
-                        context: context,
-                        builder: (context) {
-                          return Padding(
-                            padding: MediaQuery.viewInsetsOf(context),
-                            child: GuestDialogWidget(),
-                          );
-                        },
-                      ).then((value) => safeSetState(() {}));
-                    }
+                if (currentUserEmail != null && currentUserEmail != '') {
+                  logFirebaseEvent('Container_navigate_to');
 
-                    return;
-                  }
+                  context.pushNamed(
+                    SeasonPageWidget.routeName,
+                    queryParameters: {
+                      'season': serializeParam(
+                        widget!.season,
+                        ParamType.Document,
+                      ),
+                      'workoutCount': serializeParam(
+                        valueOrDefault<int>(
+                          containerCount,
+                          0,
+                        ),
+                        ParamType.int,
+                      ),
+                      'seasonIndex': serializeParam(
+                        valueOrDefault<int>(
+                          widget!.index,
+                          0,
+                        ),
+                        ParamType.int,
+                      ),
+                      'selectedLvl': serializeParam(
+                        valueOrDefault<int>(
+                          widget!.selectedLvl,
+                          1,
+                        ),
+                        ParamType.int,
+                      ),
+                    }.withoutNulls,
+                    extra: <String, dynamic>{
+                      'season': widget!.season,
+                    },
+                  );
+
+                  return;
+                } else {
+                  logFirebaseEvent('Container_haptic_feedback');
+                  HapticFeedback.vibrate();
+                  logFirebaseEvent('Container_bottom_sheet');
+                  showModalBottomSheet(
+                    isScrollControlled: true,
+                    backgroundColor: Colors.transparent,
+                    context: context,
+                    builder: (context) {
+                      return Padding(
+                        padding: MediaQuery.viewInsetsOf(context),
+                        child: GuestDialogWidget(),
+                      );
+                    },
+                  ).then((value) => safeSetState(() {}));
                 }
-                logFirebaseEvent('Container_navigate_to');
-
-                context.pushNamed(
-                  SeasonPageWidget.routeName,
-                  queryParameters: {
-                    'season': serializeParam(
-                      widget!.season,
-                      ParamType.Document,
-                    ),
-                    'workoutCount': serializeParam(
-                      valueOrDefault<int>(
-                        containerCount,
-                        0,
-                      ),
-                      ParamType.int,
-                    ),
-                    'seasonIndex': serializeParam(
-                      valueOrDefault<int>(
-                        widget!.index,
-                        0,
-                      ),
-                      ParamType.int,
-                    ),
-                  }.withoutNulls,
-                  extra: <String, dynamic>{
-                    'season': widget!.season,
-                  },
-                );
               },
               child: Container(
                 width: double.infinity,
@@ -651,71 +624,6 @@ class _SeasonMainCompWidgetState extends State<SeasonMainCompWidget> {
                                 ),
                               ].divide(SizedBox(width: 4.0)),
                             ),
-                            if (!valueOrDefault<bool>(
-                                currentUserDocument?.plusmember, false))
-                              AuthUserStreamWidget(
-                                builder: (context) => Builder(
-                                  builder: (context) {
-                                    if (widget!.season?.free ?? false) {
-                                      return Container(
-                                        height: 24.0,
-                                        decoration: BoxDecoration(
-                                          color:
-                                              FlutterFlowTheme.of(context).blue,
-                                          borderRadius:
-                                              BorderRadius.circular(6.0),
-                                        ),
-                                        child: Align(
-                                          alignment:
-                                              AlignmentDirectional(0.0, 0.0),
-                                          child: Padding(
-                                            padding:
-                                                EdgeInsetsDirectional.fromSTEB(
-                                                    8.0, 0.0, 8.0, 0.0),
-                                            child: Text(
-                                              FFLocalizations.of(context)
-                                                  .getText(
-                                                'sl4r56ut' /* Free */,
-                                              ),
-                                              style:
-                                                  FlutterFlowTheme.of(context)
-                                                      .bodyMedium
-                                                      .override(
-                                                        fontFamily:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .bodyMediumFamily,
-                                                        letterSpacing: 0.07,
-                                                        useGoogleFonts:
-                                                            !FlutterFlowTheme
-                                                                    .of(context)
-                                                                .bodyMediumIsCustom,
-                                                      ),
-                                            ),
-                                          ),
-                                        ),
-                                      );
-                                    } else {
-                                      return Container(
-                                        width: 24.0,
-                                        height: 24.0,
-                                        decoration: BoxDecoration(
-                                          color:
-                                              FlutterFlowTheme.of(context).red,
-                                          borderRadius:
-                                              BorderRadius.circular(6.0),
-                                        ),
-                                        child: Icon(
-                                          FFIcons.klock12,
-                                          color: FlutterFlowTheme.of(context)
-                                              .primaryText,
-                                          size: 14.0,
-                                        ),
-                                      );
-                                    }
-                                  },
-                                ),
-                              ),
                           ].divide(SizedBox(width: 12.0)),
                         ),
                       ),

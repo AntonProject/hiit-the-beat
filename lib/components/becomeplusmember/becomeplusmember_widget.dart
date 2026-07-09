@@ -54,19 +54,6 @@ class _BecomeplusmemberWidgetState extends State<BecomeplusmemberWidget> {
           child: Stack(
             alignment: AlignmentDirectional(0.0, 1.0),
             children: [
-              Container(
-                width: MediaQuery.sizeOf(context).width * 0.75,
-                height: 36.0,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [Color(0xFF9C244C), Color(0xFF2883AE)],
-                    stops: [0.0, 1.0],
-                    begin: AlignmentDirectional(0.0, -1.0),
-                    end: AlignmentDirectional(0, 1.0),
-                  ),
-                  borderRadius: BorderRadius.circular(12.0),
-                ),
-              ),
               Align(
                 alignment: AlignmentDirectional(0.0, -1.0),
                 child: Container(

@@ -5,7 +5,7 @@ import '/backend/schema/enums/enums.dart';
 import '/actions/actions.dart' as action_blocks;
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
-import 'index.dart'; // Imports other custom actions
+import '/custom_code/actions/index.dart'; // Imports other custom actions
 import '/flutter_flow/custom_functions.dart'; // Imports custom functions
 import 'package:flutter/material.dart';
 // Begin custom action code
@@ -89,6 +89,21 @@ Future<bool> checkSubscriptionById(String userId) async {
         'plusmember': true,
       });
       print('Lifetime subscription without expiration date for $userId');
+      return true;
+    }
+
+    // Manual access (Full Unlock) — gifted trial: subscription_status ==
+    // 'manual' while trial_ends_at is in the future. Keep plusmember so the RC
+    // branch below (which finds no entitlement) can't reset it on app launch.
+    final String subStatus = (userData['subscription_status'] as String?) ?? '';
+    final Timestamp? trialEndsAt = userData['trial_ends_at'];
+    if (subStatus == 'manual' &&
+        trialEndsAt != null &&
+        DateTime.now().toUtc().isBefore(trialEndsAt.toDate().toUtc())) {
+      await FirebaseFirestore.instance.collection('users').doc(userId).update({
+        'plusmember': true,
+      });
+      print('Manual access (Full Unlock) active for $userId');
       return true;
     }
 

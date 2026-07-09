@@ -10,6 +10,7 @@ import 'dart:ui';
 import '/index.dart';
 import 'email_verification_page_widget.dart' show EmailVerificationPageWidget;
 import 'package:stop_watch_timer/stop_watch_timer.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';

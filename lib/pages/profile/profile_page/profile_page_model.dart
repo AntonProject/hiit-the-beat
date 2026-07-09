@@ -48,6 +48,10 @@ class ProfilePageModel extends FlutterFlowModel<ProfilePageWidget> {
   late ProfileMenuOptionModel profileMenuOptionModel7;
   // Model for profileMenuOption component.
   late ProfileMenuOptionModel profileMenuOptionModel8;
+  // Model for profileMenuOption component.
+  late ProfileMenuOptionModel profileMenuOptionModel9;
+  // Model for profileMenuOption component.
+  late ProfileMenuOptionModel profileMenuOptionModel10;
   // Model for navbar component.
   late NavbarModel navbarModel;
 
@@ -71,6 +75,10 @@ class ProfilePageModel extends FlutterFlowModel<ProfilePageWidget> {
         createModel(context, () => ProfileMenuOptionModel());
     profileMenuOptionModel8 =
         createModel(context, () => ProfileMenuOptionModel());
+    profileMenuOptionModel9 =
+        createModel(context, () => ProfileMenuOptionModel());
+    profileMenuOptionModel10 =
+        createModel(context, () => ProfileMenuOptionModel());
     navbarModel = createModel(context, () => NavbarModel());
   }
 
@@ -85,6 +93,8 @@ class ProfilePageModel extends FlutterFlowModel<ProfilePageWidget> {
     profileMenuOptionModel6.dispose();
     profileMenuOptionModel7.dispose();
     profileMenuOptionModel8.dispose();
+    profileMenuOptionModel9.dispose();
+    profileMenuOptionModel10.dispose();
     navbarModel.dispose();
   }
 }

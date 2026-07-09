@@ -83,70 +83,73 @@ Future<List<SelectedFile>?> selectMediaWithSourceBottomSheet({
       context: context,
       backgroundColor: backgroundColor,
       builder: (context) {
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (!kIsWeb) ...[
-              Padding(
-                padding: EdgeInsets.fromLTRB(0, 8, 0, 0),
-                child: ListTile(
-                  title: Text(
-                    FFLocalizations.of(context).getText(
-                      'e1lysev9' /* Choose Source */,
+        return SafeArea(
+          top: false,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (!kIsWeb) ...[
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(0, 8, 0, 0),
+                  child: ListTile(
+                    title: Text(
+                      FFLocalizations.of(context).getText(
+                        'e1lysev9' /* Choose Source */,
+                      ),
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.getFont(
+                        pickerFontFamily,
+                        color: textColor.applyAlpha(0.65),
+                        fontWeight: FontWeight.w500,
+                        fontSize: 20,
+                      ),
                     ),
-                    textAlign: TextAlign.center,
-                    style: GoogleFonts.getFont(
-                      pickerFontFamily,
-                      color: textColor.applyAlpha(0.65),
-                      fontWeight: FontWeight.w500,
-                      fontSize: 20,
-                    ),
+                    tileColor: backgroundColor,
+                    dense: false,
                   ),
-                  tileColor: backgroundColor,
-                  dense: false,
                 ),
-              ),
-              const Divider(),
-            ],
-            if (allowPhoto && allowVideo) ...[
-              createUploadMediaListTile(
-                FFLocalizations.of(context).getText(
-                  'dpsjopc3' /* Gallery (Photo) */,
-                ),
-                MediaSource.photoGallery,
-              ),
-              const Divider(),
-              createUploadMediaListTile(
-                FFLocalizations.of(context).getText(
-                  'jkw5dju5' /* Gallery (Video) */,
-                ),
-                MediaSource.videoGallery,
-              ),
-            ] else if (allowPhoto)
-              createUploadMediaListTile(
-                FFLocalizations.of(context).getText(
-                  '9tws2a1y' /* Gallery */,
-                ),
-                MediaSource.photoGallery,
-              )
-            else
-              createUploadMediaListTile(
-                FFLocalizations.of(context).getText(
-                  '9tws2a1y' /* Gallery */,
-                ),
-                MediaSource.videoGallery,
-              ),
-            if (!kIsWeb) ...[
-              const Divider(),
-              createUploadMediaListTile(
+                const Divider(),
+              ],
+              if (allowPhoto && allowVideo) ...[
+                createUploadMediaListTile(
                   FFLocalizations.of(context).getText(
-                    'cqfxytrc' /* Camera */,
+                    'dpsjopc3' /* Gallery (Photo) */,
                   ),
-                  MediaSource.camera),
-              const Divider(),
+                  MediaSource.photoGallery,
+                ),
+                const Divider(),
+                createUploadMediaListTile(
+                  FFLocalizations.of(context).getText(
+                    'jkw5dju5' /* Gallery (Video) */,
+                  ),
+                  MediaSource.videoGallery,
+                ),
+              ] else if (allowPhoto)
+                createUploadMediaListTile(
+                  FFLocalizations.of(context).getText(
+                    '9tws2a1y' /* Gallery */,
+                  ),
+                  MediaSource.photoGallery,
+                )
+              else
+                createUploadMediaListTile(
+                  FFLocalizations.of(context).getText(
+                    '9tws2a1y' /* Gallery */,
+                  ),
+                  MediaSource.videoGallery,
+                ),
+              if (!kIsWeb) ...[
+                const Divider(),
+                createUploadMediaListTile(
+                    FFLocalizations.of(context).getText(
+                      'cqfxytrc' /* Camera */,
+                    ),
+                    MediaSource.camera),
+                const Divider(),
+              ],
+              const SizedBox(height: 10),
             ],
-            const SizedBox(height: 10),
-          ],
+          ),
         );
       });
   if (mediaSource == null) {

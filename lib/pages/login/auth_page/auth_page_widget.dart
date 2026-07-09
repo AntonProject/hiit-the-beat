@@ -7,11 +7,13 @@ import '/flutter_flow/flutter_flow_widgets.dart';
 import 'dart:async';
 import 'dart:math';
 import 'dart:ui';
+import '/actions/actions.dart' as action_blocks;
 import '/custom_code/actions/index.dart' as actions;
 import '/index.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
@@ -61,9 +63,9 @@ class _AuthPageWidgetState extends State<AuthPageWidget>
           await actions.setStatusBarColor();
         }(),
       );
+      logFirebaseEvent('AuthPage_action_block');
+      await action_blocks.recheckUserDeviceLanguage(context);
       if (FFLocalizations.of(context).languageCode == 'de') {
-        logFirebaseEvent('AuthPage_set_app_language');
-        setAppLanguage(context, 'de');
         logFirebaseEvent('AuthPage_backend_call');
         unawaited(
           () async {}(),
@@ -72,8 +74,6 @@ class _AuthPageWidgetState extends State<AuthPageWidget>
         FFAppState().seasonFilter = 'de';
         FFAppState().update(() {});
       } else {
-        logFirebaseEvent('AuthPage_set_app_language');
-        setAppLanguage(context, 'en');
         logFirebaseEvent('AuthPage_backend_call');
         unawaited(
           () async {}(),
@@ -218,26 +218,65 @@ class _AuthPageWidgetState extends State<AuthPageWidget>
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      AutoSizeText(
-                        FFLocalizations.of(context).getText(
-                          'ldlvrz96' /* JOIN THE COMMUNITY TODAY! */,
+                      RichText(
+                        textScaler: MediaQuery.of(context).textScaler,
+                        text: TextSpan(
+                          children: [
+                            TextSpan(
+                              text: FFLocalizations.of(context).getText(
+                                '96c5bviw' /* THIS ISN'T JUST
+ */
+                                ,
+                              ),
+                              style: FlutterFlowTheme.of(context)
+                                  .bodyMedium
+                                  .override(
+                                    fontFamily: FlutterFlowTheme.of(context)
+                                        .bodyMediumFamily,
+                                    color:
+                                        FlutterFlowTheme.of(context).secondary,
+                                    fontSize: 24.0,
+                                    letterSpacing: 0.0,
+                                    fontWeight: FontWeight.bold,
+                                    useGoogleFonts:
+                                        !FlutterFlowTheme.of(context)
+                                            .bodyMediumIsCustom,
+                                  ),
+                            ),
+                            TextSpan(
+                              text: FFLocalizations.of(context).getText(
+                                'i7328muh' /* ANOTHER WORKOUT */,
+                              ),
+                              style: FlutterFlowTheme.of(context)
+                                  .bodyMedium
+                                  .override(
+                                    fontFamily: FlutterFlowTheme.of(context)
+                                        .bodyMediumFamily,
+                                    fontSize: 24.0,
+                                    letterSpacing: 0.0,
+                                    fontWeight: FontWeight.bold,
+                                    useGoogleFonts:
+                                        !FlutterFlowTheme.of(context)
+                                            .bodyMediumIsCustom,
+                                  ),
+                            )
+                          ],
+                          style: FlutterFlowTheme.of(context)
+                              .bodyMedium
+                              .override(
+                                fontFamily: FlutterFlowTheme.of(context)
+                                    .bodyMediumFamily,
+                                fontSize: 24.0,
+                                letterSpacing: 0.0,
+                                useGoogleFonts: !FlutterFlowTheme.of(context)
+                                    .bodyMediumIsCustom,
+                              ),
                         ),
                         textAlign: TextAlign.center,
-                        maxLines: 4,
-                        style: FlutterFlowTheme.of(context).bodyMedium.override(
-                              fontFamily:
-                                  FlutterFlowTheme.of(context).bodyMediumFamily,
-                              fontSize: 24.0,
-                              letterSpacing: 0.07,
-                              fontWeight: FontWeight.bold,
-                              lineHeight: 1.3,
-                              useGoogleFonts: !FlutterFlowTheme.of(context)
-                                  .bodyMediumIsCustom,
-                            ),
                       ),
                       AutoSizeText(
                         FFLocalizations.of(context).getText(
-                          'uctmduz2' /* Everything you need to unleash... */,
+                          'uctmduz2' /* Strength. Coordination. Mobili... */,
                         ),
                         textAlign: TextAlign.center,
                         maxLines: 3,
@@ -262,7 +301,7 @@ class _AuthPageWidgetState extends State<AuthPageWidget>
                             HapticFeedback.selectionClick();
                             logFirebaseEvent('LetsGo_navigate_to');
 
-                            context.pushNamed(LoginPageWidget.routeName);
+                            context.pushNamed(SignupPageWidget.routeName);
                           },
                           text: FFLocalizations.of(context).getText(
                             '0idktth0' /* Let´s Go! */,

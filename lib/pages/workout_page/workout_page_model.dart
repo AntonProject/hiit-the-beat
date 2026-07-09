@@ -4,6 +4,7 @@ import '/backend/schema/structs/index.dart';
 import '/components/dialogs/guest_dialog/guest_dialog_widget.dart';
 import '/components/dialogs/level_success_dialog/level_success_dialog_widget.dart';
 import '/components/dialogs/onboarding_home_step4/onboarding_home_step4_widget.dart';
+import '/components/dialogs/payment_dialog/payment_dialog_widget.dart';
 import '/components/dialogs/select_warm_up_cool_down_dialog/select_warm_up_cool_down_dialog_widget.dart';
 import '/components/dialogs/workout_success3times_dialog/workout_success3times_dialog_widget.dart';
 import '/components/dialogs/workout_success_dialog/workout_success_dialog_widget.dart';

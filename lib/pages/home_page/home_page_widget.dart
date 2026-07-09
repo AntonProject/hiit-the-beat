@@ -1,9 +1,5 @@
 import '/auth/firebase_auth/auth_util.dart';
 import '/backend/backend.dart';
-import '/components/becomea_h_i_i_tthe_beat_trainer/becomea_h_i_i_tthe_beat_trainer_widget.dart';
-import '/components/dialogs/onboarding_home/onboarding_home_widget.dart';
-import '/components/dialogs/onboarding_start/onboarding_start_widget.dart';
-import '/components/dialogs/payment_dialog_start/payment_dialog_start_widget.dart';
 import '/components/empty_list/empty_list_widget.dart';
 import '/components/h_i_i_tthe_beat_shop/h_i_i_tthe_beat_shop_widget.dart';
 import '/components/navbar/navbar_widget.dart';
@@ -61,118 +57,77 @@ class _HomePageWidgetState extends State<HomePageWidget> {
     // On page load action.
     SchedulerBinding.instance.addPostFrameCallback((_) async {
       logFirebaseEvent('HOME_PAGE_PAGE_HomePage_ON_INIT_STATE');
-      logFirebaseEvent('HomePage_custom_action');
-      unawaited(
-        () async {
-          await actions.lockLandscapeMode();
-        }(),
-      );
-      logFirebaseEvent('HomePage_custom_action');
-      unawaited(
-        () async {
-          await actions.setStatusBarColor();
-        }(),
-      );
-      logFirebaseEvent('HomePage_action_block');
-      unawaited(
-        () async {
-          await action_blocks.checkProgressDoc(context);
-          safeSetState(() {});
-        }(),
-      );
-      logFirebaseEvent('HomePage_action_block');
-      unawaited(
-        () async {
-          await action_blocks.activeCampaignInit(context);
-        }(),
-      );
-      if (FFAppState().requestFBpermission && isiOS) {
-        logFirebaseEvent('HomePage_custom_action');
-        unawaited(
-          () async {
-            await actions.requestTrackingPermission(
-              context,
-            );
-          }(),
-        );
-        logFirebaseEvent('HomePage_update_app_state');
-        FFAppState().requestFBpermission = false;
-        safeSetState(() {});
-      }
-      if (!valueOrDefault<bool>(currentUserDocument?.plusmember, false)) {
-        if (FFAppState().firstOpen) {
-          logFirebaseEvent('HomePage_bottom_sheet');
-          await showModalBottomSheet(
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            isDismissible: false,
-            enableDrag: false,
-            useSafeArea: true,
-            context: context,
-            builder: (context) {
-              return GestureDetector(
-                onTap: () {
-                  FocusScope.of(context).unfocus();
-                  FocusManager.instance.primaryFocus?.unfocus();
-                },
-                child: Padding(
-                  padding: MediaQuery.viewInsetsOf(context),
-                  child: OnboardingStartWidget(),
-                ),
-              );
-            },
-          ).then((value) => safeSetState(() {}));
+      if (FFAppState().pendingDeepLinkPage == 'SeasonWorkoutPage') {
+        logFirebaseEvent('HomePage_navigate_to');
 
-          if (!valueOrDefault<bool>(currentUserDocument?.plusmember, false)) {
-            if (valueOrDefault<bool>(currentUserDocument?.plusmember, false) ==
-                false) {
-              logFirebaseEvent('HomePage_bottom_sheet');
-              await showModalBottomSheet(
-                isScrollControlled: true,
-                backgroundColor: Colors.transparent,
-                isDismissible: false,
-                enableDrag: false,
-                useSafeArea: true,
-                context: context,
-                builder: (context) {
-                  return GestureDetector(
-                    onTap: () {
-                      FocusScope.of(context).unfocus();
-                      FocusManager.instance.primaryFocus?.unfocus();
-                    },
-                    child: Padding(
-                      padding: MediaQuery.viewInsetsOf(context),
-                      child: PaymentDialogStartWidget(),
-                    ),
-                  );
-                },
-              ).then((value) => safeSetState(() {}));
-            }
-          }
-        }
-      }
-      if (FFAppState().onboardingHome) {
-        logFirebaseEvent('HomePage_bottom_sheet');
-        await showModalBottomSheet(
-          isScrollControlled: true,
-          backgroundColor: Colors.transparent,
-          isDismissible: false,
-          enableDrag: false,
-          context: context,
-          builder: (context) {
-            return GestureDetector(
-              onTap: () {
-                FocusScope.of(context).unfocus();
-                FocusManager.instance.primaryFocus?.unfocus();
-              },
-              child: Padding(
-                padding: MediaQuery.viewInsetsOf(context),
-                child: OnboardingHomeWidget(),
+        context.pushNamed(
+          SeasonWorkoutPageWidget.routeName,
+          queryParameters: {
+            'level': serializeParam(
+              valueOrDefault<int>(
+                valueOrDefault(currentUserDocument?.currentLevel, 0),
+                1,
               ),
-            );
-          },
-        ).then((value) => safeSetState(() {}));
+              ParamType.int,
+            ),
+          }.withoutNulls,
+        );
+
+        logFirebaseEvent('HomePage_update_app_state');
+        FFAppState().pendingDeepLinkPage = '';
+        FFAppState().update(() {});
+      } else if (FFAppState().pendingDeepLinkPage == 'SubscriptionPage') {
+        logFirebaseEvent('HomePage_navigate_to');
+
+        context.pushNamed(SubscriptionPageWidget.routeName);
+
+        logFirebaseEvent('HomePage_update_app_state');
+        FFAppState().pendingDeepLinkPage = '';
+        FFAppState().update(() {});
       }
+
+      await Future.wait([
+        Future(() async {
+          logFirebaseEvent('HomePage_custom_action');
+          unawaited(
+            () async {
+              await actions.lockLandscapeMode();
+            }(),
+          );
+        }),
+        Future(() async {
+          logFirebaseEvent('HomePage_custom_action');
+          unawaited(
+            () async {
+              await actions.setStatusBarColor();
+            }(),
+          );
+        }),
+        Future(() async {
+          logFirebaseEvent('HomePage_action_block');
+          unawaited(
+            () async {
+              await action_blocks.activeCampaignInit(context);
+            }(),
+          );
+        }),
+        Future(() async {
+          if (FFAppState().requestFBpermission && isiOS) {
+            logFirebaseEvent('HomePage_custom_action');
+            unawaited(
+              () async {
+                await actions.requestTrackingPermission(
+                  context,
+                );
+              }(),
+            );
+            logFirebaseEvent('HomePage_update_app_state');
+            FFAppState().requestFBpermission = false;
+            safeSetState(() {});
+          }
+        }),
+        Future(() async {}),
+      ]);
     });
 
     WidgetsBinding.instance.addPostFrameCallback((_) => safeSetState(() {}));
@@ -732,7 +687,6 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                                       16.0, 8.0, 16.0, 0.0),
                                   child: Container(
                                     width: double.infinity,
-                                    height: 124.0,
                                     decoration: BoxDecoration(
                                       image: DecorationImage(
                                         fit: BoxFit.cover,
@@ -750,187 +704,77 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                                           Align(
                                             alignment:
                                                 AlignmentDirectional(-1.0, 0.0),
-                                            child: AutoSizeText(
-                                              valueOrDefault<String>(
-                                                functions.totalPoints(
+                                            child: Padding(
+                                              padding: EdgeInsetsDirectional
+                                                  .fromSTEB(
+                                                      0.0, 10.0, 0.0, 0.0),
+                                              child: AutoSizeText(
+                                                valueOrDefault<String>(
+                                                  functions.totalPoints(
+                                                              containerProgressRecord
+                                                                  ?.workoutDone
+                                                                  ?.toList()) ==
+                                                          0
+                                                      ? valueOrDefault<String>(
+                                                          FFLocalizations.of(
+                                                                  context)
+                                                              .getVariableText(
+                                                            enText:
+                                                                'Train everything that matters',
+                                                            deText:
+                                                                'Trainiere alles, was wichtig ist',
+                                                            jaText:
+                                                                '重要なことはすべて練習しよう',
+                                                          ),
+                                                          'Train everything that matters',
+                                                        )
+                                                      : 'The next level is one workout away',
+                                                  'Ready to transform?!',
+                                                ),
+                                                maxLines: 1,
+                                                style:
+                                                    FlutterFlowTheme.of(context)
+                                                        .bodyMedium
+                                                        .override(
+                                                          fontFamily:
+                                                              FlutterFlowTheme.of(
+                                                                      context)
+                                                                  .bodyMediumFamily,
+                                                          color: Colors.black,
+                                                          fontSize: 16.0,
+                                                          letterSpacing: 0.0,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          lineHeight: 1.25,
+                                                          useGoogleFonts:
+                                                              !FlutterFlowTheme
+                                                                      .of(context)
+                                                                  .bodyMediumIsCustom,
+                                                        ),
+                                              ),
+                                            ),
+                                          ),
+                                          Padding(
+                                            padding:
+                                                EdgeInsetsDirectional.fromSTEB(
+                                                    0.0, 16.0, 0.0, 0.0),
+                                            child: ClipRRect(
+                                              borderRadius:
+                                                  BorderRadius.circular(12.0),
+                                              child: BackdropFilter(
+                                                filter: ImageFilter.blur(
+                                                  sigmaX: 6.0,
+                                                  sigmaY: 6.0,
+                                                ),
+                                                child: FFButtonWidget(
+                                                  onPressed: () async {
+                                                    logFirebaseEvent(
+                                                        'HOME_PAGE_PAGE_Button_4kjqsv3j_ON_TAP');
+                                                    if (functions.totalPoints(
                                                             containerProgressRecord
                                                                 ?.workoutDone
                                                                 ?.toList()) ==
-                                                        0
-                                                    ? valueOrDefault<String>(
-                                                        FFLocalizations.of(
-                                                                context)
-                                                            .getVariableText(
-                                                          enText:
-                                                              'Ready to transform?!',
-                                                          deText:
-                                                              'Starte deine Transformation!',
-                                                          jaText:
-                                                              '変身する準備はできましたか？',
-                                                        ),
-                                                        'Ready to transform?!',
-                                                      )
-                                                    : 'Keep going!',
-                                                'Ready to transform?!',
-                                              ),
-                                              maxLines: 1,
-                                              style: FlutterFlowTheme.of(
-                                                      context)
-                                                  .bodyMedium
-                                                  .override(
-                                                    fontFamily:
-                                                        FlutterFlowTheme.of(
-                                                                context)
-                                                            .bodyMediumFamily,
-                                                    color: Colors.black,
-                                                    fontSize: 16.0,
-                                                    letterSpacing: 0.0,
-                                                    fontWeight: FontWeight.bold,
-                                                    lineHeight: 1.25,
-                                                    useGoogleFonts:
-                                                        !FlutterFlowTheme.of(
-                                                                context)
-                                                            .bodyMediumIsCustom,
-                                                  ),
-                                            ),
-                                          ),
-                                          Expanded(
-                                            child: Align(
-                                              alignment: AlignmentDirectional(
-                                                  -1.0, -1.0),
-                                              child: Padding(
-                                                padding: EdgeInsetsDirectional
-                                                    .fromSTEB(
-                                                        0.0, 4.0, 0.0, 0.0),
-                                                child: AutoSizeText(
-                                                  valueOrDefault<String>(
-                                                    functions.totalPoints(
-                                                                containerProgressRecord
-                                                                    ?.workoutDone
-                                                                    ?.toList()) ==
-                                                            0
-                                                        ? valueOrDefault<
-                                                            String>(
-                                                            FFLocalizations.of(
-                                                                    context)
-                                                                .getVariableText(
-                                                              enText:
-                                                                  'Move & feel like never before',
-                                                              deText:
-                                                                  'Beweg dich und fühl dich wie nie zuvor',
-                                                              jaText:
-                                                                  '動いて、今までにない感覚を。',
-                                                            ),
-                                                            'Move & feel like never before',
-                                                          )
-                                                        : 'Feel the rhythm. Own your process',
-                                                    'From beginner to pro. Train like never before',
-                                                  ),
-                                                  maxLines: 1,
-                                                  style:
-                                                      FlutterFlowTheme.of(
-                                                              context)
-                                                          .bodyMedium
-                                                          .override(
-                                                            fontFamily:
-                                                                FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .bodyMediumFamily,
-                                                            color: Colors.black,
-                                                            fontSize: 12.0,
-                                                            letterSpacing: 0.0,
-                                                            fontWeight:
-                                                                FontWeight.w500,
-                                                            lineHeight: 1.25,
-                                                            useGoogleFonts:
-                                                                !FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .bodyMediumIsCustom,
-                                                          ),
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                          ClipRRect(
-                                            borderRadius:
-                                                BorderRadius.circular(12.0),
-                                            child: BackdropFilter(
-                                              filter: ImageFilter.blur(
-                                                sigmaX: 6.0,
-                                                sigmaY: 6.0,
-                                              ),
-                                              child: FFButtonWidget(
-                                                onPressed: () async {
-                                                  logFirebaseEvent(
-                                                      'HOME_PAGE_PAGE_Button_4kjqsv3j_ON_TAP');
-                                                  if (functions.totalPoints(
-                                                          containerProgressRecord
-                                                              ?.workoutDone
-                                                              ?.toList()) ==
-                                                      0) {
-                                                    logFirebaseEvent(
-                                                        'Button_navigate_to');
-
-                                                    context.pushNamed(
-                                                      SeasonWorkoutPageWidget
-                                                          .routeName,
-                                                      queryParameters: {
-                                                        'level': serializeParam(
-                                                          1,
-                                                          ParamType.int,
-                                                        ),
-                                                      }.withoutNulls,
-                                                      extra: <String, dynamic>{
-                                                        '__transition_info__':
-                                                            TransitionInfo(
-                                                          hasTransition: true,
-                                                          transitionType:
-                                                              PageTransitionType
-                                                                  .fade,
-                                                          duration: Duration(
-                                                              milliseconds: 0),
-                                                        ),
-                                                      },
-                                                    );
-                                                  } else {
-                                                    logFirebaseEvent(
-                                                        'Button_custom_action');
-                                                    _model.allSeasonDone =
-                                                        await actions
-                                                            .allSeasonDoneByLevel(
-                                                      valueOrDefault<int>(
-                                                        valueOrDefault(
-                                                            currentUserDocument
-                                                                ?.currentLevel,
-                                                            0),
-                                                        1,
-                                                      ),
-                                                      containerProgressRecord
-                                                          ?.seasonDone
-                                                          ?.toList(),
-                                                      valueOrDefault<String>(
-                                                        FFAppState()
-                                                            .seasonFilter,
-                                                        'de',
-                                                      ),
-                                                      valueOrDefault<bool>(
-                                                        FFAppState()
-                                                            .hideCompleted,
-                                                        false,
-                                                      ),
-                                                    );
-                                                    if (_model.allSeasonDone! ||
-                                                        (containerProgressRecord
-                                                                ?.workoutDone
-                                                                ?.where((e) =>
-                                                                    e.level ==
-                                                                    valueOrDefault(
-                                                                        currentUserDocument
-                                                                            ?.currentLevel,
-                                                                        0))
-                                                                .toList()
-                                                                ?.length ==
-                                                            0)) {
+                                                        0) {
                                                       logFirebaseEvent(
                                                           'Button_navigate_to');
 
@@ -940,13 +784,7 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                                                         queryParameters: {
                                                           'level':
                                                               serializeParam(
-                                                            valueOrDefault<int>(
-                                                              valueOrDefault(
-                                                                  currentUserDocument
-                                                                      ?.currentLevel,
-                                                                  0),
-                                                              1,
-                                                            ),
+                                                            1,
                                                             ParamType.int,
                                                           ),
                                                         }.withoutNulls,
@@ -965,93 +803,67 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                                                         },
                                                       );
                                                     } else {
-                                                      if (functions.seasonDoneExist(
-                                                          containerProgressRecord
-                                                              ?.seasonDone
-                                                              ?.toList(),
-                                                          containerProgressRecord!
-                                                              .workoutDone
-                                                              .lastOrNull!
-                                                              .seasonId)) {
-                                                        logFirebaseEvent(
-                                                            'Button_custom_action');
-                                                        _model.nextSeason =
-                                                            await actions
-                                                                .seasonIdNext(
-                                                          containerProgressRecord
-                                                              ?.workoutDone
-                                                              ?.toList(),
-                                                          valueOrDefault<int>(
-                                                            valueOrDefault(
-                                                                currentUserDocument
-                                                                    ?.currentLevel,
-                                                                0),
-                                                            1,
-                                                          ),
-                                                          valueOrDefault<
-                                                              String>(
-                                                            FFAppState()
-                                                                .seasonFilter,
-                                                            'de',
-                                                          ),
-                                                          valueOrDefault<bool>(
-                                                            FFAppState()
-                                                                .hideCompleted,
-                                                            false,
-                                                          ),
-                                                          containerProgressRecord
-                                                              ?.seasonDone
-                                                              ?.toList(),
-                                                        );
-                                                        logFirebaseEvent(
-                                                            'Button_firestore_query');
-                                                        _model.countNext =
-                                                            await queryWorkoutsRecordCount(
-                                                          queryBuilder:
-                                                              (workoutsRecord) =>
-                                                                  workoutsRecord
-                                                                      .where(
-                                                            'season_id',
-                                                            isEqualTo: _model
-                                                                .nextSeason
-                                                                ?.reference
-                                                                .id,
-                                                          ),
-                                                        );
+                                                      logFirebaseEvent(
+                                                          'Button_custom_action');
+                                                      _model.allSeasonDone =
+                                                          await actions
+                                                              .allSeasonDoneByLevel(
+                                                        valueOrDefault<int>(
+                                                          valueOrDefault(
+                                                              currentUserDocument
+                                                                  ?.currentLevel,
+                                                              0),
+                                                          1,
+                                                        ),
+                                                        containerProgressRecord
+                                                            ?.seasonDone
+                                                            ?.toList(),
+                                                        valueOrDefault<String>(
+                                                          FFAppState()
+                                                              .seasonFilter,
+                                                          'de',
+                                                        ),
+                                                        valueOrDefault<bool>(
+                                                          FFAppState()
+                                                              .hideCompleted,
+                                                          false,
+                                                        ),
+                                                      );
+                                                      if (_model
+                                                              .allSeasonDone! ||
+                                                          (containerProgressRecord
+                                                                  ?.workoutDone
+                                                                  ?.where((e) =>
+                                                                      e.level ==
+                                                                      valueOrDefault(
+                                                                          currentUserDocument
+                                                                              ?.currentLevel,
+                                                                          0))
+                                                                  .toList()
+                                                                  ?.length ==
+                                                              0)) {
                                                         logFirebaseEvent(
                                                             'Button_navigate_to');
 
                                                         context.pushNamed(
-                                                          SeasonPageWidget
+                                                          SeasonWorkoutPageWidget
                                                               .routeName,
                                                           queryParameters: {
-                                                            'season':
-                                                                serializeParam(
-                                                              _model.nextSeason,
-                                                              ParamType
-                                                                  .Document,
-                                                            ),
-                                                            'workoutCount':
-                                                                serializeParam(
-                                                              _model.countNext,
-                                                              ParamType.int,
-                                                            ),
-                                                            'seasonIndex':
+                                                            'level':
                                                                 serializeParam(
                                                               valueOrDefault<
                                                                   int>(
-                                                                _model
-                                                                    .nextSeason
-                                                                    ?.number,
-                                                                0,
+                                                                valueOrDefault(
+                                                                    currentUserDocument
+                                                                        ?.currentLevel,
+                                                                    0),
+                                                                1,
                                                               ),
                                                               ParamType.int,
                                                             ),
                                                           }.withoutNulls,
                                                           extra: <String,
                                                               dynamic>{
-                                                            'season': _model
-                                                                .nextSeason,
                                                             '__transition_info__':
                                                                 TransitionInfo(
                                                               hasTransition:
@@ -1066,39 +878,60 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                                                           },
                                                         );
                                                       } else {
-                                                        logFirebaseEvent(
-                                                            'Button_custom_action');
-                                                        _model.seasonLvl =
-                                                            await actions
-                                                                .seasonId(
-                                                          containerProgressRecord
-                                                              ?.workoutDone
-                                                              ?.toList(),
-                                                        );
-                                                        logFirebaseEvent(
-                                                            'Button_firestore_query');
-                                                        _model.count =
-                                                            await queryWorkoutsRecordCount(
-                                                          queryBuilder:
-                                                              (workoutsRecord) =>
-                                                                  workoutsRecord
-                                                                      .where(
-                                                            'season_id',
-                                                            isEqualTo: _model
-                                                                .seasonLvl
-                                                                ?.reference
-                                                                .id,
-                                                          ),
-                                                        );
-                                                        if (functions.workoutSeasonDone(
+                                                        if (functions.seasonDoneExist(
                                                             containerProgressRecord
-                                                                ?.workoutDone
+                                                                ?.seasonDone
                                                                 ?.toList(),
                                                             containerProgressRecord!
                                                                 .workoutDone
                                                                 .lastOrNull!
-                                                                .seasonId,
-                                                            _model.count)) {
+                                                                .seasonId)) {
+                                                          logFirebaseEvent(
+                                                              'Button_custom_action');
+                                                          _model.nextSeason =
+                                                              await actions
+                                                                  .seasonIdNext(
+                                                            containerProgressRecord
+                                                                ?.workoutDone
+                                                                ?.toList(),
+                                                            valueOrDefault<int>(
+                                                              valueOrDefault(
+                                                                  currentUserDocument
+                                                                      ?.currentLevel,
+                                                                  0),
+                                                              1,
+                                                            ),
+                                                            valueOrDefault<
+                                                                String>(
+                                                              FFAppState()
+                                                                  .seasonFilter,
+                                                              'de',
+                                                            ),
+                                                            valueOrDefault<
+                                                                bool>(
+                                                              FFAppState()
+                                                                  .hideCompleted,
+                                                              false,
+                                                            ),
+                                                            containerProgressRecord
+                                                                ?.seasonDone
+                                                                ?.toList(),
+                                                          );
+                                                          logFirebaseEvent(
+                                                              'Button_firestore_query');
+                                                          _model.countNext =
+                                                              await queryWorkoutsRecordCount(
+                                                            queryBuilder:
+                                                                (workoutsRecord) =>
+                                                                    workoutsRecord
+                                                                        .where(
+                                                              'season_id',
+                                                              isEqualTo: _model
+                                                                  .nextSeason
+                                                                  ?.reference
+                                                                  .id,
+                                                            ),
+                                                          );
                                                           logFirebaseEvent(
                                                               'Button_navigate_to');
 
@@ -1109,13 +942,14 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                                                               'season':
                                                                   serializeParam(
                                                                 _model
-                                                                    .seasonLvl,
+                                                                    .nextSeason,
                                                                 ParamType
                                                                     .Document,
                                                               ),
                                                               'workoutCount':
                                                                   serializeParam(
-                                                                _model.count,
+                                                                _model
+                                                                    .countNext,
                                                                 ParamType.int,
                                                               ),
                                                               'seasonIndex':
@@ -1123,9 +957,21 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                                                                 valueOrDefault<
                                                                     int>(
                                                                   _model
-                                                                      .seasonLvl
+                                                                      .nextSeason
                                                                       ?.number,
                                                                   0,
+                                                                ),
+                                                                ParamType.int,
+                                                              ),
+                                                              'selectedLvl':
+                                                                  serializeParam(
+                                                                valueOrDefault<
+                                                                    int>(
+                                                                  valueOrDefault(
+                                                                      currentUserDocument
+                                                                          ?.currentLevel,
+                                                                      0),
+                                                                  1,
                                                                 ),
                                                                 ParamType.int,
                                                               ),
@@ -1133,7 +979,7 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                                                             extra: <String,
                                                                 dynamic>{
                                                               'season': _model
-                                                                  .seasonLvl,
+                                                                  .nextSeason,
                                                               '__transition_info__':
                                                                   TransitionInfo(
                                                                 hasTransition:
@@ -1150,157 +996,267 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                                                         } else {
                                                           logFirebaseEvent(
                                                               'Button_custom_action');
-                                                          _model.workDoc =
+                                                          _model.seasonLvl =
                                                               await actions
-                                                                  .workoutById(
-                                                            containerProgressRecord!
-                                                                .workoutDone
-                                                                .lastOrNull!
-                                                                .workoutId,
+                                                                  .seasonId(
                                                             containerProgressRecord
                                                                 ?.workoutDone
                                                                 ?.toList(),
                                                           );
                                                           logFirebaseEvent(
-                                                              'Button_navigate_to');
+                                                              'Button_firestore_query');
+                                                          _model.count =
+                                                              await queryWorkoutsRecordCount(
+                                                            queryBuilder:
+                                                                (workoutsRecord) =>
+                                                                    workoutsRecord
+                                                                        .where(
+                                                              'season_id',
+                                                              isEqualTo: _model
+                                                                  .seasonLvl
+                                                                  ?.reference
+                                                                  .id,
+                                                            ),
+                                                          );
+                                                          if (functions.workoutSeasonDone(
+                                                              containerProgressRecord
+                                                                  ?.workoutDone
+                                                                  ?.toList(),
+                                                              containerProgressRecord!
+                                                                  .workoutDone
+                                                                  .lastOrNull!
+                                                                  .seasonId,
+                                                              _model.count)) {
+                                                            logFirebaseEvent(
+                                                                'Button_navigate_to');
 
-                                                          context.pushNamed(
-                                                            WorkoutPageWidget
-                                                                .routeName,
-                                                            queryParameters: {
-                                                              'season':
-                                                                  serializeParam(
-                                                                _model
-                                                                    .seasonLvl,
-                                                                ParamType
-                                                                    .Document,
-                                                              ),
-                                                              'workout':
-                                                                  serializeParam(
-                                                                _model.workDoc,
-                                                                ParamType
-                                                                    .Document,
-                                                              ),
-                                                              'workoutCount':
-                                                                  serializeParam(
-                                                                valueOrDefault<
-                                                                    int>(
-                                                                  _model.count,
-                                                                  1,
+                                                            context.pushNamed(
+                                                              SeasonPageWidget
+                                                                  .routeName,
+                                                              queryParameters: {
+                                                                'season':
+                                                                    serializeParam(
+                                                                  _model
+                                                                      .seasonLvl,
+                                                                  ParamType
+                                                                      .Document,
                                                                 ),
-                                                                ParamType.int,
-                                                              ),
-                                                              'indexInList':
-                                                                  serializeParam(
-                                                                valueOrDefault<
-                                                                    int>(
+                                                                'workoutCount':
+                                                                    serializeParam(
+                                                                  _model.count,
+                                                                  ParamType.int,
+                                                                ),
+                                                                'seasonIndex':
+                                                                    serializeParam(
                                                                   valueOrDefault<
-                                                                              int>(
+                                                                      int>(
+                                                                    _model
+                                                                        .seasonLvl
+                                                                        ?.number,
+                                                                    0,
+                                                                  ),
+                                                                  ParamType.int,
+                                                                ),
+                                                                'selectedLvl':
+                                                                    serializeParam(
+                                                                  valueOrDefault<
+                                                                      int>(
+                                                                    valueOrDefault(
+                                                                        currentUserDocument
+                                                                            ?.currentLevel,
+                                                                        0),
+                                                                    1,
+                                                                  ),
+                                                                  ParamType.int,
+                                                                ),
+                                                              }.withoutNulls,
+                                                              extra: <String,
+                                                                  dynamic>{
+                                                                'season': _model
+                                                                    .seasonLvl,
+                                                                '__transition_info__':
+                                                                    TransitionInfo(
+                                                                  hasTransition:
+                                                                      true,
+                                                                  transitionType:
+                                                                      PageTransitionType
+                                                                          .fade,
+                                                                  duration: Duration(
+                                                                      milliseconds:
+                                                                          0),
+                                                                ),
+                                                              },
+                                                            );
+                                                          } else {
+                                                            logFirebaseEvent(
+                                                                'Button_custom_action');
+                                                            _model.workDoc =
+                                                                await actions
+                                                                    .workoutById(
+                                                              containerProgressRecord!
+                                                                  .workoutDone
+                                                                  .lastOrNull!
+                                                                  .workoutId,
+                                                              containerProgressRecord
+                                                                  ?.workoutDone
+                                                                  ?.toList(),
+                                                            );
+                                                            logFirebaseEvent(
+                                                                'Button_navigate_to');
+
+                                                            context.pushNamed(
+                                                              WorkoutPageWidget
+                                                                  .routeName,
+                                                              queryParameters: {
+                                                                'season':
+                                                                    serializeParam(
+                                                                  _model
+                                                                      .seasonLvl,
+                                                                  ParamType
+                                                                      .Document,
+                                                                ),
+                                                                'workout':
+                                                                    serializeParam(
+                                                                  _model
+                                                                      .workDoc,
+                                                                  ParamType
+                                                                      .Document,
+                                                                ),
+                                                                'workoutCount':
+                                                                    serializeParam(
+                                                                  valueOrDefault<
+                                                                      int>(
+                                                                    _model
+                                                                        .count,
+                                                                    1,
+                                                                  ),
+                                                                  ParamType.int,
+                                                                ),
+                                                                'indexInList':
+                                                                    serializeParam(
+                                                                  valueOrDefault<
+                                                                      int>(
+                                                                    valueOrDefault<
+                                                                                int>(
+                                                                              _model.workDoc!.index - 1,
+                                                                              1,
+                                                                            ) <
+                                                                            1
+                                                                        ? 0
+                                                                        : valueOrDefault<
+                                                                            int>(
                                                                             _model.workDoc!.index -
                                                                                 1,
                                                                             1,
-                                                                          ) <
-                                                                          1
-                                                                      ? 0
-                                                                      : valueOrDefault<
-                                                                          int>(
-                                                                          _model.workDoc!.index -
-                                                                              1,
-                                                                          1,
-                                                                        ),
-                                                                  0,
+                                                                          ),
+                                                                    0,
+                                                                  ),
+                                                                  ParamType.int,
                                                                 ),
-                                                                ParamType.int,
-                                                              ),
-                                                              'progress':
-                                                                  serializeParam(
-                                                                containerProgressRecord
-                                                                    ?.reference,
-                                                                ParamType
-                                                                    .DocumentReference,
-                                                              ),
-                                                              'seasonIndex':
-                                                                  serializeParam(
-                                                                valueOrDefault<
-                                                                    int>(
-                                                                  _model
-                                                                      .seasonLvl
-                                                                      ?.number,
-                                                                  0,
+                                                                'progress':
+                                                                    serializeParam(
+                                                                  containerProgressRecord
+                                                                      ?.reference,
+                                                                  ParamType
+                                                                      .DocumentReference,
                                                                 ),
-                                                                ParamType.int,
-                                                              ),
-                                                            }.withoutNulls,
-                                                            extra: <String,
-                                                                dynamic>{
-                                                              'season': _model
-                                                                  .seasonLvl,
-                                                              'workout': _model
-                                                                  .workDoc,
-                                                            },
-                                                          );
+                                                                'seasonIndex':
+                                                                    serializeParam(
+                                                                  valueOrDefault<
+                                                                      int>(
+                                                                    _model
+                                                                        .seasonLvl
+                                                                        ?.number,
+                                                                    0,
+                                                                  ),
+                                                                  ParamType.int,
+                                                                ),
+                                                                'selectedLvl':
+                                                                    serializeParam(
+                                                                  valueOrDefault<
+                                                                      int>(
+                                                                    valueOrDefault(
+                                                                        currentUserDocument
+                                                                            ?.currentLevel,
+                                                                        0),
+                                                                    1,
+                                                                  ),
+                                                                  ParamType.int,
+                                                                ),
+                                                              }.withoutNulls,
+                                                              extra: <String,
+                                                                  dynamic>{
+                                                                'season': _model
+                                                                    .seasonLvl,
+                                                                'workout': _model
+                                                                    .workDoc,
+                                                              },
+                                                            );
+                                                          }
                                                         }
                                                       }
                                                     }
-                                                  }
 
-                                                  safeSetState(() {});
-                                                },
-                                                text: valueOrDefault<String>(
-                                                  functions.totalPoints(
-                                                              containerProgressRecord
-                                                                  ?.workoutDone
-                                                                  ?.toList()) ==
-                                                          0
-                                                      ? valueOrDefault<String>(
-                                                          FFLocalizations.of(
-                                                                  context)
-                                                              .getVariableText(
-                                                            enText:
-                                                                'Start here!',
-                                                            deText:
-                                                                'Hier starten!',
-                                                            jaText: 'ここから始めよう！',
-                                                          ),
-                                                          'Start here!',
-                                                        )
-                                                      : 'Let’s continue! ',
-                                                  'Let’s go!',
-                                                ),
-                                                options: FFButtonOptions(
-                                                  width: double.infinity,
-                                                  height: 40.0,
-                                                  padding: EdgeInsetsDirectional
-                                                      .fromSTEB(
-                                                          16.0, 0.0, 16.0, 0.0),
-                                                  iconPadding:
-                                                      EdgeInsetsDirectional
-                                                          .fromSTEB(0.0, 0.0,
-                                                              0.0, 0.0),
-                                                  color: FlutterFlowTheme.of(
-                                                          context)
-                                                      .black30,
-                                                  textStyle:
-                                                      FlutterFlowTheme.of(
-                                                              context)
-                                                          .titleSmall
-                                                          .override(
-                                                            fontFamily:
-                                                                FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .titleSmallFamily,
-                                                            color: Colors.white,
-                                                            fontSize: 14.0,
-                                                            letterSpacing: 0.0,
-                                                            useGoogleFonts:
-                                                                !FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .titleSmallIsCustom,
-                                                          ),
-                                                  elevation: 0.0,
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          1.0),
+                                                    safeSetState(() {});
+                                                  },
+                                                  text: valueOrDefault<String>(
+                                                    functions.totalPoints(
+                                                                containerProgressRecord
+                                                                    ?.workoutDone
+                                                                    ?.toList()) ==
+                                                            0
+                                                        ? valueOrDefault<
+                                                            String>(
+                                                            FFLocalizations.of(
+                                                                    context)
+                                                                .getVariableText(
+                                                              enText:
+                                                                  'Start first workout',
+                                                              deText:
+                                                                  'Beginnen Sie mit dem ersten Training',
+                                                              jaText:
+                                                                  '最初のトレーニングを開始する',
+                                                            ),
+                                                            'Start first workout',
+                                                          )
+                                                        : 'Start next workout',
+                                                    'Let’s go!',
+                                                  ),
+                                                  options: FFButtonOptions(
+                                                    width: double.infinity,
+                                                    height: 40.0,
+                                                    padding:
+                                                        EdgeInsetsDirectional
+                                                            .fromSTEB(16.0, 0.0,
+                                                                16.0, 0.0),
+                                                    iconPadding:
+                                                        EdgeInsetsDirectional
+                                                            .fromSTEB(0.0, 0.0,
+                                                                0.0, 0.0),
+                                                    color: FlutterFlowTheme.of(
+                                                            context)
+                                                        .black30,
+                                                    textStyle: FlutterFlowTheme
+                                                            .of(context)
+                                                        .titleSmall
+                                                        .override(
+                                                          fontFamily:
+                                                              FlutterFlowTheme.of(
+                                                                      context)
+                                                                  .titleSmallFamily,
+                                                          color: Colors.white,
+                                                          fontSize: 14.0,
+                                                          letterSpacing: 0.0,
+                                                          useGoogleFonts:
+                                                              !FlutterFlowTheme
+                                                                      .of(context)
+                                                                  .titleSmallIsCustom,
+                                                        ),
+                                                    elevation: 0.0,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            1.0),
+                                                  ),
                                                 ),
                                               ),
                                             ),
@@ -1328,23 +1284,10 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                                 updateOnChange: true,
                                 child: WatchtheintroductoryvideoWidget(),
                               ),
-                            Padding(
-                              padding: EdgeInsetsDirectional.fromSTEB(
-                                  0.0, 8.0, 0.0, 0.0),
-                              child: wrapWithModel(
-                                model: _model.zOOMLiveWorkoutJamListModel,
-                                updateCallback: () => safeSetState(() {}),
-                                child: ZOOMLiveWorkoutJamListWidget(),
-                              ),
-                            ),
-                            Padding(
-                              padding: EdgeInsetsDirectional.fromSTEB(
-                                  0.0, 8.0, 0.0, 0.0),
-                              child: wrapWithModel(
-                                model: _model.becomeaHIITtheBeatTrainerModel,
-                                updateCallback: () => safeSetState(() {}),
-                                child: BecomeaHIITtheBeatTrainerWidget(),
-                              ),
+                            wrapWithModel(
+                              model: _model.zOOMLiveWorkoutJamListModel,
+                              updateCallback: () => safeSetState(() {}),
+                              child: ZOOMLiveWorkoutJamListWidget(),
                             ),
                             if (getRemoteConfigBool('showShopBanner'))
                               Padding(
@@ -1357,7 +1300,7 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                                   child: HIITtheBeatShopWidget(),
                                 ),
                               ),
-                          ].addToStart(SizedBox(height: 12.0)),
+                          ].addToStart(SizedBox(height: 0.0)),
                         ),
                       ),
                       if (getRemoteConfigBool('showBanner'))
@@ -2049,7 +1992,7 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                           ),
                         ),
                     ]
-                        .divide(SizedBox(height: 12.0))
+                        .divide(SizedBox(height: 8.0))
                         .addToStart(SizedBox(height: 64.0))
                         .addToEnd(SizedBox(height: 120.0)),
                   ),

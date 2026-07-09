@@ -156,6 +156,10 @@ class _OnboardingHomeStep3WidgetState extends State<OnboardingHomeStep3Widget>
                                       'ONBOARDING_HOME_STEP3_COMP_back_ON_TAP');
                                   logFirebaseEvent('back_bottom_sheet');
                                   Navigator.pop(context);
+                                  logFirebaseEvent('back_update_app_state');
+                                  FFAppState().onboardingStep =
+                                      FFAppState().onboardingStep + -1;
+                                  safeSetState(() {});
                                   logFirebaseEvent('back_navigate_back');
                                   context.safePop();
                                   logFirebaseEvent('back_bottom_sheet');
@@ -217,6 +221,10 @@ class _OnboardingHomeStep3WidgetState extends State<OnboardingHomeStep3Widget>
                                       'ONBOARDING_HOME_STEP3_COMP_next_ON_TAP');
                                   logFirebaseEvent('next_haptic_feedback');
                                   HapticFeedback.selectionClick();
+                                  logFirebaseEvent('next_update_app_state');
+                                  FFAppState().onboardingStep =
+                                      FFAppState().onboardingStep + 1;
+                                  safeSetState(() {});
                                   logFirebaseEvent('next_firestore_query');
                                   _model.workout =
                                       await queryWorkoutsRecordOnce(
@@ -270,6 +278,15 @@ class _OnboardingHomeStep3WidgetState extends State<OnboardingHomeStep3Widget>
                                       ),
                                       'seasonIndex': serializeParam(
                                         0,
+                                        ParamType.int,
+                                      ),
+                                      'selectedLvl': serializeParam(
+                                        valueOrDefault<int>(
+                                          valueOrDefault(
+                                              currentUserDocument?.currentLevel,
+                                              0),
+                                          1,
+                                        ),
                                         ParamType.int,
                                       ),
                                     }.withoutNulls,
