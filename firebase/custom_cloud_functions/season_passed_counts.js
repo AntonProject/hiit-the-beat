@@ -2,8 +2,14 @@ const functions = require("firebase-functions");
 const admin = require("firebase-admin");
 // To avoid deployment errors, do not call admin.initializeApp() in your code
 
+// Serving a stored result: the scan itself takes tens of seconds over the whole
+// progress collection, which is too slow to sit in front of a screen on every
+// visit. Pass { refresh: true } to force a new one.
 const CACHE_DOC = "admin_stats/passed_counts";
 const CACHE_TTL_MS = 30 * 60 * 1000;
+// Bumped when the shape changes, so a cache written by an older deployment is
+// recomputed rather than served. Version 2 added the Levels tallies.
+const CACHE_VERSION = 2;
 
 exports.seasonPassedCounts = functions
   .region("europe-west3")
@@ -44,14 +50,12 @@ exports.seasonPassedCounts = functions
 
     const cacheRef = db.doc(CACHE_DOC);
 
-    // Serve the stored result unless it has aged out or the caller asked for a
-    // new scan. One document read instead of tens of thousands.
     if (!(data && data.refresh)) {
       const cached = await cacheRef.get();
       if (cached.exists) {
         const stored = cached.data();
         const age = Date.now() - (stored.computedAt || 0);
-        if (age < CACHE_TTL_MS) {
+        if (age < CACHE_TTL_MS && stored.version === CACHE_VERSION) {
           return {
             counts: stored.counts || {},
             workouts: stored.workouts || {},
@@ -76,10 +80,10 @@ exports.seasonPassedCounts = functions
       for (;;) {
         let query = db
           .collection("progress")
-          // Only the three fields the tally needs. A progress document also
-          // carries the per-exercise history, which is by far the bulk of it
-          // and would otherwise be serialised and parsed for nothing.
-          .select("user", "season_done", "workout_done")
+          // Only the fields the tally needs. A progress document also carries
+          // the per-exercise history, which is the bulk of it and would
+          // otherwise be serialised and parsed for nothing.
+          .select("user", "season_done", "workout_done", "level_done")
           .orderBy(admin.firestore.FieldPath.documentId())
           .limit(pageSize);
         if (cursor) query = query.startAfter(cursor);
@@ -117,6 +121,31 @@ exports.seasonPassedCounts = functions
             if (!perWorkout[key]) perWorkout[key] = new Set();
             perWorkout[key].add(userId);
           });
+
+          // Levels ride in the same two maps on purpose. The admin's Levels
+          // screens call the existing seasonPassedCount(counts, exerciseId)
+          // and workoutPassedCount(counts, exerciseId, levelId) readers, so
+          // filling these keys makes those screens work with no change on the
+          // FlutterFlow side. Exercise and season ids are distinct Firestore
+          // ids, so nothing can collide.
+          const levelsDone = Array.isArray(data.level_done)
+            ? data.level_done
+            : [];
+
+          levelsDone.forEach((entry) => {
+            if (!entry) return;
+            const exerciseId = entry.levelExerciseId;
+            const levelId = entry.levelId;
+            if (!exerciseId) return;
+
+            if (!perSeason[exerciseId]) perSeason[exerciseId] = new Set();
+            perSeason[exerciseId].add(userId);
+
+            if (!levelId) return;
+            const key = `${exerciseId}|${levelId}`;
+            if (!perWorkout[key]) perWorkout[key] = new Set();
+            perWorkout[key].add(userId);
+          });
         });
 
         if (snap.size < pageSize) break;
@@ -144,7 +173,7 @@ exports.seasonPassedCounts = functions
       // Stored for the next caller. A failure here is not worth failing the
       // call over — the numbers are already computed and correct.
       await cacheRef
-        .set({ counts, workouts, scanned, computedAt })
+        .set({ counts, workouts, scanned, computedAt, version: CACHE_VERSION })
         .catch((error) => console.error("passed counts not cached", error));
 
       return { counts, workouts, scanned, computedAt, cached: false };
